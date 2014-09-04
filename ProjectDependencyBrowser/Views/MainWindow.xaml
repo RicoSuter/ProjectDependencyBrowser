@@ -1,4 +1,4 @@
-﻿<Window x:Class="ProjectDependencyBrowser.MainWindow"
+﻿<Window x:Class="ProjectDependencyBrowser.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:MyToolkit.Converters;assembly=MyToolkit.Extended"
@@ -44,7 +44,7 @@
         </Grid.RowDefinitions>
 
         <!-- Tabs -->
-        <TabControl Margin="-8,0,-8,8" Height="156">
+        <TabControl Margin="-8,0,-8,8" Height="156" x:Name="Tabs">
             <TabItem Header="Root directory">
                 <Grid Margin="8" VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
