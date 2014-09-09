@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*" Name="Project Dependency Browser" Language="1033"
+             Version="!(bind.FileVersion.filA5EBBF9F38D88E859FC16465CE338E77)"
+             Manufacturer="Rico Suter"
+             UpgradeCode="071CCE29-70A5-4062-B478-F8BA84A7F90B">
+
+        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+        <MajorUpgrade AllowSameVersionUpgrades="yes"
+                      DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+        <MediaTemplate EmbedCab="yes" />
+
+        <Feature Id="ProductFeature" Title="Installer" Level="1">
+            <ComponentGroupRef Id="SourceComponentGroup" />
+            <ComponentRef Id="ApplicationComponent" />
+        </Feature>
+    </Product>
+    <Fragment>
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder">
+                <Directory Id="INSTALLFOLDER" Name="Rico Suter" />
+            </Directory>
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder"
+                           Name="Rico Suter"/>
+            </Directory>
+        </Directory>
+
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Directory Id="RootDirectory" Name="Project Dependency Browser" />
+        </DirectoryRef>
+
+        <DirectoryRef Id="ApplicationProgramsFolder">
+            <Component Id="ApplicationComponent">
+                <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+                <RemoveFolder Id="ManufacturerProgramsFolder" On="uninstall"/>
+
+                <RegistryValue Root="HKCU"
+                               Key="Software\RicoSuter\ProjectDependencyBrowser"
+                               Name="installed" Type="integer"
+                               Value="1" KeyPath="yes"/>
+
+                <Shortcut Id="ApplicationStartMenuShortcut"
+                          Name="Project Dependency Browser"
+                          Description="Project Dependency Browser"
+                          Target="[#filA5EBBF9F38D88E859FC16465CE338E77]"
+                          WorkingDirectory="RootDirectory"/>
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+</Wix>

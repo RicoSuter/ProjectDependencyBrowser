@@ -24,7 +24,10 @@ namespace ProjectDependencyBrowser.Views
             Model.PropertyChanged += (sender, args) =>
             {
                 if (args.IsProperty<MainWindowModel>(i => i.IsLoaded))
+                {
                     Tabs.SelectedIndex = 1;
+                    ProjectNameFilter.Focus(); // TODO: Fix this
+                }
             };
         }
 

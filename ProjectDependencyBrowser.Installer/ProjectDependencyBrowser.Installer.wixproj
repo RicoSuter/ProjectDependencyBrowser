@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.8</ProductVersion>
+    <ProjectGuid>2835d1bf-1eb9-492c-8f57-36bb47a303cf</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>ProjectDependencyBrowser</OutputName>
+    <OutputType>Package</OutputType>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectDependencyBrowser\ProjectDependencyBrowser.csproj">
+      <Name>ProjectDependencyBrowser</Name>
+      <Project>{a3d991ca-107f-4e5a-ab3b-b4d9667b31f4}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Generated.wxs" />
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" />
+  <Target Name="BeforeBuild">
+    <PropertyGroup>
+      <DefineConstants>SourcePath=..\ProjectDependencyBrowser\bin\$(Configuration)</DefineConstants>
+    </PropertyGroup>
+    <HeatDirectory DirectoryRefId="RootDirectory" VerboseOutput="true" AutogenerateGuids="true" GenerateGuidsNow="true" SuppressRootDirectory="true" OutputFile="Generated.wxs" RunAsSeparateProcess="true" PreprocessorVariable="var.SourcePath" Directory="..\ProjectDependencyBrowser\bin\$(Configuration)" ComponentGroupName="SourceComponentGroup" ToolPath="$(WixToolPath)" />
+  </Target>
+</Project>
