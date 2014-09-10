@@ -24,6 +24,8 @@ namespace ProjectDependencyBrowser.Views
             InitializeComponent();
             
             ViewModelHelper.RegisterViewModel(Model, this);
+
+            Closed += delegate { Model.CallOnUnloaded(); };
             Model.PropertyChanged += (sender, args) =>
             {
                 if (args.IsProperty<MainWindowModel>(i => i.IsLoaded))

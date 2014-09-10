@@ -189,14 +189,14 @@ namespace ProjectDependencyBrowser.ViewModels
         /// If the view model is already initialized the method is not called again by the Initialize method. </summary>
         protected override void OnLoaded()
         {
-            //RootDirectory = ApplicationSettings.GetSetting("RootDirectory", "");
+            RootDirectory = ApplicationSettings.GetSetting("RootDirectory", "");
         }
 
         /// <summary>Implementation of the clean up method. 
         /// If the view model is already cleaned up the method is not called again by the Cleanup method. </summary>
         protected override void OnUnloaded()
         {
-            //ApplicationSettings.SetSetting("RootDirectory", RootDirectory, true);
+            ApplicationSettings.SetSetting("RootDirectory", RootDirectory, true);
         }
     }
 }
