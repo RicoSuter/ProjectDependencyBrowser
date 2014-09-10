@@ -163,24 +163,26 @@ namespace ProjectDependencyBrowser.ViewModels
         private async Task LoadProjectsAsync()
         {
             var projects = await RunTaskAsync(VisualStudioProject.LoadAllFromDirectoryAsync(RootDirectory, true));
+            if (projects != null)
+            {
+                AllProjects.Initialize(projects.OrderBy(p => p.Name));
 
-            AllProjects.Initialize(projects.OrderBy(p => p.Name));
+                UsedProjectReferences.Initialize(projects.SelectMany(p => p
+                    .ProjectReferences)
+                    .DistinctBy(p => p.Path)
+                    .OrderBy(p => p.Name));
 
-            UsedProjectReferences.Initialize(projects.SelectMany(p => p
-                .ProjectReferences)
-                .DistinctBy(p => p.Path)
-                .OrderBy(p => p.Name));
+                ProjectReferenceFilter = UsedProjectReferences.FirstOrDefault();
 
-            ProjectReferenceFilter = UsedProjectReferences.FirstOrDefault();
+                UsedNuGetPackages.Initialize(projects
+                    .SelectMany(p => p.NuGetReferences)
+                    .DistinctBy(n => n.Name + "-" + n.Version)
+                    .OrderByThenBy(p => p.Name, p => p.Version));
 
-            UsedNuGetPackages.Initialize(projects
-                .SelectMany(p => p.NuGetReferences)
-                .DistinctBy(n => n.Name + "-" + n.Version)
-                .OrderByThenBy(p => p.Name, p => p.Version));
+                NuGetPackageFilter = UsedNuGetPackages.FirstOrDefault();
 
-            NuGetPackageFilter = UsedNuGetPackages.FirstOrDefault();
-
-            IsLoaded = true;
+                IsLoaded = true;
+            }
         }
 
         /// <summary>Implementation of the initialization method. 
