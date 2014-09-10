@@ -14,6 +14,7 @@ using MyToolkit.Build;
 using MyToolkit.Collections;
 using MyToolkit.Command;
 using MyToolkit.Mvvm;
+using MyToolkit.Storage;
 using MyToolkit.Utilities;
 
 namespace ProjectDependencyBrowser.ViewModels
@@ -180,6 +181,20 @@ namespace ProjectDependencyBrowser.ViewModels
             NuGetPackageFilter = UsedNuGetPackages.FirstOrDefault();
 
             IsLoaded = true;
+        }
+
+        /// <summary>Implementation of the initialization method. 
+        /// If the view model is already initialized the method is not called again by the Initialize method. </summary>
+        protected override void OnLoaded()
+        {
+            //RootDirectory = ApplicationSettings.GetSetting("RootDirectory", "");
+        }
+
+        /// <summary>Implementation of the clean up method. 
+        /// If the view model is already cleaned up the method is not called again by the Cleanup method. </summary>
+        protected override void OnUnloaded()
+        {
+            //ApplicationSettings.SetSetting("RootDirectory", RootDirectory, true);
         }
     }
 }

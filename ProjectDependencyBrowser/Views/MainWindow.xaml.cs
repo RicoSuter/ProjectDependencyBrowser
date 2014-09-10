@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Forms;
 using MyToolkit.Model;
+using MyToolkit.Mvvm;
 using ProjectDependencyBrowser.ViewModels;
 
 namespace ProjectDependencyBrowser.Views
@@ -21,6 +22,8 @@ namespace ProjectDependencyBrowser.Views
         public MainWindow()
         {
             InitializeComponent();
+            
+            ViewModelHelper.RegisterViewModel(Model, this);
             Model.PropertyChanged += (sender, args) =>
             {
                 if (args.IsProperty<MainWindowModel>(i => i.IsLoaded))
