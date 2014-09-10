@@ -11,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Forms;
 using MyToolkit.Model;
 using MyToolkit.Mvvm;
+using MyToolkit.Utilities;
 using ProjectDependencyBrowser.ViewModels;
 
 namespace ProjectDependencyBrowser.Views
@@ -34,12 +35,20 @@ namespace ProjectDependencyBrowser.Views
                     ProjectNameFilter.Focus(); // TODO: Fix this
                 }
             };
+
+            CheckForApplicationUpdate();
         }
 
         /// <summary>Gets the view model. </summary>
         public MainWindowModel Model
         {
             get { return (MainWindowModel)Resources["ViewModel"]; }
+        }
+
+        private async void CheckForApplicationUpdate()
+        {
+            var updater = new ApplicationUpdater(GetType().Assembly, "http://rsuter.com/Projects/ProjectDependencyBrowser/updates.xml");
+            await updater.CheckForUpdate(this);
         }
 
         private void OnSelectDirectory(object sender, RoutedEventArgs e)
