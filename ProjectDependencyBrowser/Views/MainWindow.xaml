@@ -77,7 +77,7 @@
                             VerticalAlignment="Top" Height="38"
                             Grid.Column="1" Padding="8,4,8,4" Margin="8,0,0,0" />
 
-                    <Button Content="Load projects" Command="{Binding LoadProjectsCommand}" 
+                    <Button Content="Load projects &amp; solutions" Command="{Binding LoadProjectsCommand}" 
                             VerticalAlignment="Top" Height="38"
                             Grid.Column="2" Padding="8,4,8,4" Margin="8,0,0,0" />
                 </Grid>
