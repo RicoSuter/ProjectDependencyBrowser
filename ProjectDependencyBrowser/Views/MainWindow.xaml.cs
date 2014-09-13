@@ -73,8 +73,8 @@ namespace ProjectDependencyBrowser.Views
         {
             var solution = (VisualStudioSolution) ((Button) sender).Tag;
 
-            var title = "Open solution?";
-            var message = string.Format("Open solution '{0}'?", solution.Name);
+            var title = string.Format("Open solution '{0}'?", solution.Name);
+            var message = string.Format("Open solution '{0}' at location \n{1}?", solution.Name, solution.Path);
 
             if (System.Windows.MessageBox.Show(message, title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 Process.Start(solution.Path);

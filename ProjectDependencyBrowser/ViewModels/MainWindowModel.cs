@@ -53,6 +53,11 @@ namespace ProjectDependencyBrowser.ViewModels
 
             FilteredProjects = new ObservableCollectionView<VisualStudioProject>(AllProjects);
             LoadProjectsCommand = new AsyncRelayCommand(LoadProjectsAsync);
+
+            FilteredProjects.CollectionChanged += (sender, args) =>
+            {
+                SelectedProject = FilteredProjects.FirstOrDefault();
+            };
         }
 
         /// <summary>Gets a list of all loaded projects. </summary>
