@@ -6,13 +6,16 @@
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Forms;
+using MyToolkit.Build;
 using MyToolkit.Model;
 using MyToolkit.Mvvm;
 using MyToolkit.Utilities;
 using ProjectDependencyBrowser.ViewModels;
+using Button = System.Windows.Controls.Button;
 
 namespace ProjectDependencyBrowser.Views
 {
@@ -63,7 +66,18 @@ namespace ProjectDependencyBrowser.Views
         private void OnOpenHyperlink(object sender, RoutedEventArgs e)
         {
             var uri = ((Hyperlink)sender).NavigateUri;
-            System.Diagnostics.Process.Start(uri.ToString());
+            Process.Start(uri.ToString());
+        }
+
+        private void OnOpenSolution(object sender, RoutedEventArgs e)
+        {
+            var solution = (VisualStudioSolution) ((Button) sender).Tag;
+
+            var title = "Open solution?";
+            var message = string.Format("Open solution '{0}'?", solution.Name);
+
+            if (System.Windows.MessageBox.Show(message, title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                Process.Start(solution.Path);
         }
     }
 }

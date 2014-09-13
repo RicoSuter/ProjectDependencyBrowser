@@ -32,6 +32,13 @@
                 <TextBlock Text="{Binding Version}" />
             </StackPanel>
         </DataTemplate>
+
+        <DataTemplate x:Key="SolutionTemplate">
+            <StackPanel>
+                <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                <TextBlock Text="{Binding Path}" />
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
     
     <Grid DataContext="{StaticResource ViewModel}" Margin="8"
@@ -55,13 +62,17 @@
 
                     <StackPanel>
                         <TextBlock Text="Root directory: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <TextBox Text="{Binding RootDirectory, Mode=TwoWay}" />
+                        <TextBox Text="{Binding RootDirectory, Mode=TwoWay}" Margin="0,0,0,12" />
+                        
+                        <CheckBox IsChecked="{Binding IgnoreExceptions, Mode=TwoWay}" Content="Ignore exceptions when scanning" />
                     </StackPanel>
 
                     <Button Content="Select directory..." Click="OnSelectDirectory" 
+                            VerticalAlignment="Top" Height="38"
                             Grid.Column="1" Padding="8,4,8,4" Margin="8,0,0,0" />
 
                     <Button Content="Load projects" Command="{Binding LoadProjectsCommand}" 
+                            VerticalAlignment="Top" Height="38"
                             Grid.Column="2" Padding="8,4,8,4" Margin="8,0,0,0" />
                 </Grid>
             </TabItem>
@@ -75,6 +86,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Margin="0,0,4,0">
@@ -85,13 +97,21 @@
                                       Visibility="{Binding IsNuGetFilterEnabled, Converter={StaticResource VisibilityConverter}}"
                                       SelectedItem="{Binding NuGetPackageFilter, Mode=TwoWay}" Margin="0,0,0,12" />
                         </StackPanel>
-                        <StackPanel Margin="4,0,0,0" Grid.Column="1">
+                        <StackPanel Margin="4,0,4,0" Grid.Column="1">
                             <CheckBox IsChecked="{Binding IsProjectReferenceFilterEnabled, Mode=TwoWay}" 
                                       Content="Filter by referenced project" FontWeight="Bold" Margin="0,0,0,0" />
                             <ComboBox ItemsSource="{Binding UsedProjectReferences}" Height="40" 
                                       ItemTemplate="{StaticResource ProjectReferenceTemplate}"
                                       Visibility="{Binding IsProjectReferenceFilterEnabled, Converter={StaticResource VisibilityConverter}}"
                                       SelectedItem="{Binding ProjectReferenceFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
+                        </StackPanel>
+                        <StackPanel Margin="4,0,4,0" Grid.Column="2">
+                            <CheckBox IsChecked="{Binding IsSolutionFilterEnabled, Mode=TwoWay}" 
+                                      Content="Filter by solution" FontWeight="Bold" Margin="0,0,0,0" />
+                            <ComboBox ItemsSource="{Binding AllSolutions}" Height="40" 
+                                      ItemTemplate="{StaticResource SolutionTemplate}"
+                                      Visibility="{Binding IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
+                                      SelectedItem="{Binding SolutionFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
                         </StackPanel>
                     </Grid>
                 </StackPanel>
@@ -154,6 +174,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
@@ -168,21 +189,36 @@
 
                             <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
                             <TextBlock Text="{Binding SelectedProject.Path}" Margin="0,0,0,8" />
-                        </StackPanel>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" 
+                            <TextBlock Text="Solutions: " FontWeight="Bold" Margin="0,0,0,4"
+                                       Visibility="{Binding SelectedProjectSolutions, Converter={StaticResource VisibilityConverter}}" />
+                        </StackPanel>
+                        <ItemsControl Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" ItemsSource="{Binding SelectedProjectSolutions}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding Name}" Padding="4" Tag="{Binding}" Margin="0,0,8,8" Click="OnOpenSolution" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" 
                                    Text="Referenced projects: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <ListBox Grid.Row="2" Grid.Column="0" Margin="0,0,4,0" ItemTemplate="{StaticResource ProjectReferenceTemplate}"
+                        <ListBox Grid.Row="3" Grid.Column="0" Margin="0,0,4,0" ItemTemplate="{StaticResource ProjectReferenceTemplate}"
                                  ItemsSource="{Binding SelectedProject.ProjectReferences}" />
 
-                        <TextBlock Grid.Row="1" Grid.Column="1" 
+                        <TextBlock Grid.Row="2" Grid.Column="1" 
                                    Text="NuGet packages: " FontWeight="Bold" Margin="4,0,0,4" />
-                        <ListBox Grid.Row="2" Grid.Column="1" Margin="4,0,4,0" ItemTemplate="{StaticResource NuGetPackageTemplate}"
+                        <ListBox Grid.Row="3" Grid.Column="1" Margin="4,0,4,0" ItemTemplate="{StaticResource NuGetPackageTemplate}"
                                  ItemsSource="{Binding SelectedProject.NuGetReferences}" />
 
-                        <TextBlock Grid.Row="1" Grid.Column="2" 
+                        <TextBlock Grid.Row="2" Grid.Column="2" 
                                    Text="Referenced assemblies: " FontWeight="Bold" Margin="4,0,0,0" />
-                        <ListBox Grid.Row="2" Grid.Column="2" Margin="4,0,0,0" ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
+                        <ListBox Grid.Row="3" Grid.Column="2" Margin="4,0,0,0" ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
                                  ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
                     </Grid>
                 </Border>

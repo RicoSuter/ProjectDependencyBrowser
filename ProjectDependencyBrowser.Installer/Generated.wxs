@@ -260,8 +260,14 @@
             <Component Id="cmpCED5B7488C31D594E13DDD9CAB74BFD8" Directory="RootDirectory" Guid="*">
                 <File Id="fil29681523F6C5F6494E9C0C2613364952" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.Extended.dll" />
             </Component>
+            <Component Id="cmp3A914B6C87AC51BB09822FF34BA4B612" Directory="RootDirectory" Guid="*">
+                <File Id="filB6ADD1F869C4BB9DB47E45E785EFC062" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.Extended.pdb" />
+            </Component>
             <Component Id="cmp5DA04D879E472CDB59610C78E2C06D67" Directory="RootDirectory" Guid="*">
                 <File Id="fil9DE1E33FF998D56AD5CDDBB114A9D14E" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.Extended.xml" />
+            </Component>
+            <Component Id="cmp26462F562C414B4105A6C02B787B44E3" Directory="RootDirectory" Guid="*">
+                <File Id="filD0D967A880C1A24B91AB2210161ED9CA" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.pdb" />
             </Component>
             <Component Id="cmp31D065AFFB2F9C455FBCDC62BD6A0282" Directory="RootDirectory" Guid="*">
                 <File Id="fil2E9070A107598B8FB198EFBCF6062E75" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.xml" />

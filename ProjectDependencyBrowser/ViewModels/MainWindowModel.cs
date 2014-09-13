@@ -7,6 +7,7 @@
 //-----------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,20 +26,27 @@ namespace ProjectDependencyBrowser.ViewModels
         private VisualStudioProject _selectedProject;
 
         private bool _isLoaded;
+        private bool _ignoreExceptions;
+
         private bool _isNuGetFilterEnabled;
         private bool _isProjectReferenceFilterEnabled;
+        private bool _isSolutionFilterEnabled;
 
         private string _projectNameFilter;
         private NuGetPackage _nuGetPackageFilter;
         private VisualStudioProject _projectReferenceFilter;
+        private VisualStudioSolution _solutionFilter; 
 
         public MainWindowModel()
         {
 #if DEBUG
             RootDirectory = @"C:\Data";
-#endif 
+#endif
+
+            IgnoreExceptions = true; 
 
             AllProjects = new ExtendedObservableCollection<VisualStudioProject>();
+            AllSolutions = new ExtendedObservableCollection<VisualStudioSolution>();
 
             UsedNuGetPackages = new ExtendedObservableCollection<NuGetPackage>();
             UsedProjectReferences = new ExtendedObservableCollection<VisualStudioProject>();
@@ -49,6 +57,9 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Gets a list of all loaded projects. </summary>
         public ExtendedObservableCollection<VisualStudioProject> AllProjects { get; private set; }
+       
+        /// <summary>Gets a list of all loaded solutions. </summary>
+        public ExtendedObservableCollection<VisualStudioSolution> AllSolutions { get; private set; }
 
         /// <summary>Gets a list of the filtered projects. </summary>
         public ObservableCollectionView<VisualStudioProject> Projects { get; private set; }
@@ -63,7 +74,26 @@ namespace ProjectDependencyBrowser.ViewModels
         public VisualStudioProject SelectedProject
         {
             get { return _selectedProject; }
-            set { Set(ref _selectedProject, value); }
+            set
+            {
+                if (Set(ref _selectedProject, value))
+                    RaisePropertyChanged(() => SelectedProjectSolutions);
+            }
+        }
+
+        /// <summary>Gets all solutions which reference the currently selected project. </summary>
+        public List<VisualStudioSolution> SelectedProjectSolutions
+        {
+            get
+            {
+                if (SelectedProject == null)
+                    return null;
+
+                return AllSolutions
+                    .Where(s => s.Projects.Any(p => ProjectDependencyResolver.IsSameProject(p.Path, SelectedProject.Path)))
+                    .OrderBy(s => s.Name)
+                    .ToList();
+            }
         }
 
         /// <summary>Gets or sets the root directory. </summary>
@@ -88,6 +118,13 @@ namespace ProjectDependencyBrowser.ViewModels
         public string ApplicationVersion
         {
             get { return GetType().Assembly.GetVersionWithBuildTime(); }
+        }
+
+        /// <summary>Gets or sets a value indicating whether to ignore exceptions when scanning a directory. </summary>
+        public bool IgnoreExceptions
+        {
+            get { return _ignoreExceptions; }
+            set { Set(ref _ignoreExceptions, value); }
         }
 
         /// <summary>Gets or sets a value indicating whether some projects have been loaded. </summary>
@@ -119,6 +156,17 @@ namespace ProjectDependencyBrowser.ViewModels
             }
         }
 
+        /// <summary>Gets or sets a value indicating whether the solution filter is enabled. </summary>
+        public bool IsSolutionFilterEnabled
+        {
+            get { return _isSolutionFilterEnabled; }
+            set
+            {
+                if (Set(ref _isSolutionFilterEnabled, value))
+                    UpdateFilter();
+            }
+        }
+
         /// <summary>Gets or sets the NuGet package filter. </summary>
         public NuGetPackage NuGetPackageFilter
         {
@@ -141,6 +189,17 @@ namespace ProjectDependencyBrowser.ViewModels
             }
         }
 
+        /// <summary>Gets or sets the solution filter. </summary>
+        public VisualStudioSolution SolutionFilter
+        {
+            get { return _solutionFilter; }
+            set
+            {
+                if (Set(ref _solutionFilter, value))
+                    UpdateFilter();
+            }
+        }
+
         /// <summary>Gets the command to load the projects from the root directory. </summary>
         public AsyncRelayCommand LoadProjectsCommand { get; private set; }
 
@@ -151,21 +210,51 @@ namespace ProjectDependencyBrowser.ViewModels
             MessageBox.Show("Exception: " + exception.Message);
         }
 
+        /// <summary>Implementation of the initialization method. 
+        /// If the view model is already initialized the method is not called again by the Initialize method. </summary>
+        protected override void OnLoaded()
+        {
+            RootDirectory = ApplicationSettings.GetSetting("RootDirectory", "");
+        }
+
+        /// <summary>Implementation of the clean up method. 
+        /// If the view model is already cleaned up the method is not called again by the Cleanup method. </summary>
+        protected override void OnUnloaded()
+        {
+            ApplicationSettings.SetSetting("RootDirectory", RootDirectory, true);
+        }
+
         private void UpdateFilter()
         {
             Projects.Filter =
                 project =>
                     (string.IsNullOrEmpty(ProjectNameFilter) || project.Name.ToLower().Contains(ProjectNameFilter.ToLower())) &&
                     (!IsNuGetFilterEnabled || NuGetPackageFilter == null || project.NuGetReferences.Any(n => n.Name == NuGetPackageFilter.Name && n.Version == NuGetPackageFilter.Version)) &&
+                    (!IsSolutionFilterEnabled || SolutionFilter == null || SolutionFilter.Projects.Any(p => ProjectDependencyResolver.IsSameProject(p.Path, project.Path))) &&
                     (!IsProjectReferenceFilterEnabled || ProjectReferenceFilter == null || project.ProjectReferences.Any(r => r.Path == ProjectReferenceFilter.Path));
         }
 
         private async Task LoadProjectsAsync()
         {
-            var projects = await RunTaskAsync(VisualStudioProject.LoadAllFromDirectoryAsync(RootDirectory, true));
-            if (projects != null)
+            var tuple = await RunTaskAsync(async () =>
             {
+                var projectsTask = VisualStudioProject.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions);
+                var solutionsTask = VisualStudioSolution.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions);
+
+                await Task.WhenAll(projectsTask, solutionsTask);
+
+                return new Tuple<List<VisualStudioProject>, List<VisualStudioSolution>>(projectsTask.Result, solutionsTask.Result);
+            });
+
+            if (tuple != null)
+            {
+                var projects = tuple.Item1;
+                var solutions = tuple.Item2;
+
+                AllSolutions.Initialize(solutions.OrderBy(p => p.Name));
                 AllProjects.Initialize(projects.OrderBy(p => p.Name));
+
+                SolutionFilter = AllSolutions.FirstOrDefault();
 
                 UsedProjectReferences.Initialize(projects.SelectMany(p => p
                     .ProjectReferences)
@@ -183,20 +272,6 @@ namespace ProjectDependencyBrowser.ViewModels
 
                 IsLoaded = true;
             }
-        }
-
-        /// <summary>Implementation of the initialization method. 
-        /// If the view model is already initialized the method is not called again by the Initialize method. </summary>
-        protected override void OnLoaded()
-        {
-            RootDirectory = ApplicationSettings.GetSetting("RootDirectory", "");
-        }
-
-        /// <summary>Implementation of the clean up method. 
-        /// If the view model is already cleaned up the method is not called again by the Cleanup method. </summary>
-        protected override void OnUnloaded()
-        {
-            ApplicationSettings.SetSetting("RootDirectory", RootDirectory, true);
         }
     }
 }
