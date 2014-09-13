@@ -3,6 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:MyToolkit.Converters;assembly=MyToolkit.Extended"
         xmlns:viewModels="clr-namespace:ProjectDependencyBrowser.ViewModels"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"  
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:build="clr-namespace:MyToolkit.Build;assembly=MyToolkit.Extended"
+        mc:Ignorable="d"
+
         Title="Project Dependency Browser" Background="#EEEEEE"
         Height="700" Width="1200" MinHeight="700" MinWidth="1200"
         WindowStartupLocation="CenterScreen">
@@ -13,28 +18,28 @@
         <converters:NotConverter x:Key="NotConverter" />
 
         <DataTemplate x:Key="ProjectReferenceTemplate">
-            <StackPanel>
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioProject}">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding FileName}" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="NuGetPackageTemplate">
-            <StackPanel>
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:NuGetPackage}">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding Version}" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="AssemblyReferenceTemplate">
-            <StackPanel>
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:AssemblyReference}">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding Version}" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="SolutionTemplate">
-            <StackPanel>
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioSolution}">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding Path}" />
             </StackPanel>
@@ -52,6 +57,7 @@
 
         <!-- Tabs -->
         <TabControl Margin="-8,0,-8,8" Height="156" x:Name="Tabs">
+            <!-- Scan -->
             <TabItem Header="Root directory">
                 <Grid Margin="8" VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
@@ -76,6 +82,8 @@
                             Grid.Column="2" Padding="8,4,8,4" Margin="8,0,0,0" />
                 </Grid>
             </TabItem>
+            
+            <!-- Filters -->
             <TabItem Header="Filter projects" IsEnabled="{Binding IsLoaded}">
                 <StackPanel Margin="8">
                     <TextBlock Text="Project name: " FontWeight="Bold" Margin="0,0,0,4" />
@@ -116,6 +124,8 @@
                     </Grid>
                 </StackPanel>
             </TabItem>
+
+            <!-- About -->
             <TabItem Header="About">
                 <StackPanel Margin="8">
                     <TextBlock Margin="0,0,0,8" FontSize="14">
@@ -154,10 +164,10 @@
                 
                 <TextBlock FontWeight="Bold" Margin="0,0,0,4">
                     Projects 
-                    (<Run Text="{Binding Projects.Count, Mode=OneWay}" /> / 
+                    (<Run Text="{Binding FilteredProjects.Count, Mode=OneWay}" /> / 
                      <Run Text="{Binding AllProjects.Count, Mode=OneWay}" />)
                 </TextBlock>
-                <ListBox ItemsSource="{Binding Projects}" SelectedItem="{Binding SelectedProject, Mode=TwoWay}" Grid.Row="1"
+                <ListBox ItemsSource="{Binding FilteredProjects}" SelectedItem="{Binding SelectedProject, Mode=TwoWay}" Grid.Row="1"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemTemplate="{StaticResource ProjectReferenceTemplate}" />
             </Grid>
 

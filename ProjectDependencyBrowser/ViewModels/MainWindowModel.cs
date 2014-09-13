@@ -51,7 +51,7 @@ namespace ProjectDependencyBrowser.ViewModels
             UsedNuGetPackages = new ExtendedObservableCollection<NuGetPackage>();
             UsedProjectReferences = new ExtendedObservableCollection<VisualStudioProject>();
 
-            Projects = new ObservableCollectionView<VisualStudioProject>(AllProjects);
+            FilteredProjects = new ObservableCollectionView<VisualStudioProject>(AllProjects);
             LoadProjectsCommand = new AsyncRelayCommand(LoadProjectsAsync);
         }
 
@@ -62,7 +62,7 @@ namespace ProjectDependencyBrowser.ViewModels
         public ExtendedObservableCollection<VisualStudioSolution> AllSolutions { get; private set; }
 
         /// <summary>Gets a list of the filtered projects. </summary>
-        public ObservableCollectionView<VisualStudioProject> Projects { get; private set; }
+        public ObservableCollectionView<VisualStudioProject> FilteredProjects { get; private set; }
 
         /// <summary>Gets a list of all installed NuGet packages in the loaded projects. </summary>
         public ExtendedObservableCollection<NuGetPackage> UsedNuGetPackages { get; private set; }
@@ -226,7 +226,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private void UpdateFilter()
         {
-            Projects.Filter =
+            FilteredProjects.Filter =
                 project =>
                     (string.IsNullOrEmpty(ProjectNameFilter) || project.Name.ToLower().Contains(ProjectNameFilter.ToLower())) &&
                     (!IsNuGetFilterEnabled || NuGetPackageFilter == null || project.NuGetReferences.Any(n => n.Name == NuGetPackageFilter.Name && n.Version == NuGetPackageFilter.Version)) &&
