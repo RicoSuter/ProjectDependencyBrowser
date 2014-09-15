@@ -18,28 +18,28 @@
         <converters:NotConverter x:Key="NotConverter" />
 
         <DataTemplate x:Key="ProjectReferenceTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioProject}">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioProject}" Margin="0,2,0,2">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding FileName}" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="NuGetPackageTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:NuGetPackage}">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:NuGetPackage}" Margin="0,2,0,2">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding Version}" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="AssemblyReferenceTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:AssemblyReference}">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:AssemblyReference}" Margin="0,2,0,2">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding Version}" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="SolutionTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioSolution}">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioSolution}" Margin="0,2,0,2">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding Path}" />
             </StackPanel>
@@ -56,8 +56,8 @@
         </Grid.RowDefinitions>
 
         <!-- Tabs -->
-        <TabControl Margin="-8,0,-8,8" Height="156" x:Name="Tabs">
-            <!-- Scan -->
+        <TabControl Margin="-8,0,-8,8" Height="160" x:Name="Tabs">
+            <!-- Scan directory -->
             <TabItem Header="Root directory">
                 <Grid Margin="8" VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
@@ -65,20 +65,29 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
+                    
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
                     <StackPanel>
                         <TextBlock Text="Root directory: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <TextBox Text="{Binding RootDirectory, Mode=TwoWay}" Margin="0,0,0,12" />
-                        
+                        <TextBox Text="{Binding RootDirectory, Mode=TwoWay}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="0,12,0,0">
                         <CheckBox IsChecked="{Binding IgnoreExceptions, Mode=TwoWay}" Content="Ignore exceptions when scanning" Margin="0,0,0,8" />
-                        <CheckBox IsChecked="{Binding AutomaticallyScanDirectory, Mode=TwoWay}" Content="Automatically scan directory on startup" />
+                        <CheckBox IsChecked="{Binding AutomaticallyScanDirectory, Mode=TwoWay}" Content="Automatically scan directory at startup" />
                     </StackPanel>
 
                     <Button Content="Select directory..." Click="OnSelectDirectory" 
-                            Grid.Column="1" Padding="8,4,8,4" Margin="8,0,0,0" />
+                            Grid.Column="1" Grid.Row="0"
+                            Padding="8,4,8,4" Margin="8,4,0,0" />
 
                     <Button Content="Load projects &amp; solutions" Command="{Binding LoadProjectsCommand}" 
-                            Grid.Column="2" Padding="8,4,8,4" Margin="8,0,0,0" />
+                            Grid.Column="2" Grid.Row="0"
+                            Padding="8,4,8,4" Margin="8,4,0,0" />
                 </Grid>
             </TabItem>
             
@@ -100,7 +109,7 @@
                         <StackPanel Margin="0,0,4,0">
                             <CheckBox IsChecked="{Binding IsNuGetFilterEnabled, Mode=TwoWay}" 
                                       Content="Filter by installed NuGet package" FontWeight="Bold" Margin="0,0,0,8" />
-                            <ComboBox ItemsSource="{Binding UsedNuGetPackages}" Height="40" 
+                            <ComboBox ItemsSource="{Binding UsedNuGetPackages}" Height="44" 
                                       ItemTemplate="{StaticResource NuGetPackageTemplate}"
                                       Visibility="{Binding IsNuGetFilterEnabled, Converter={StaticResource VisibilityConverter}}"
                                       SelectedItem="{Binding NuGetPackageFilter, Mode=TwoWay}" Margin="0,0,0,12" />
@@ -108,15 +117,15 @@
                         <StackPanel Margin="4,0,4,0" Grid.Column="1">
                             <CheckBox IsChecked="{Binding IsProjectReferenceFilterEnabled, Mode=TwoWay}" 
                                       Content="Filter by referenced project" FontWeight="Bold" Margin="0,0,0,0" />
-                            <ComboBox ItemsSource="{Binding UsedProjectReferences}" Height="40" 
+                            <ComboBox ItemsSource="{Binding UsedProjectReferences}" Height="44" 
                                       ItemTemplate="{StaticResource ProjectReferenceTemplate}"
                                       Visibility="{Binding IsProjectReferenceFilterEnabled, Converter={StaticResource VisibilityConverter}}"
                                       SelectedItem="{Binding ProjectReferenceFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
                         </StackPanel>
-                        <StackPanel Margin="4,0,4,0" Grid.Column="2">
+                        <StackPanel Margin="4,0,0,0" Grid.Column="2">
                             <CheckBox IsChecked="{Binding IsSolutionFilterEnabled, Mode=TwoWay}" 
                                       Content="Filter by solution" FontWeight="Bold" Margin="0,0,0,0" />
-                            <ComboBox ItemsSource="{Binding AllSolutions}" Height="40" 
+                            <ComboBox ItemsSource="{Binding AllSolutions}" Height="44" 
                                       ItemTemplate="{StaticResource SolutionTemplate}"
                                       Visibility="{Binding IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
                                       SelectedItem="{Binding SolutionFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
@@ -143,7 +152,6 @@
                           .NET library with MVVM classes, controls and more components.
                     </TextBlock>
                 </StackPanel>
-
             </TabItem>
         </TabControl>
 
