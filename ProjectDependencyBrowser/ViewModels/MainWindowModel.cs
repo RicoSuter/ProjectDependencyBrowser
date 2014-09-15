@@ -287,7 +287,7 @@ namespace ProjectDependencyBrowser.ViewModels
                 UsedNuGetPackages.Initialize(projects
                     .SelectMany(p => p.NuGetReferences)
                     .DistinctBy(n => n.Name + "-" + n.Version)
-                    .OrderByThenBy(p => p.Name, p => p.Version));
+                    .OrderByThenBy(p => p.Name, p => p.NativeVersion));
 
                 NuGetPackageFilter = UsedNuGetPackages.FirstOrDefault();
 
