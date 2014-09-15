@@ -7,8 +7,10 @@
 //-----------------------------------------------------------------------
 
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -18,6 +20,7 @@ using MyToolkit.Mvvm;
 using MyToolkit.Utilities;
 using ProjectDependencyBrowser.ViewModels;
 using Button = System.Windows.Controls.Button;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace ProjectDependencyBrowser.Views
 {
@@ -32,20 +35,27 @@ namespace ProjectDependencyBrowser.Views
             ViewModelHelper.RegisterViewModel(Model, this);
 
             Closed += delegate { Model.CallOnUnloaded(); };
+            Activated += delegate { FocusProjectNameFilter(); };
+
             Model.PropertyChanged += async (sender, args) =>
             {
                 if (args.IsProperty<MainWindowModel>(i => i.IsLoaded))
                 {
                     Tabs.SelectedIndex = 1;
-                    
+
                     await Task.Delay(250);
-                    
-                    Keyboard.Focus(ProjectNameFilter);
-                    ProjectNameFilter.Focus();
+                    FocusProjectNameFilter();
                 }
             };
 
             CheckForApplicationUpdate();
+        }
+
+        private void FocusProjectNameFilter()
+        {
+            Keyboard.Focus(ProjectNameFilter);
+            ProjectNameFilter.Focus();
+            ProjectNameFilter.SelectAll();
         }
 
         /// <summary>Gets the view model. </summary>
@@ -78,11 +88,48 @@ namespace ProjectDependencyBrowser.Views
         private void OnOpenSolution(object sender, RoutedEventArgs e)
         {
             var solution = (VisualStudioSolution)((Button)sender).Tag;
+            TryOpenSolution(solution);
+        }
 
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                if (e.Key == Key.Enter || e.Key == Key.Return)
+                {
+                    e.Handled = true;
+
+                    if (Model.SelectedProjectSolutions.Any())
+                        TryOpenSolution(Model.SelectedProjectSolutions.First());
+                }
+            }
+        }
+
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                if (e.Key == Key.Down)
+                {
+                    e.Handled = true;
+                    ProjectList.Focus();
+
+                    if (Model.FilteredProjects.Any())
+                    {
+                        ProjectList.SelectedIndex = 0;
+                        ProjectList.ScrollIntoView(ProjectList.SelectedItem);
+                        ((ListBoxItem)ProjectList.ItemContainerGenerator.ContainerFromItem(ProjectList.SelectedItem)).Focus();
+                    }
+                }
+            }
+        }
+
+        private void TryOpenSolution(VisualStudioSolution solution)
+        {
             var title = string.Format("Open solution '{0}'?", solution.Name);
             var message = string.Format("Open solution '{0}' at location \n{1}?", solution.Name, solution.Path);
 
-            if (System.Windows.MessageBox.Show(message, title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (System.Windows.MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 Process.Start(solution.Path);
         }
     }

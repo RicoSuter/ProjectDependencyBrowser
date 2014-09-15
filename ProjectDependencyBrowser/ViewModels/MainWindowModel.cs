@@ -57,7 +57,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
             FilteredProjects.CollectionChanged += (sender, args) =>
             {
-                if (SelectedProject == null)
+                if (SelectedProject == null || !FilteredProjects.Contains(SelectedProject))
                     SelectedProject = FilteredProjects.FirstOrDefault();
             };
         }
@@ -94,7 +94,7 @@ namespace ProjectDependencyBrowser.ViewModels
             get
             {
                 if (SelectedProject == null)
-                    return null;
+                    return new List<VisualStudioSolution>();
 
                 return AllSolutions
                     .Where(s => s.Projects.Any(p => ProjectDependencyResolver.IsSameProject(p.Path, SelectedProject.Path)))

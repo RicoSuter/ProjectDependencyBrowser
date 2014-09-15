@@ -87,7 +87,8 @@
                 <StackPanel Margin="8">
                     <TextBlock Text="Project name: " FontWeight="Bold" Margin="0,0,0,4" />
                     <TextBox Text="{Binding ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             Margin="0,0,0,8" x:Name="ProjectNameFilter" />
+                             Margin="0,0,0,8" x:Name="ProjectNameFilter"
+                             KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -166,8 +167,12 @@
                     (<Run Text="{Binding FilteredProjects.Count, Mode=OneWay}" /> / 
                      <Run Text="{Binding AllProjects.Count, Mode=OneWay}" />)
                 </TextBlock>
-                <ListBox ItemsSource="{Binding FilteredProjects}" SelectedItem="{Binding SelectedProject, Mode=TwoWay}" Grid.Row="1"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemTemplate="{StaticResource ProjectReferenceTemplate}" />
+                <ListBox Grid.Row="1" x:Name="ProjectList" 
+                         KeyDown="OnKeyDown"
+                         ItemsSource="{Binding FilteredProjects}" 
+                         SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                         ItemTemplate="{StaticResource ProjectReferenceTemplate}" />
             </Grid>
 
             <!-- Selected project -->
@@ -200,7 +205,7 @@
                             <TextBlock Text="{Binding SelectedProject.Path}" Margin="0,0,0,8" />
 
                             <TextBlock Text="Solutions: " FontWeight="Bold" Margin="0,0,0,4"
-                                       Visibility="{Binding SelectedProjectSolutions, Converter={StaticResource VisibilityConverter}}" />
+                                       Visibility="{Binding SelectedProjectSolutions.Count, Converter={StaticResource VisibilityConverter}}" />
                         </StackPanel>
                         <ItemsControl Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" ItemsSource="{Binding SelectedProjectSolutions}">
                             <ItemsControl.ItemsPanel>
