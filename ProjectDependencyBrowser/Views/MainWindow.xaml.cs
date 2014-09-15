@@ -7,9 +7,11 @@
 //-----------------------------------------------------------------------
 
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Forms;
+using System.Windows.Input;
 using MyToolkit.Build;
 using MyToolkit.Model;
 using MyToolkit.Mvvm;
@@ -26,16 +28,20 @@ namespace ProjectDependencyBrowser.Views
         public MainWindow()
         {
             InitializeComponent();
-            
+
             ViewModelHelper.RegisterViewModel(Model, this);
 
             Closed += delegate { Model.CallOnUnloaded(); };
-            Model.PropertyChanged += (sender, args) =>
+            Model.PropertyChanged += async (sender, args) =>
             {
                 if (args.IsProperty<MainWindowModel>(i => i.IsLoaded))
                 {
                     Tabs.SelectedIndex = 1;
-                    ProjectNameFilter.Focus(); // TODO: Fix this
+                    
+                    await Task.Delay(250);
+                    
+                    Keyboard.Focus(ProjectNameFilter);
+                    ProjectNameFilter.Focus();
                 }
             };
 
@@ -71,7 +77,7 @@ namespace ProjectDependencyBrowser.Views
 
         private void OnOpenSolution(object sender, RoutedEventArgs e)
         {
-            var solution = (VisualStudioSolution) ((Button) sender).Tag;
+            var solution = (VisualStudioSolution)((Button)sender).Tag;
 
             var title = string.Format("Open solution '{0}'?", solution.Name);
             var message = string.Format("Open solution '{0}' at location \n{1}?", solution.Name, solution.Path);

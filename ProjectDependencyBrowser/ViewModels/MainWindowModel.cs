@@ -27,6 +27,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private bool _isLoaded;
         private bool _ignoreExceptions;
+        private bool _automaticallyScanDirectory;
 
         private bool _isNuGetFilterEnabled;
         private bool _isProjectReferenceFilterEnabled;
@@ -56,7 +57,8 @@ namespace ProjectDependencyBrowser.ViewModels
 
             FilteredProjects.CollectionChanged += (sender, args) =>
             {
-                SelectedProject = FilteredProjects.FirstOrDefault();
+                if (SelectedProject == null)
+                    SelectedProject = FilteredProjects.FirstOrDefault();
             };
         }
 
@@ -130,6 +132,13 @@ namespace ProjectDependencyBrowser.ViewModels
         {
             get { return _ignoreExceptions; }
             set { Set(ref _ignoreExceptions, value); }
+        }
+
+        /// <summary>Gets or sets a value indicating whether to automatically scan the directory on startup. </summary>
+        public bool AutomaticallyScanDirectory
+        {
+            get { return _automaticallyScanDirectory; }
+            set { Set(ref _automaticallyScanDirectory, value); }
         }
 
         /// <summary>Gets or sets a value indicating whether some projects have been loaded. </summary>
@@ -217,16 +226,23 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Implementation of the initialization method. 
         /// If the view model is already initialized the method is not called again by the Initialize method. </summary>
-        protected override void OnLoaded()
+        protected async override void OnLoaded()
         {
             RootDirectory = ApplicationSettings.GetSetting("RootDirectory", "");
+            AutomaticallyScanDirectory = ApplicationSettings.GetSetting("AutomaticallyScanDirectory", false);
+            IgnoreExceptions = ApplicationSettings.GetSetting("IgnoreExceptions", true);
+
+            if (AutomaticallyScanDirectory && !string.IsNullOrEmpty(RootDirectory))
+                await LoadProjectsAsync();
         }
 
         /// <summary>Implementation of the clean up method. 
         /// If the view model is already cleaned up the method is not called again by the Cleanup method. </summary>
         protected override void OnUnloaded()
         {
-            ApplicationSettings.SetSetting("RootDirectory", RootDirectory, true);
+            ApplicationSettings.SetSetting("RootDirectory", RootDirectory);
+            ApplicationSettings.SetSetting("AutomaticallyScanDirectory", AutomaticallyScanDirectory);
+            ApplicationSettings.SetSetting("IgnoreExceptions", IgnoreExceptions);
         }
 
         private void UpdateFilter()
