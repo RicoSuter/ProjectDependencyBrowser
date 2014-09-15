@@ -10,13 +10,13 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 
-[assembly: AssemblyTitle("ProjectDependencyVisualizer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("ProjectDependencyBrowser")]
+[assembly: AssemblyDescription("Project Dependency Browser")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ProjectDependencyVisualizer")]
+[assembly: AssemblyCompany("Rico Suter")]
+[assembly: AssemblyProduct("ProjectDependencyBrowser")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("Rico Suter")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 
