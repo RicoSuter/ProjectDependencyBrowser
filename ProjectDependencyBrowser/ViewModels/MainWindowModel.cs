@@ -33,7 +33,7 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _isProjectReferenceFilterEnabled;
         private bool _isSolutionFilterEnabled;
 
-        private string _projectNameFilter;
+        private string _projectNameFilter = string.Empty;
         private NuGetPackage _nuGetPackageFilter;
         private VisualStudioProject _projectReferenceFilter;
         private VisualStudioSolution _solutionFilter; 
@@ -247,9 +247,10 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private void UpdateFilter()
         {
+            var terms = ProjectNameFilter.ToLower().Split(' ');
             FilteredProjects.Filter =
                 project =>
-                    (string.IsNullOrEmpty(ProjectNameFilter) || project.Name.ToLower().Contains(ProjectNameFilter.ToLower())) &&
+                    (terms.All(t => project.Name.ToLower().Contains(t))) &&
                     (!IsNuGetFilterEnabled || NuGetPackageFilter == null || project.NuGetReferences.Any(n => n.Name == NuGetPackageFilter.Name && n.Version == NuGetPackageFilter.Version)) &&
                     (!IsSolutionFilterEnabled || SolutionFilter == null || SolutionFilter.Projects.Any(p => ProjectDependencyResolver.IsSameProject(p.Path, project.Path))) &&
                     (!IsProjectReferenceFilterEnabled || ProjectReferenceFilter == null || project.ProjectReferences.Any(r => r.Path == ProjectReferenceFilter.Path));
@@ -287,7 +288,7 @@ namespace ProjectDependencyBrowser.ViewModels
                 UsedNuGetPackages.Initialize(projects
                     .SelectMany(p => p.NuGetReferences)
                     .DistinctBy(n => n.Name + "-" + n.Version)
-                    .OrderByThenBy(p => p.Name, p => p.NativeVersion));
+                    .OrderByThenBy(p => p.Name, p => VersionHelper.FromString(p.Version)));
 
                 NuGetPackageFilter = UsedNuGetPackages.FirstOrDefault();
 
