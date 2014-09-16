@@ -7,6 +7,7 @@
 //-----------------------------------------------------------------------
 
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,8 +20,8 @@ using MyToolkit.Model;
 using MyToolkit.Mvvm;
 using MyToolkit.Utilities;
 using ProjectDependencyBrowser.ViewModels;
-using Button = System.Windows.Controls.Button;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using ListBox = System.Windows.Controls.ListBox;
 
 namespace ProjectDependencyBrowser.Views
 {
@@ -42,7 +43,6 @@ namespace ProjectDependencyBrowser.Views
                 if (args.IsProperty<MainWindowModel>(i => i.IsLoaded))
                 {
                     Tabs.SelectedIndex = 1;
-
                     await Task.Delay(250);
                     FocusProjectNameFilter();
                 }
@@ -51,17 +51,17 @@ namespace ProjectDependencyBrowser.Views
             CheckForApplicationUpdate();
         }
 
+        /// <summary>Gets the view model. </summary>
+        public MainWindowModel Model
+        {
+            get { return (MainWindowModel)Resources["ViewModel"]; }
+        }
+
         private void FocusProjectNameFilter()
         {
             Keyboard.Focus(ProjectNameFilter);
             ProjectNameFilter.Focus();
             ProjectNameFilter.SelectAll();
-        }
-
-        /// <summary>Gets the view model. </summary>
-        public MainWindowModel Model
-        {
-            get { return (MainWindowModel)Resources["ViewModel"]; }
         }
 
         private async void CheckForApplicationUpdate()
@@ -83,12 +83,6 @@ namespace ProjectDependencyBrowser.Views
         {
             var uri = ((Hyperlink)sender).NavigateUri;
             Process.Start(uri.ToString());
-        }
-
-        private void OnOpenSolution(object sender, RoutedEventArgs e)
-        {
-            var solution = (VisualStudioSolution)((Button)sender).Tag;
-            TryOpenSolution(solution);
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -131,6 +125,51 @@ namespace ProjectDependencyBrowser.Views
 
             if (System.Windows.MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 Process.Start(solution.Path);
+        }
+
+        private void OnSolutionDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            var solution = (VisualStudioSolution)((ListBox) sender).SelectedItem;
+            if (solution != null)
+                TryOpenSolution(solution);
+        }
+
+        private void OnSolutionKeyUp(object sender, KeyEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                if (e.Key == Key.Enter || e.Key == Key.Return)
+                {
+                    var solution = (VisualStudioSolution)((ListBox)sender).SelectedItem;
+                    if (solution != null)
+                        TryOpenSolution(solution);
+                }
+            }
+        }
+
+        private void OnProjectDoubleClicked(object sender, MouseButtonEventArgs e)
+        {
+            var project = (VisualStudioProject)((ListBox)sender).SelectedItem;
+            if (project != null)
+                Model.SelectProject(project);
+        }
+
+        private void OnProjectKeyUp(object sender, KeyEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                if (e.Key == Key.Enter || e.Key == Key.Return)
+                {
+                    var project = (VisualStudioProject)((ListBox)sender).SelectedItem;
+                    if (project != null)
+                        Model.SelectProject(project);
+                }
+            }
+        }
+
+        private void OnOpenProjectDirectory(object sender, RoutedEventArgs e)
+        {
+            Process.Start(Path.GetDirectoryName(Model.SelectedProject.Path));
         }
     }
 }

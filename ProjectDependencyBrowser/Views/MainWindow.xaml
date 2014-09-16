@@ -44,6 +44,12 @@
                 <TextBlock Text="{Binding Path}" />
             </StackPanel>
         </DataTemplate>
+        <DataTemplate x:Key="SolutionListTemplate">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioSolution}" Margin="0,2,0,2">
+                <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                <TextBlock Text="{Binding FileName}" />
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
     
     <Grid DataContext="{StaticResource ViewModel}" Margin="8"
@@ -160,7 +166,7 @@
                    Visibility="{Binding IsLoaded, Converter={StaticResource NotConverter}}" />
         <Grid Grid.Row="2" Visibility="{Binding IsLoaded, Converter={StaticResource VisibilityConverter}}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MaxWidth="500" />
+                <ColumnDefinition Width="*" MaxWidth="350" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
@@ -175,11 +181,11 @@
                     (<Run Text="{Binding FilteredProjects.Count, Mode=OneWay}" /> / 
                      <Run Text="{Binding AllProjects.Count, Mode=OneWay}" />)
                 </TextBlock>
-                <ListBox Grid.Row="1" x:Name="ProjectList" 
-                         KeyDown="OnKeyDown"
+                <ListBox Grid.Row="1" x:Name="ProjectList" KeyDown="OnKeyDown"
+                         SelectionMode="Single"
                          ItemsSource="{Binding FilteredProjects}" 
                          SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto" 
                          ItemTemplate="{StaticResource ProjectReferenceTemplate}" />
             </Grid>
 
@@ -203,6 +209,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.ColumnSpan="3">
@@ -211,36 +218,39 @@
 
                             <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
                             <TextBlock Text="{Binding SelectedProject.Path}" Margin="0,0,0,8" />
-
-                            <TextBlock Text="Solutions: " FontWeight="Bold" Margin="0,0,0,4"
-                                       Visibility="{Binding SelectedProjectSolutions.Count, Converter={StaticResource VisibilityConverter}}" />
                         </StackPanel>
-                        <ItemsControl Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" ItemsSource="{Binding SelectedProjectSolutions}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Content="{Binding Name}" Padding="4" Tag="{Binding}" Margin="0,0,8,8" Click="OnOpenSolution" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        
+                        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
+                                    Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button Content="Open directory" Click="OnOpenProjectDirectory" Padding="8,4,8,4" />
+                        </StackPanel>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" 
-                                   Text="Referenced projects: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <ListBox Grid.Row="3" Grid.Column="0" Margin="0,0,4,0" ItemTemplate="{StaticResource ProjectReferenceTemplate}"
-                                 ItemsSource="{Binding SelectedProject.ProjectReferences}" />
+                                   Text="Solutions: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <ListBox Grid.Row="3" Grid.Column="0" Margin="0,0,4,0" 
+                                 MouseDoubleClick="OnSolutionDoubleClicked"
+                                 KeyUp="OnSolutionKeyUp"
+                                 ItemTemplate="{StaticResource SolutionListTemplate}"
+                                 ItemsSource="{Binding SelectedProjectSolutions}" />
 
                         <TextBlock Grid.Row="2" Grid.Column="1" 
-                                   Text="NuGet packages: " FontWeight="Bold" Margin="4,0,0,4" />
-                        <ListBox Grid.Row="3" Grid.Column="1" Margin="4,0,4,0" ItemTemplate="{StaticResource NuGetPackageTemplate}"
-                                 ItemsSource="{Binding SelectedProject.NuGetReferences}" />
+                                   Text="Referenced projects: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <ListBox Grid.Row="3" Grid.Column="1" Margin="0,0,4,0" 
+                                 MouseDoubleClick="OnProjectDoubleClicked"
+                                 KeyUp="OnProjectKeyUp"
+                                 ItemTemplate="{StaticResource ProjectReferenceTemplate}"
+                                 ItemsSource="{Binding SelectedProject.ProjectReferences}" />
 
                         <TextBlock Grid.Row="2" Grid.Column="2" 
+                                   Text="NuGet packages: " FontWeight="Bold" Margin="4,0,0,4" />
+                        <ListBox Grid.Row="3" Grid.Column="2" Margin="4,0,4,0" 
+                                 ItemTemplate="{StaticResource NuGetPackageTemplate}"
+                                 ItemsSource="{Binding SelectedProject.NuGetReferences}" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="3" 
                                    Text="Referenced assemblies: " FontWeight="Bold" Margin="4,0,0,0" />
-                        <ListBox Grid.Row="3" Grid.Column="2" Margin="4,0,0,0" ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
+                        <ListBox Grid.Row="3" Grid.Column="3" Margin="4,0,0,0" 
+                                 ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
                                  ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
                     </Grid>
                 </Border>

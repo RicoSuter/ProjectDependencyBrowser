@@ -224,6 +224,25 @@ namespace ProjectDependencyBrowser.ViewModels
             MessageBox.Show("Exception: " + exception.Message);
         }
 
+        /// <summary>Removes all filters and shows all projects in the list. </summary>
+        public void RemoveFilters()
+        {
+            IsSolutionFilterEnabled = false;
+            IsProjectReferenceFilterEnabled = false;
+            IsNuGetFilterEnabled = false;
+
+            ProjectNameFilter = string.Empty;
+        }
+
+        /// <summary>Removes all filters, shows all projects and selects the given project. </summary>
+        /// <param name="project">The project to select. </param>
+        public void SelectProject(VisualStudioProject project)
+        {
+            RemoveFilters();
+            SelectedProject = FilteredProjects.FirstOrDefault(
+                p => ProjectDependencyResolver.IsSameProject(p.Path, project.Path));
+        }
+
         /// <summary>Implementation of the initialization method. 
         /// If the view model is already initialized the method is not called again by the Initialize method. </summary>
         protected async override void OnLoaded()
@@ -248,6 +267,7 @@ namespace ProjectDependencyBrowser.ViewModels
         private void UpdateFilter()
         {
             var terms = ProjectNameFilter.ToLower().Split(' ');
+
             FilteredProjects.Filter =
                 project =>
                     (terms.All(t => project.Name.ToLower().Contains(t))) &&
