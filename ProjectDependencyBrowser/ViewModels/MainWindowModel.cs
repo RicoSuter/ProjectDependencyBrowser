@@ -8,9 +8,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using MyToolkit.Build;
 using MyToolkit.Collections;
 using MyToolkit.Command;
@@ -60,7 +63,11 @@ namespace ProjectDependencyBrowser.ViewModels
                 if (SelectedProject == null || !FilteredProjects.Contains(SelectedProject))
                     SelectedProject = FilteredProjects.FirstOrDefault();
             };
+
+            OpenProjectDirectoryCommand = new RelayCommand<VisualStudioProject>(OpenProjectDirectory);
         }
+
+        public ICommand OpenProjectDirectoryCommand { get; private set; }
 
         /// <summary>Gets a list of all loaded projects. </summary>
         public ExtendedObservableCollection<VisualStudioProject> AllProjects { get; private set; }
@@ -314,6 +321,13 @@ namespace ProjectDependencyBrowser.ViewModels
 
                 IsLoaded = true;
             }
+        }
+
+        private void OpenProjectDirectory(VisualStudioProject project)
+        {
+            var directory = Path.GetDirectoryName(project.Path);
+            if (directory != null)
+                Process.Start(directory);
         }
     }
 }

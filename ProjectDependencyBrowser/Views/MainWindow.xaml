@@ -7,7 +7,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:build="clr-namespace:MyToolkit.Build;assembly=MyToolkit.Extended"
         mc:Ignorable="d"
-
         Title="Project Dependency Browser" Background="#EEEEEE"
         Height="700" Width="1200" MinHeight="700" MinWidth="1200"
         WindowStartupLocation="CenterScreen">
@@ -62,7 +61,7 @@
         </Grid.RowDefinitions>
 
         <!-- Tabs -->
-        <TabControl Margin="-8,0,-8,8" Height="160" x:Name="Tabs">
+        <TabControl Margin="-8,0,-8,8" Height="164" x:Name="Tabs">
             <!-- Scan directory -->
             <TabItem Header="Root directory">
                 <Grid Margin="8" VerticalAlignment="Top">
@@ -115,7 +114,7 @@
                         <StackPanel Margin="0,0,4,0">
                             <CheckBox IsChecked="{Binding IsNuGetFilterEnabled, Mode=TwoWay}" 
                                       Content="Filter by installed NuGet package" FontWeight="Bold" Margin="0,0,0,8" />
-                            <ComboBox ItemsSource="{Binding UsedNuGetPackages}" Height="44" 
+                            <ComboBox ItemsSource="{Binding UsedNuGetPackages}" 
                                       ItemTemplate="{StaticResource NuGetPackageTemplate}"
                                       Visibility="{Binding IsNuGetFilterEnabled, Converter={StaticResource VisibilityConverter}}"
                                       SelectedItem="{Binding NuGetPackageFilter, Mode=TwoWay}" Margin="0,0,0,12" />
@@ -123,7 +122,7 @@
                         <StackPanel Margin="4,0,4,0" Grid.Column="1">
                             <CheckBox IsChecked="{Binding IsProjectReferenceFilterEnabled, Mode=TwoWay}" 
                                       Content="Filter by referenced project" FontWeight="Bold" Margin="0,0,0,0" />
-                            <ComboBox ItemsSource="{Binding UsedProjectReferences}" Height="44" 
+                            <ComboBox ItemsSource="{Binding UsedProjectReferences}" 
                                       ItemTemplate="{StaticResource ProjectReferenceTemplate}"
                                       Visibility="{Binding IsProjectReferenceFilterEnabled, Converter={StaticResource VisibilityConverter}}"
                                       SelectedItem="{Binding ProjectReferenceFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
@@ -131,7 +130,7 @@
                         <StackPanel Margin="4,0,0,0" Grid.Column="2">
                             <CheckBox IsChecked="{Binding IsSolutionFilterEnabled, Mode=TwoWay}" 
                                       Content="Filter by solution" FontWeight="Bold" Margin="0,0,0,0" />
-                            <ComboBox ItemsSource="{Binding AllSolutions}" Height="44" 
+                            <ComboBox ItemsSource="{Binding AllSolutions}" 
                                       ItemTemplate="{StaticResource SolutionTemplate}"
                                       Visibility="{Binding IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
                                       SelectedItem="{Binding SolutionFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
@@ -222,7 +221,10 @@
                         
                         <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
                                     Orientation="Horizontal" Margin="0,0,0,8">
-                            <Button Content="Open directory" Click="OnOpenProjectDirectory" Padding="8,4,8,4" />
+                            <Button Content="Open directory" 
+                                    Command="{Binding OpenProjectDirectoryCommand}"
+                                    CommandParameter="{Binding SelectedProject}" 
+                                    Padding="8,4,8,4" />
                         </StackPanel>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" 

@@ -70,6 +70,15 @@ namespace ProjectDependencyBrowser.Views
             await updater.CheckForUpdate(this);
         }
 
+        private void TryOpenSolution(VisualStudioSolution solution)
+        {
+            var title = string.Format("Open solution '{0}'?", solution.Name);
+            var message = string.Format("Open solution '{0}' at location \n{1}?", solution.Name, solution.Path);
+
+            if (System.Windows.MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                Process.Start(solution.Path);
+        }
+
         private void OnSelectDirectory(object sender, RoutedEventArgs e)
         {
             var dlg = new FolderBrowserDialog();
@@ -118,15 +127,6 @@ namespace ProjectDependencyBrowser.Views
             }
         }
 
-        private void TryOpenSolution(VisualStudioSolution solution)
-        {
-            var title = string.Format("Open solution '{0}'?", solution.Name);
-            var message = string.Format("Open solution '{0}' at location \n{1}?", solution.Name, solution.Path);
-
-            if (System.Windows.MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                Process.Start(solution.Path);
-        }
-
         private void OnSolutionDoubleClicked(object sender, MouseButtonEventArgs e)
         {
             var solution = (VisualStudioSolution)((ListBox) sender).SelectedItem;
@@ -165,11 +165,6 @@ namespace ProjectDependencyBrowser.Views
                         Model.SelectProject(project);
                 }
             }
-        }
-
-        private void OnOpenProjectDirectory(object sender, RoutedEventArgs e)
-        {
-            Process.Start(Path.GetDirectoryName(Model.SelectedProject.Path));
         }
     }
 }
