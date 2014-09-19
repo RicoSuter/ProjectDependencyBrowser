@@ -211,7 +211,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.ColumnSpan="3">
+                        <StackPanel Grid.ColumnSpan="4">
                             <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
                             <TextBlock Text="{Binding SelectedProject.Name}" Margin="0,0,0,8" />
 
