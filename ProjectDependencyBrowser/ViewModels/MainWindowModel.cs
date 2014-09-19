@@ -39,8 +39,9 @@ namespace ProjectDependencyBrowser.ViewModels
         private string _projectNameFilter = string.Empty;
         private NuGetPackage _nuGetPackageFilter;
         private VisualStudioProject _projectReferenceFilter;
-        private VisualStudioSolution _solutionFilter; 
+        private VisualStudioSolution _solutionFilter;
 
+        /// <summary>Initializes a new instance of the <see cref="MainWindowModel"/> class. </summary>
         public MainWindowModel()
         {
 #if DEBUG
@@ -67,6 +68,7 @@ namespace ProjectDependencyBrowser.ViewModels
             OpenProjectDirectoryCommand = new RelayCommand<VisualStudioProject>(OpenProjectDirectory);
         }
 
+        /// <summary>Gets the command for opening a project directory. </summary>
         public ICommand OpenProjectDirectoryCommand { get; private set; }
 
         /// <summary>Gets a list of all loaded projects. </summary>
