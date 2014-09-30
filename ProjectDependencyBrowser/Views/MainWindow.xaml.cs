@@ -151,7 +151,15 @@ namespace ProjectDependencyBrowser.Views
         {
             var project = (VisualStudioProject)((ListBox)sender).SelectedItem;
             if (project != null)
+            {
                 Model.SelectProject(project);
+                //Dispatcher.InvokeAsync(() =>
+                //{
+                //    var item = ProjectList.ItemContainerGenerator.ContainerFromIndex(ProjectList.SelectedIndex);
+                //    ((ListBoxItem)item).Focus();
+                //});
+                // TODO: Jump to selected item
+            }
         }
 
         private void OnProjectKeyUp(object sender, KeyEventArgs e)

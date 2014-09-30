@@ -36,10 +36,14 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _isProjectReferenceFilterEnabled;
         private bool _isSolutionFilterEnabled;
 
+        private bool _showOnlyProjectsWithoutSolution;
+        private bool _showOnlyProjectsWithNuGetPackages;
+
         private string _projectNameFilter = string.Empty;
         private NuGetPackage _nuGetPackageFilter;
         private VisualStudioProject _projectReferenceFilter;
         private VisualStudioSolution _solutionFilter;
+        private List<string> _projectPathsInSolutions;
 
         /// <summary>Initializes a new instance of the <see cref="MainWindowModel"/> class. </summary>
         public MainWindowModel()
@@ -190,6 +194,28 @@ namespace ProjectDependencyBrowser.ViewModels
             }
         }
 
+        /// <summary>Gets or sets a value indicating whether to show only projects without solution. </summary>
+        public bool ShowOnlyProjectsWithoutSolution
+        {
+            get { return _showOnlyProjectsWithoutSolution; }
+            set
+            {
+                if (Set(ref _showOnlyProjectsWithoutSolution, value))
+                    UpdateFilter();
+            }
+        }
+
+        /// <summary>Gets or sets a value indicating whether to show only projects with installed NuGet packages. </summary>
+        public bool ShowOnlyProjectsWithNuGetPackages
+        {
+            get { return _showOnlyProjectsWithNuGetPackages; }
+            set
+            {
+                if (Set(ref _showOnlyProjectsWithNuGetPackages, value))
+                    UpdateFilter();
+            }
+        }
+
         /// <summary>Gets or sets the NuGet package filter. </summary>
         public NuGetPackage NuGetPackageFilter
         {
@@ -277,12 +303,38 @@ namespace ProjectDependencyBrowser.ViewModels
         {
             var terms = ProjectNameFilter.ToLower().Split(' ');
 
-            FilteredProjects.Filter =
-                project =>
-                    (terms.All(t => project.Name.ToLower().Contains(t))) &&
-                    (!IsNuGetFilterEnabled || NuGetPackageFilter == null || project.NuGetReferences.Any(n => n.Name == NuGetPackageFilter.Name && n.Version == NuGetPackageFilter.Version)) &&
-                    (!IsSolutionFilterEnabled || SolutionFilter == null || SolutionFilter.Projects.Any(p => ProjectDependencyResolver.IsSameProject(p.Path, project.Path))) &&
-                    (!IsProjectReferenceFilterEnabled || ProjectReferenceFilter == null || project.ProjectReferences.Any(r => r.Path == ProjectReferenceFilter.Path));
+            FilteredProjects.Filter = project =>
+                (terms.All(t => project.Name.ToLower().Contains(t))) &&
+                ApplyShowOnlyProjectsWithNuGetPackagesFilter(project) && 
+                ApplyShowOnlyProjectsWithoutSolutionFilter(project) && 
+                ApplyNuGetFilter(project) &&
+                ApplySolutionFilter(project) &&
+                ApplyProjectReferenceFilter(project);
+        }
+
+        private bool ApplyShowOnlyProjectsWithNuGetPackagesFilter(VisualStudioProject project)
+        {
+            return !ShowOnlyProjectsWithNuGetPackages || project.NuGetReferences.Any();
+        }
+
+        private bool ApplyShowOnlyProjectsWithoutSolutionFilter(VisualStudioProject project)
+        {
+            return !ShowOnlyProjectsWithoutSolution || _projectPathsInSolutions.All(p => !ProjectDependencyResolver.IsSameProject(p, project.Path));
+        }
+
+        private bool ApplyProjectReferenceFilter(VisualStudioProject project)
+        {
+            return !IsProjectReferenceFilterEnabled || ProjectReferenceFilter == null || project.ProjectReferences.Any(r => r.Path == ProjectReferenceFilter.Path);
+        }
+
+        private bool ApplySolutionFilter(VisualStudioProject project)
+        {
+            return !IsSolutionFilterEnabled || SolutionFilter == null || SolutionFilter.Projects.Any(p => ProjectDependencyResolver.IsSameProject(p.Path, project.Path));
+        }
+
+        private bool ApplyNuGetFilter(VisualStudioProject project)
+        {
+            return !IsNuGetFilterEnabled || NuGetPackageFilter == null || project.NuGetReferences.Any(n => n.Name == NuGetPackageFilter.Name && n.Version == NuGetPackageFilter.Version);
         }
 
         private async Task LoadProjectsAsync()
@@ -306,6 +358,8 @@ namespace ProjectDependencyBrowser.ViewModels
                 AllProjects.Initialize(projects.OrderBy(p => p.Name));
 
                 SolutionFilter = AllSolutions.FirstOrDefault();
+
+                _projectPathsInSolutions = AllSolutions.SelectMany(s => s.Projects.Select(p => p.Path)).ToList();
 
                 UsedProjectReferences.Initialize(projects.SelectMany(p => p
                     .ProjectReferences)
