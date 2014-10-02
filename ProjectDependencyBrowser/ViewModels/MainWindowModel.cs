@@ -38,12 +38,13 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private bool _showOnlyProjectsWithoutSolution;
         private bool _showOnlyProjectsWithNuGetPackages;
+        private bool _showOnlyProjectsWithMultipleSolutions;
 
         private string _projectNameFilter = string.Empty;
         private NuGetPackage _nuGetPackageFilter;
         private VisualStudioProject _projectReferenceFilter;
         private VisualStudioSolution _solutionFilter;
-        private List<string> _projectPathsInSolutions;
+        private Dictionary<VisualStudioProject, List<VisualStudioSolution>> _projectSolutionUsages;
 
         /// <summary>Initializes a new instance of the <see cref="MainWindowModel"/> class. </summary>
         public MainWindowModel()
@@ -205,6 +206,17 @@ namespace ProjectDependencyBrowser.ViewModels
             }
         }
 
+        /// <summary>Gets or sets a value indicating whether to show only projects with multiple solutions. </summary>
+        public bool ShowOnlyProjectsWithMultipleSolutions
+        {
+            get { return _showOnlyProjectsWithMultipleSolutions; }
+            set
+            {
+                if (Set(ref _showOnlyProjectsWithMultipleSolutions, value))
+                    UpdateFilter();
+            }
+        }
+
         /// <summary>Gets or sets a value indicating whether to show only projects with installed NuGet packages. </summary>
         public bool ShowOnlyProjectsWithNuGetPackages
         {
@@ -262,6 +274,10 @@ namespace ProjectDependencyBrowser.ViewModels
         /// <summary>Removes all filters and shows all projects in the list. </summary>
         public void RemoveFilters()
         {
+            ShowOnlyProjectsWithNuGetPackages = false;
+            ShowOnlyProjectsWithoutSolution = false;
+            ShowOnlyProjectsWithMultipleSolutions = false;
+
             IsSolutionFilterEnabled = false;
             IsProjectReferenceFilterEnabled = false;
             IsNuGetFilterEnabled = false;
@@ -306,7 +322,8 @@ namespace ProjectDependencyBrowser.ViewModels
             FilteredProjects.Filter = project =>
                 (terms.All(t => project.Name.ToLower().Contains(t))) &&
                 ApplyShowOnlyProjectsWithNuGetPackagesFilter(project) && 
-                ApplyShowOnlyProjectsWithoutSolutionFilter(project) && 
+                ApplyShowOnlyProjectsWithoutSolutionFilter(project) &&
+                ApplyShowOnlyProjectsWithMultipleSolutionsFilter(project) && 
                 ApplyNuGetFilter(project) &&
                 ApplySolutionFilter(project) &&
                 ApplyProjectReferenceFilter(project);
@@ -319,7 +336,12 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private bool ApplyShowOnlyProjectsWithoutSolutionFilter(VisualStudioProject project)
         {
-            return !ShowOnlyProjectsWithoutSolution || _projectPathsInSolutions.All(p => !ProjectDependencyResolver.IsSameProject(p, project.Path));
+            return !ShowOnlyProjectsWithoutSolution || _projectSolutionUsages[project].Count == 0;
+        }
+
+        private bool ApplyShowOnlyProjectsWithMultipleSolutionsFilter(VisualStudioProject project)
+        {
+            return !ShowOnlyProjectsWithMultipleSolutions || _projectSolutionUsages[project].Count > 1;
         }
 
         private bool ApplyProjectReferenceFilter(VisualStudioProject project)
@@ -359,7 +381,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
                 SolutionFilter = AllSolutions.FirstOrDefault();
 
-                _projectPathsInSolutions = AllSolutions.SelectMany(s => s.Projects.Select(p => p.Path)).ToList();
+                AnalyzeSolutions();
 
                 UsedProjectReferences.Initialize(projects.SelectMany(p => p
                     .ProjectReferences)
@@ -376,6 +398,19 @@ namespace ProjectDependencyBrowser.ViewModels
                 NuGetPackageFilter = UsedNuGetPackages.FirstOrDefault();
 
                 IsLoaded = true;
+            }
+        }
+
+        private void AnalyzeSolutions()
+        {
+            _projectSolutionUsages = AllProjects.ToDictionary(p => p, p => new List<VisualStudioSolution>());
+            foreach (var solution in AllSolutions)
+            {
+                foreach (var project in solution.Projects)
+                {
+                    var loadedProject = AllProjects.Single(p => ProjectDependencyResolver.IsSameProject(p.Path, project.Path));
+                    _projectSolutionUsages[loadedProject].Add(solution);
+                }
             }
         }
 
