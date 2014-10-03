@@ -13,18 +13,38 @@
     
     <Window.Resources>
         <viewModels:MainWindowModel x:Key="ViewModel" />
+        
         <converters:VisibilityConverter x:Key="VisibilityConverter" />
         <converters:NotConverter x:Key="NotConverter" />
 
         <DataTemplate x:Key="ProjectReferenceTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioProject}" Margin="0,2,0,2">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioProject}" Margin="0,2,0,2" Background="Transparent">
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Show projects which reference this project" 
+                                  Command="{Binding SetProjectFilterCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Open project directory in Explorer" 
+                                  Command="{Binding OpenProjectDirectoryCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
+                
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding FileName}" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="NuGetPackageTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:NuGetPackage}" Margin="0,2,0,2">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:NuGetPackage}" Margin="0,2,0,2" Background="Transparent">
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Show projects with this NuGet package" 
+                                  Command="{Binding SetNuGetPackageFilterCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
+
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding Version}" />
             </StackPanel>
@@ -38,13 +58,35 @@
         </DataTemplate>
 
         <DataTemplate x:Key="SolutionTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioSolution}" Margin="0,2,0,2">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioSolution}" Margin="0,2,0,2" Background="Transparent">
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Show all projects in this solution" 
+                                  Command="{Binding SetSolutionFilterCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Open solution in Visual Studio" 
+                                  Command="{Binding TryOpenSolutionCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
+
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding Path}" />
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="SolutionListTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioSolution}" Margin="0,2,0,2">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioSolution}" Margin="0,2,0,2" Background="Transparent">
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Show all projects in this solution" 
+                                  Command="{Binding SetSolutionFilterCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Open solution in Visual Studio" 
+                                  Command="{Binding TryOpenSolutionCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
+
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding FileName}" />
             </StackPanel>
@@ -101,7 +143,7 @@
                 <StackPanel Margin="8">
                     <TextBlock Text="Project name: " FontWeight="Bold" Margin="0,0,0,4" />
                     <TextBox Text="{Binding ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             Margin="0,0,0,8" x:Name="ProjectNameFilter"
+                             Margin="0,0,0,8" x:Name="ProjectNameFilter" GotFocus="OnProjectNameFilterGotFocus"
                              KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
 
                     <Grid>
@@ -111,8 +153,16 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        
-                        <StackPanel Margin="0,0,4,0">
+
+                        <StackPanel Margin="0,0,4,0" Grid.Column="0">
+                            <CheckBox IsChecked="{Binding IsSolutionFilterEnabled, Mode=TwoWay}" 
+                                      Content="Filter by solution" FontWeight="Bold" Margin="0,0,0,0" />
+                            <ComboBox ItemsSource="{Binding AllSolutions}" 
+                                      ItemTemplate="{StaticResource SolutionTemplate}"
+                                      Visibility="{Binding IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
+                                      SelectedItem="{Binding SolutionFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
+                        </StackPanel>
+                        <StackPanel Margin="4,0,4,0" Grid.Column="1">
                             <CheckBox IsChecked="{Binding IsNuGetFilterEnabled, Mode=TwoWay}" 
                                       Content="Filter by installed NuGet package" FontWeight="Bold" Margin="0,0,0,8" />
                             <ComboBox ItemsSource="{Binding UsedNuGetPackages}" 
@@ -120,21 +170,13 @@
                                       Visibility="{Binding IsNuGetFilterEnabled, Converter={StaticResource VisibilityConverter}}"
                                       SelectedItem="{Binding NuGetPackageFilter, Mode=TwoWay}" Margin="0,0,0,12" />
                         </StackPanel>
-                        <StackPanel Margin="4,0,4,0" Grid.Column="1">
+                        <StackPanel Margin="4,0,4,0" Grid.Column="2">
                             <CheckBox IsChecked="{Binding IsProjectReferenceFilterEnabled, Mode=TwoWay}" 
                                       Content="Filter by referenced project" FontWeight="Bold" Margin="0,0,0,0" />
                             <ComboBox ItemsSource="{Binding UsedProjectReferences}" 
                                       ItemTemplate="{StaticResource ProjectReferenceTemplate}"
                                       Visibility="{Binding IsProjectReferenceFilterEnabled, Converter={StaticResource VisibilityConverter}}"
                                       SelectedItem="{Binding ProjectReferenceFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
-                        </StackPanel>
-                        <StackPanel Margin="4,0,4,0" Grid.Column="2">
-                            <CheckBox IsChecked="{Binding IsSolutionFilterEnabled, Mode=TwoWay}" 
-                                      Content="Filter by solution" FontWeight="Bold" Margin="0,0,0,0" />
-                            <ComboBox ItemsSource="{Binding AllSolutions}" 
-                                      ItemTemplate="{StaticResource SolutionTemplate}"
-                                      Visibility="{Binding IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
-                                      SelectedItem="{Binding SolutionFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
                         </StackPanel>
                         <StackPanel Margin="4,0,0,0" Grid.Column="3">
                             <CheckBox IsChecked="{Binding ShowOnlyProjectsWithoutSolution, Mode=TwoWay}" 
@@ -152,7 +194,8 @@
             <TabItem Header="About">
                 <StackPanel Margin="8">
                     <TextBlock Margin="0,0,0,8" FontSize="14">
-                        Project Dependency Browser has been developed by 
+                        <Hyperlink NavigateUri="http://projectdependencybrowser.codeplex.com" Click="OnOpenHyperlink">Project Dependency Browser</Hyperlink>
+                        has been developed by 
                         <Hyperlink NavigateUri="http://www.rsuter.com" Click="OnOpenHyperlink">Rico Suter</Hyperlink>.
                     </TextBlock>
                     <TextBlock Margin="0,0,0,8">
@@ -190,7 +233,7 @@
                      <Run Text="{Binding AllProjects.Count, Mode=OneWay}" />)
                 </TextBlock>
                 <ListBox Grid.Row="1" x:Name="ProjectList" KeyDown="OnKeyDown"
-                         SelectionMode="Single"
+                         SelectionMode="Single" HorizontalContentAlignment="Stretch"
                          ItemsSource="{Binding FilteredProjects}" 
                          SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
                          ScrollViewer.HorizontalScrollBarVisibility="Auto" 
@@ -230,7 +273,7 @@
                         
                         <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
                                     Orientation="Horizontal" Margin="0,0,0,8">
-                            <Button Content="Open directory" 
+                            <Button Content="Open project directory" 
                                     Command="{Binding OpenProjectDirectoryCommand}"
                                     CommandParameter="{Binding SelectedProject}" 
                                     Padding="8,4,8,4" />
@@ -240,7 +283,7 @@
                                    Text="Solutions: " FontWeight="Bold" Margin="0,0,0,4" />
                         <ListBox Grid.Row="3" Grid.Column="0" Margin="0,0,4,0" 
                                  MouseDoubleClick="OnSolutionDoubleClicked"
-                                 KeyUp="OnSolutionKeyUp"
+                                 KeyUp="OnSolutionKeyUp" HorizontalContentAlignment="Stretch"
                                  ItemTemplate="{StaticResource SolutionListTemplate}"
                                  ItemsSource="{Binding SelectedProjectSolutions}" />
 
@@ -248,19 +291,21 @@
                                    Text="Referenced projects: " FontWeight="Bold" Margin="0,0,0,4" />
                         <ListBox Grid.Row="3" Grid.Column="1" Margin="0,0,4,0" 
                                  MouseDoubleClick="OnProjectDoubleClicked"
-                                 KeyUp="OnProjectKeyUp"
+                                 KeyUp="OnProjectKeyUp" HorizontalContentAlignment="Stretch"
                                  ItemTemplate="{StaticResource ProjectReferenceTemplate}"
                                  ItemsSource="{Binding SelectedProject.ProjectReferences}" />
 
                         <TextBlock Grid.Row="2" Grid.Column="2" 
                                    Text="NuGet packages: " FontWeight="Bold" Margin="4,0,0,4" />
                         <ListBox Grid.Row="3" Grid.Column="2" Margin="4,0,4,0" 
+                                 HorizontalContentAlignment="Stretch"
                                  ItemTemplate="{StaticResource NuGetPackageTemplate}"
                                  ItemsSource="{Binding SelectedProject.NuGetReferences}" />
 
                         <TextBlock Grid.Row="2" Grid.Column="3" 
                                    Text="Referenced assemblies: " FontWeight="Bold" Margin="4,0,0,0" />
                         <ListBox Grid.Row="3" Grid.Column="3" Margin="4,0,0,0" 
+                                 HorizontalContentAlignment="Stretch"
                                  ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
                                  ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
                     </Grid>

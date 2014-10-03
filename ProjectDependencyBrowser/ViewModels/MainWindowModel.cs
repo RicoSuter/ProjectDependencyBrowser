@@ -71,10 +71,27 @@ namespace ProjectDependencyBrowser.ViewModels
             };
 
             OpenProjectDirectoryCommand = new RelayCommand<VisualStudioProject>(OpenProjectDirectory);
+            TryOpenSolutionCommand = new RelayCommand<VisualStudioSolution>(TryOpenSolution);
+            
+            SetProjectFilterCommand = new RelayCommand<VisualStudioProject>(SetProjectFilter);
+            SetSolutionFilterCommand = new RelayCommand<VisualStudioSolution>(SetSolutionFilter);
+            SetNuGetPackageFilterCommand = new RelayCommand<NuGetPackage>(SetNuGetPackageFilter);
         }
 
-        /// <summary>Gets the command for opening a project directory. </summary>
+        /// <summary>Gets the command to open a solution. </summary>
+        public ICommand TryOpenSolutionCommand { get; private set; }
+
+        /// <summary>Gets the command to open a project directory. </summary>
         public ICommand OpenProjectDirectoryCommand { get; private set; }
+
+        /// <summary>Gets the command to set the project filter. </summary>
+        public ICommand SetProjectFilterCommand { get; private set; }
+
+        /// <summary>Gets the command to set the solution filter. </summary>
+        public ICommand SetSolutionFilterCommand { get; private set; }
+
+        /// <summary>Gets the command to set the NuGet package filter. </summary>
+        public ICommand SetNuGetPackageFilterCommand { get; private set; }
 
         /// <summary>Gets a list of all loaded projects. </summary>
         public ExtendedObservableCollection<VisualStudioProject> AllProjects { get; private set; }
@@ -111,7 +128,7 @@ namespace ProjectDependencyBrowser.ViewModels
                     return new List<VisualStudioSolution>();
 
                 return AllSolutions
-                    .Where(s => s.Projects.Any(p => ProjectDependencyResolver.IsSameProject(p.Path, SelectedProject.Path)))
+                    .Where(s => s.Projects.Contains(SelectedProject))
                     .OrderBy(s => s.Name)
                     .ToList();
             }
@@ -290,8 +307,18 @@ namespace ProjectDependencyBrowser.ViewModels
         public void SelectProject(VisualStudioProject project)
         {
             RemoveFilters();
-            SelectedProject = FilteredProjects.FirstOrDefault(
-                p => ProjectDependencyResolver.IsSameProject(p.Path, project.Path));
+            SelectedProject = FilteredProjects.FirstOrDefault(p => p.HasSameProjectFile(project));
+        }
+
+        /// <summary>Tries to open the solution. </summary>
+        /// <param name="solution">The solution. </param>
+        public void TryOpenSolution(VisualStudioSolution solution)
+        {
+            var title = string.Format("Open solution '{0}'?", solution.Name);
+            var message = string.Format("Open solution '{0}' at location \n{1}?", solution.Name, solution.Path);
+
+            if (MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                Process.Start(solution.Path);
         }
 
         /// <summary>Implementation of the initialization method. 
@@ -313,6 +340,30 @@ namespace ProjectDependencyBrowser.ViewModels
             ApplicationSettings.SetSetting("RootDirectory", RootDirectory);
             ApplicationSettings.SetSetting("AutomaticallyScanDirectory", AutomaticallyScanDirectory);
             ApplicationSettings.SetSetting("IgnoreExceptions", IgnoreExceptions);
+        }
+
+        private void SetNuGetPackageFilter(NuGetPackage package)
+        {
+            RemoveFilters();
+
+            NuGetPackageFilter = UsedNuGetPackages.SingleOrDefault(p => p.Name == package.Name && p.Version == package.Version);
+            IsNuGetFilterEnabled = true;
+        }
+
+        private void SetSolutionFilter(VisualStudioSolution solution)
+        {
+            RemoveFilters();
+
+            SolutionFilter = solution;
+            IsSolutionFilterEnabled = true;
+        }
+
+        private void SetProjectFilter(VisualStudioProject project)
+        {
+            RemoveFilters();
+
+            ProjectReferenceFilter = project;
+            IsProjectReferenceFilterEnabled = true;
         }
 
         private void UpdateFilter()
@@ -351,7 +402,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private bool ApplySolutionFilter(VisualStudioProject project)
         {
-            return !IsSolutionFilterEnabled || SolutionFilter == null || SolutionFilter.Projects.Any(p => ProjectDependencyResolver.IsSameProject(p.Path, project.Path));
+            return !IsSolutionFilterEnabled || SolutionFilter == null || SolutionFilter.Projects.Contains(project);
         }
 
         private bool ApplyNuGetFilter(VisualStudioProject project)
@@ -367,6 +418,9 @@ namespace ProjectDependencyBrowser.ViewModels
                 var solutionsTask = VisualStudioSolution.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions);
 
                 await Task.WhenAll(projectsTask, solutionsTask);
+
+                foreach (var solution in solutionsTask.Result)
+                    solution.LoadProjects(projectsTask.Result, IgnoreExceptions);
 
                 return new Tuple<List<VisualStudioProject>, List<VisualStudioSolution>>(projectsTask.Result, solutionsTask.Result);
             });
@@ -407,10 +461,7 @@ namespace ProjectDependencyBrowser.ViewModels
             foreach (var solution in AllSolutions)
             {
                 foreach (var project in solution.Projects)
-                {
-                    var loadedProject = AllProjects.Single(p => ProjectDependencyResolver.IsSameProject(p.Path, project.Path));
-                    _projectSolutionUsages[loadedProject].Add(solution);
-                }
+                    _projectSolutionUsages[project].Add(solution);
             }
         }
 

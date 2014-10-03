@@ -64,19 +64,15 @@ namespace ProjectDependencyBrowser.Views
             ProjectNameFilter.SelectAll();
         }
 
+        private void OnProjectNameFilterGotFocus(object sender, RoutedEventArgs e)
+        {
+            ProjectNameFilter.SelectAll();
+        }
+
         private async void CheckForApplicationUpdate()
         {
             var updater = new ApplicationUpdater(GetType().Assembly, "http://rsuter.com/Projects/ProjectDependencyBrowser/updates.xml");
             await updater.CheckForUpdate(this);
-        }
-
-        private void TryOpenSolution(VisualStudioSolution solution)
-        {
-            var title = string.Format("Open solution '{0}'?", solution.Name);
-            var message = string.Format("Open solution '{0}' at location \n{1}?", solution.Name, solution.Path);
-
-            if (System.Windows.MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                Process.Start(solution.Path);
         }
 
         private void OnSelectDirectory(object sender, RoutedEventArgs e)
@@ -103,7 +99,7 @@ namespace ProjectDependencyBrowser.Views
                     e.Handled = true;
 
                     if (Model.SelectedProjectSolutions.Any())
-                        TryOpenSolution(Model.SelectedProjectSolutions.First());
+                        Model.TryOpenSolution(Model.SelectedProjectSolutions.First());
                 }
             }
         }
@@ -131,7 +127,7 @@ namespace ProjectDependencyBrowser.Views
         {
             var solution = (VisualStudioSolution)((ListBox) sender).SelectedItem;
             if (solution != null)
-                TryOpenSolution(solution);
+                Model.TryOpenSolution(solution);
         }
 
         private void OnSolutionKeyUp(object sender, KeyEventArgs e)
@@ -142,7 +138,7 @@ namespace ProjectDependencyBrowser.Views
                 {
                     var solution = (VisualStudioSolution)((ListBox)sender).SelectedItem;
                     if (solution != null)
-                        TryOpenSolution(solution);
+                        Model.TryOpenSolution(solution);
                 }
             }
         }
