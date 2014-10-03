@@ -264,7 +264,6 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
@@ -291,50 +290,46 @@
                                     <TextBlock Text="Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
                                     <TextBlock Text="{Binding SelectedProject.Namespace}" />
                                 </StackPanel>
-                                <!--<StackPanel Width="200">
-                                    <TextBlock Text="Framework Version: " FontWeight="Bold" Margin="0,0,0,4" />
-                                    <TextBlock Text="{Binding SelectedProject.FrameworkVersion}" />
-                                </StackPanel>-->
+                                <StackPanel Grid.Column="3">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="Open project directory" 
+                                                Command="{Binding OpenProjectDirectoryCommand}"
+                                                CommandParameter="{Binding SelectedProject}" 
+                                                Padding="8,4,8,4" />
+                                    </StackPanel>
+                                </StackPanel>
                             </Grid>
 
                             <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
                             <TextBlock Text="{Binding SelectedProject.Path}" Margin="0,0,0,8" />
                         </StackPanel>
                         
-                        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
-                                    Orientation="Horizontal" Margin="0,0,0,8">
-                            <Button Content="Open project directory" 
-                                    Command="{Binding OpenProjectDirectoryCommand}"
-                                    CommandParameter="{Binding SelectedProject}" 
-                                    Padding="8,4,8,4" />
-                        </StackPanel>
-
-                        <TextBlock Grid.Row="2" Grid.Column="0" 
+                        <TextBlock Grid.Row="1" Grid.Column="0" 
                                    Text="Solutions: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <ListBox Grid.Row="3" Grid.Column="0" Margin="0,0,4,0" 
+                        <ListBox Grid.Row="2" Grid.Column="0" Margin="0,0,4,0" 
                                  MouseDoubleClick="OnSolutionDoubleClicked"
                                  KeyUp="OnSolutionKeyUp" HorizontalContentAlignment="Stretch"
                                  ItemTemplate="{StaticResource SolutionListTemplate}"
                                  ItemsSource="{Binding SelectedProjectSolutions}" />
 
-                        <TextBlock Grid.Row="2" Grid.Column="1" 
+                        <TextBlock Grid.Row="1" Grid.Column="1" 
                                    Text="Referenced projects: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <ListBox Grid.Row="3" Grid.Column="1" Margin="0,0,4,0" 
+                        <ListBox Grid.Row="2" Grid.Column="1" Margin="0,0,4,0" 
                                  MouseDoubleClick="OnProjectDoubleClicked"
                                  KeyUp="OnProjectKeyUp" HorizontalContentAlignment="Stretch"
                                  ItemTemplate="{StaticResource ProjectReferenceTemplate}"
                                  ItemsSource="{Binding SelectedProject.ProjectReferences}" />
 
-                        <TextBlock Grid.Row="2" Grid.Column="2" 
+                        <TextBlock Grid.Row="1" Grid.Column="2" 
                                    Text="NuGet packages: " FontWeight="Bold" Margin="4,0,0,4" />
-                        <ListBox Grid.Row="3" Grid.Column="2" Margin="4,0,4,0" 
+                        <ListBox Grid.Row="2" Grid.Column="2" Margin="4,0,4,0" 
                                  HorizontalContentAlignment="Stretch"
                                  ItemTemplate="{StaticResource NuGetPackageTemplate}"
                                  ItemsSource="{Binding SelectedProject.NuGetReferences}" />
 
-                        <TextBlock Grid.Row="2" Grid.Column="3" 
+                        <TextBlock Grid.Row="1" Grid.Column="3" 
                                    Text="Referenced assemblies: " FontWeight="Bold" Margin="4,0,0,0" />
-                        <ListBox Grid.Row="3" Grid.Column="3" Margin="4,0,0,0" 
+                        <ListBox Grid.Row="2" Grid.Column="3" Margin="4,0,0,0" 
                                  HorizontalContentAlignment="Stretch"
                                  ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
                                  ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
