@@ -21,7 +21,7 @@
             <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioProject}" Margin="0,2,0,2" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Show projects which reference this project" 
+                        <MenuItem Header="Show projects with this project reference" 
                                   Command="{Binding SetProjectFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
                         <MenuItem Header="Open project directory in Explorer" 
@@ -264,8 +264,20 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.ColumnSpan="4">
-                            <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
-                            <TextBlock Text="{Binding SelectedProject.Name}" Margin="0,0,0,8" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <StackPanel Width="200">
+                                    <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
+                                    <TextBlock Text="{Binding SelectedProject.Name}" />
+                                </StackPanel>
+                                <StackPanel Width="200">
+                                    <TextBlock Text="Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
+                                    <TextBlock Text="{Binding SelectedProject.Namespace}" />
+                                </StackPanel>
+                                <!--<StackPanel Width="200">
+                                    <TextBlock Text="Framework Version: " FontWeight="Bold" Margin="0,0,0,4" />
+                                    <TextBlock Text="{Binding SelectedProject.FrameworkVersion}" />
+                                </StackPanel>-->
+                            </StackPanel>
 
                             <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
                             <TextBlock Text="{Binding SelectedProject.Path}" Margin="0,0,0,8" />
