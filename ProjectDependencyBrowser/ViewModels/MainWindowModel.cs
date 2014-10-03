@@ -53,7 +53,7 @@ namespace ProjectDependencyBrowser.ViewModels
             RootDirectory = @"C:\Data";
 #endif
 
-            IgnoreExceptions = true; 
+            IgnoreExceptions = true;
 
             AllProjects = new ExtendedObservableCollection<VisualStudioProject>();
             AllSolutions = new ExtendedObservableCollection<VisualStudioSolution>();
@@ -70,13 +70,17 @@ namespace ProjectDependencyBrowser.ViewModels
                     SelectedProject = FilteredProjects.FirstOrDefault();
             };
 
+            OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackage>(OpenNuGetWebsite);
             OpenProjectDirectoryCommand = new RelayCommand<VisualStudioProject>(OpenProjectDirectory);
             TryOpenSolutionCommand = new RelayCommand<VisualStudioSolution>(TryOpenSolution);
-            
+
             SetProjectFilterCommand = new RelayCommand<VisualStudioProject>(SetProjectFilter);
             SetSolutionFilterCommand = new RelayCommand<VisualStudioSolution>(SetSolutionFilter);
             SetNuGetPackageFilterCommand = new RelayCommand<NuGetPackage>(SetNuGetPackageFilter);
         }
+
+        /// <summary>Gets the command to open a NuGet package website. </summary>
+        public RelayCommand<NuGetPackage> OpenNuGetWebsiteCommand { get; set; }
 
         /// <summary>Gets the command to open a solution. </summary>
         public ICommand TryOpenSolutionCommand { get; private set; }
@@ -95,7 +99,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Gets a list of all loaded projects. </summary>
         public ExtendedObservableCollection<VisualStudioProject> AllProjects { get; private set; }
-       
+
         /// <summary>Gets a list of all loaded solutions. </summary>
         public ExtendedObservableCollection<VisualStudioSolution> AllSolutions { get; private set; }
 
@@ -106,7 +110,7 @@ namespace ProjectDependencyBrowser.ViewModels
         public ExtendedObservableCollection<NuGetPackage> UsedNuGetPackages { get; private set; }
 
         /// <summary>Gets a list of all referenced projects in the loaded projects. </summary>
-        public ExtendedObservableCollection<VisualStudioProject> UsedProjectReferences { get; private set; } 
+        public ExtendedObservableCollection<VisualStudioProject> UsedProjectReferences { get; private set; }
 
         /// <summary>Gets or sets the selected project. </summary>
         public VisualStudioProject SelectedProject
@@ -140,7 +144,7 @@ namespace ProjectDependencyBrowser.ViewModels
             get { return _rootDirectory; }
             set { Set(ref _rootDirectory, value); }
         }
-        
+
         /// <summary>Gets or sets the project name filter. </summary>
         public string ProjectNameFilter
         {
@@ -372,9 +376,9 @@ namespace ProjectDependencyBrowser.ViewModels
 
             FilteredProjects.Filter = project =>
                 (terms.All(t => project.Name.ToLower().Contains(t))) &&
-                ApplyShowOnlyProjectsWithNuGetPackagesFilter(project) && 
+                ApplyShowOnlyProjectsWithNuGetPackagesFilter(project) &&
                 ApplyShowOnlyProjectsWithoutSolutionFilter(project) &&
-                ApplyShowOnlyProjectsWithMultipleSolutionsFilter(project) && 
+                ApplyShowOnlyProjectsWithMultipleSolutionsFilter(project) &&
                 ApplyNuGetFilter(project) &&
                 ApplySolutionFilter(project) &&
                 ApplyProjectReferenceFilter(project);
@@ -470,6 +474,11 @@ namespace ProjectDependencyBrowser.ViewModels
             var directory = Path.GetDirectoryName(project.Path);
             if (directory != null)
                 Process.Start(directory);
+        }
+
+        private void OpenNuGetWebsite(NuGetPackage package)
+        {
+            Process.Start(string.Format("http://www.nuget.org/packages/{0}/{1}", package.Name, package.Version));
         }
     }
 }

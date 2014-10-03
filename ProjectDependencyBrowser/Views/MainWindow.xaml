@@ -42,6 +42,9 @@
                         <MenuItem Header="Show projects with this NuGet package" 
                                   Command="{Binding SetNuGetPackageFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
+                        <MenuItem Header="Show on NuGet.org website" 
+                                  Command="{Binding OpenNuGetWebsiteCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
                     </ContextMenu>
                 </StackPanel.ContextMenu>
 
@@ -264,12 +267,19 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.ColumnSpan="4">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <StackPanel Width="200">
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
                                     <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
                                     <TextBlock Text="{Binding SelectedProject.Name}" />
                                 </StackPanel>
-                                <StackPanel Width="200">
+                                <StackPanel Grid.Column="1">
                                     <TextBlock Text="Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
                                     <TextBlock Text="{Binding SelectedProject.Namespace}" />
                                 </StackPanel>
@@ -277,7 +287,7 @@
                                     <TextBlock Text="Framework Version: " FontWeight="Bold" Margin="0,0,0,4" />
                                     <TextBlock Text="{Binding SelectedProject.FrameworkVersion}" />
                                 </StackPanel>-->
-                            </StackPanel>
+                            </Grid>
 
                             <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
                             <TextBlock Text="{Binding SelectedProject.Path}" Margin="0,0,0,8" />
