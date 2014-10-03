@@ -60,6 +60,7 @@ namespace ProjectDependencyBrowser.Views
         private void FocusProjectNameFilter()
         {
             Keyboard.Focus(ProjectNameFilter);
+
             ProjectNameFilter.Focus();
             ProjectNameFilter.SelectAll();
         }

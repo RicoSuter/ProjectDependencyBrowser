@@ -145,7 +145,7 @@
             <TabItem Header="Filter projects" IsEnabled="{Binding IsLoaded}">
                 <StackPanel Margin="8">
                     <TextBlock Text="Project name: " FontWeight="Bold" Margin="0,0,0,4" />
-                    <TextBox Text="{Binding ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                    <TextBox Text="{Binding Filter.ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                              Margin="0,0,0,8" x:Name="ProjectNameFilter" GotFocus="OnProjectNameFilterGotFocus"
                              KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
 
@@ -155,40 +155,48 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Margin="0,0,4,0" Grid.Column="0">
-                            <CheckBox IsChecked="{Binding IsSolutionFilterEnabled, Mode=TwoWay}" 
-                                      Content="Filter by solution" FontWeight="Bold" Margin="0,0,0,0" />
+                            <CheckBox IsChecked="{Binding Filter.IsSolutionFilterEnabled, Mode=TwoWay}" 
+                                      Content="Filter by solution" FontWeight="Bold" />
                             <ComboBox ItemsSource="{Binding AllSolutions}" 
                                       ItemTemplate="{StaticResource SolutionTemplate}"
-                                      Visibility="{Binding IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
-                                      SelectedItem="{Binding SolutionFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
+                                      Visibility="{Binding Filter.IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
+                                      SelectedItem="{Binding Filter.SolutionFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
                         </StackPanel>
                         <StackPanel Margin="4,0,4,0" Grid.Column="1">
-                            <CheckBox IsChecked="{Binding IsNuGetFilterEnabled, Mode=TwoWay}" 
-                                      Content="Filter by installed NuGet package" FontWeight="Bold" Margin="0,0,0,8" />
+                            <CheckBox IsChecked="{Binding Filter.IsNuGetFilterEnabled, Mode=TwoWay}" 
+                                      Content="Filter by installed NuGet package" FontWeight="Bold" />
                             <ComboBox ItemsSource="{Binding UsedNuGetPackages}" 
                                       ItemTemplate="{StaticResource NuGetPackageTemplate}"
-                                      Visibility="{Binding IsNuGetFilterEnabled, Converter={StaticResource VisibilityConverter}}"
-                                      SelectedItem="{Binding NuGetPackageFilter, Mode=TwoWay}" Margin="0,0,0,12" />
+                                      Visibility="{Binding Filter.IsNuGetFilterEnabled, Converter={StaticResource VisibilityConverter}}"
+                                      SelectedItem="{Binding Filter.NuGetPackageFilter, Mode=TwoWay}" Margin="0,8,0,0" />
                         </StackPanel>
                         <StackPanel Margin="4,0,4,0" Grid.Column="2">
-                            <CheckBox IsChecked="{Binding IsProjectReferenceFilterEnabled, Mode=TwoWay}" 
-                                      Content="Filter by referenced project" FontWeight="Bold" Margin="0,0,0,0" />
+                            <CheckBox IsChecked="{Binding Filter.IsProjectReferenceFilterEnabled, Mode=TwoWay}" 
+                                      Content="Filter by referenced project" FontWeight="Bold" />
                             <ComboBox ItemsSource="{Binding UsedProjectReferences}" 
                                       ItemTemplate="{StaticResource ProjectReferenceTemplate}"
-                                      Visibility="{Binding IsProjectReferenceFilterEnabled, Converter={StaticResource VisibilityConverter}}"
-                                      SelectedItem="{Binding ProjectReferenceFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
+                                      Visibility="{Binding Filter.IsProjectReferenceFilterEnabled, Converter={StaticResource VisibilityConverter}}"
+                                      SelectedItem="{Binding Filter.ProjectReferenceFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
                         </StackPanel>
                         <StackPanel Margin="4,0,0,0" Grid.Column="3">
-                            <CheckBox IsChecked="{Binding ShowOnlyProjectsWithoutSolution, Mode=TwoWay}" 
+                            <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithoutSolution, Mode=TwoWay}" 
                                       Content="Only projects without solution" Margin="0,0,0,8" />
-                            <CheckBox IsChecked="{Binding ShowOnlyProjectsWithMultipleSolutions, Mode=TwoWay}" 
+                            <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithMultipleSolutions, Mode=TwoWay}" 
                                       Content="Only projects with multiple solutions" Margin="0,0,0,8" />
-                            <CheckBox IsChecked="{Binding ShowOnlyProjectsWithNuGetPackages, Mode=TwoWay}" 
+                            <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithNuGetPackages, Mode=TwoWay}" 
                                       Content="Only projects with installed NuGet packages" Margin="0,0,0,8" />
                         </StackPanel>
+                        
+                        <Button Command="{Binding ClearFilterCommand}" 
+                                Padding="8" Grid.Column="4">
+                            <TextBlock>
+                                Clear<LineBreak />filters
+                            </TextBlock>
+                        </Button>
                     </Grid>
                 </StackPanel>
             </TabItem>
