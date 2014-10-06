@@ -273,7 +273,7 @@ namespace ProjectDependencyBrowser.ViewModels
         public void SelectProject(VsProject project)
         {
             ClearFilter();
-            SelectedProject = FilteredProjects.FirstOrDefault(p => p.HasSameProjectFile(project));
+            SelectedProject = FilteredProjects.FirstOrDefault(p => p.IsSameProject(project));
         }
 
         /// <summary>Tries to open the solution. </summary>
