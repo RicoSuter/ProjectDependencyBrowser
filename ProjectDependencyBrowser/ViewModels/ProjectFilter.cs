@@ -29,20 +29,20 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _showOnlyProjectsWithNuGetPackages;
 
         private NuGetPackage _nuGetPackageFilter;
-        private VisualStudioProject _projectReferenceFilter;
-        private VisualStudioSolution _solutionFilter;
+        private VsProject _projectReferenceFilter;
+        private VsSolution _solutionFilter;
 
-        private Dictionary<VisualStudioProject, List<VisualStudioSolution>> _projectSolutionUsages;
+        private Dictionary<VsProject, List<VsSolution>> _projectSolutionUsages;
 
         /// <summary>Initializes a new instance of the <see cref="ProjectFilter"/> class. </summary>
         /// <param name="filteredProjects">The filtered projects view. </param>
-        public ProjectFilter(ObservableCollectionView<VisualStudioProject> filteredProjects)
+        public ProjectFilter(ObservableCollectionView<VsProject> filteredProjects)
         {
             FilteredProjects = filteredProjects; 
         }
 
         /// <summary>Gets the filtered view of the projects. </summary>
-        public ObservableCollectionView<VisualStudioProject> FilteredProjects { get; private set; }
+        public ObservableCollectionView<VsProject> FilteredProjects { get; private set; }
 
         /// <summary>Gets or sets the project name filter. </summary>
         public string ProjectNameFilter
@@ -133,7 +133,7 @@ namespace ProjectDependencyBrowser.ViewModels
         }
 
         /// <summary>Gets or sets the project reference filter. </summary>
-        public VisualStudioProject ProjectReferenceFilter
+        public VsProject ProjectReferenceFilter
         {
             get { return _projectReferenceFilter; }
             set
@@ -144,7 +144,7 @@ namespace ProjectDependencyBrowser.ViewModels
         }
 
         /// <summary>Gets or sets the solution filter. </summary>
-        public VisualStudioSolution SolutionFilter
+        public VsSolution SolutionFilter
         {
             get { return _solutionFilter; }
             set
@@ -157,9 +157,9 @@ namespace ProjectDependencyBrowser.ViewModels
         /// <summary>Analyzes the projects and solutions to provide filters for it. </summary>
         /// <param name="allProjects">The list of all projects. </param>
         /// <param name="allSolutions">The list of all solutions. </param>
-        public void AnalyzeProjectsAndSolutions(IList<VisualStudioProject> allProjects, IList<VisualStudioSolution> allSolutions)
+        public void AnalyzeProjectsAndSolutions(IList<VsProject> allProjects, IList<VsSolution> allSolutions)
         {
-            _projectSolutionUsages = allProjects.ToDictionary(p => p, p => new List<VisualStudioSolution>());
+            _projectSolutionUsages = allProjects.ToDictionary(p => p, p => new List<VsSolution>());
             foreach (var solution in allSolutions)
             {
                 foreach (var project in solution.Projects)
@@ -181,32 +181,32 @@ namespace ProjectDependencyBrowser.ViewModels
                 ApplyProjectReferenceFilter(project);
         }
 
-        private bool ApplyShowOnlyProjectsWithNuGetPackagesFilter(VisualStudioProject project)
+        private bool ApplyShowOnlyProjectsWithNuGetPackagesFilter(VsProject project)
         {
             return !ShowOnlyProjectsWithNuGetPackages || project.NuGetReferences.Any();
         }
 
-        private bool ApplyShowOnlyProjectsWithoutSolutionFilter(VisualStudioProject project)
+        private bool ApplyShowOnlyProjectsWithoutSolutionFilter(VsProject project)
         {
             return !ShowOnlyProjectsWithoutSolution || _projectSolutionUsages[project].Count == 0;
         }
 
-        private bool ApplyShowOnlyProjectsWithMultipleSolutionsFilter(VisualStudioProject project)
+        private bool ApplyShowOnlyProjectsWithMultipleSolutionsFilter(VsProject project)
         {
             return !ShowOnlyProjectsWithMultipleSolutions || _projectSolutionUsages[project].Count > 1;
         }
 
-        private bool ApplyProjectReferenceFilter(VisualStudioProject project)
+        private bool ApplyProjectReferenceFilter(VsProject project)
         {
             return !IsProjectReferenceFilterEnabled || ProjectReferenceFilter == null || project.ProjectReferences.Any(r => r.Path == ProjectReferenceFilter.Path);
         }
 
-        private bool ApplySolutionFilter(VisualStudioProject project)
+        private bool ApplySolutionFilter(VsProject project)
         {
             return !IsSolutionFilterEnabled || SolutionFilter == null || SolutionFilter.Projects.Contains(project);
         }
 
-        private bool ApplyNuGetFilter(VisualStudioProject project)
+        private bool ApplyNuGetFilter(VsProject project)
         {
             return !IsNuGetFilterEnabled || NuGetPackageFilter == null || project.NuGetReferences.Any(n => n.Name == NuGetPackageFilter.Name && n.Version == NuGetPackageFilter.Version);
         }

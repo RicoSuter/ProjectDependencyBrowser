@@ -126,7 +126,7 @@ namespace ProjectDependencyBrowser.Views
 
         private void OnSolutionDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            var solution = (VisualStudioSolution)((ListBox) sender).SelectedItem;
+            var solution = (VsSolution)((ListBox) sender).SelectedItem;
             if (solution != null)
                 Model.TryOpenSolution(solution);
         }
@@ -137,7 +137,7 @@ namespace ProjectDependencyBrowser.Views
             {
                 if (e.Key == Key.Enter || e.Key == Key.Return)
                 {
-                    var solution = (VisualStudioSolution)((ListBox)sender).SelectedItem;
+                    var solution = (VsSolution)((ListBox)sender).SelectedItem;
                     if (solution != null)
                         Model.TryOpenSolution(solution);
                 }
@@ -146,7 +146,7 @@ namespace ProjectDependencyBrowser.Views
 
         private void OnProjectDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            var project = (VisualStudioProject)((ListBox)sender).SelectedItem;
+            var project = (VsProject)((ListBox)sender).SelectedItem;
             if (project != null)
             {
                 Model.SelectProject(project);
@@ -165,7 +165,7 @@ namespace ProjectDependencyBrowser.Views
             {
                 if (e.Key == Key.Enter || e.Key == Key.Return)
                 {
-                    var project = (VisualStudioProject)((ListBox)sender).SelectedItem;
+                    var project = (VsProject)((ListBox)sender).SelectedItem;
                     if (project != null)
                         Model.SelectProject(project);
                 }

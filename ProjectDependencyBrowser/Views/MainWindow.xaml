@@ -18,9 +18,12 @@
         <converters:NotConverter x:Key="NotConverter" />
 
         <DataTemplate x:Key="ProjectReferenceTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioProject}" Margin="0,2,0,2" Background="Transparent">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VsProject}" Margin="0,2,0,2" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
+                        <MenuItem Header="Select project" 
+                                  Command="{Binding SelectedProject, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
                         <MenuItem Header="Show projects with this project reference" 
                                   Command="{Binding SetProjectFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
@@ -61,7 +64,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="SolutionTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioSolution}" Margin="0,2,0,2" Background="Transparent">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VsSolution}" Margin="0,2,0,2" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Show all projects in this solution" 
@@ -78,7 +81,7 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="SolutionListTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VisualStudioSolution}" Margin="0,2,0,2" Background="Transparent">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VsSolution}" Margin="0,2,0,2" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Show all projects in this solution" 
@@ -191,8 +194,7 @@
                                       Content="Only projects with installed NuGet packages" Margin="0,0,0,8" />
                         </StackPanel>
                         
-                        <Button Command="{Binding ClearFilterCommand}" 
-                                Padding="8" Grid.Column="4">
+                        <Button Command="{Binding ClearFilterCommand}" Padding="8" Grid.Column="4" Margin="0,0,0,4">
                             <TextBlock>
                                 Clear<LineBreak />filters
                             </TextBlock>

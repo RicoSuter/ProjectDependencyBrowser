@@ -27,7 +27,7 @@ namespace ProjectDependencyBrowser.ViewModels
     public class MainWindowModel : ViewModelBase
     {
         private string _rootDirectory;
-        private VisualStudioProject _selectedProject;
+        private VsProject _selectedProject;
 
         private bool _isLoaded;
         private bool _ignoreExceptions;
@@ -42,13 +42,13 @@ namespace ProjectDependencyBrowser.ViewModels
 
             IgnoreExceptions = true;
 
-            AllProjects = new ExtendedObservableCollection<VisualStudioProject>();
-            AllSolutions = new ExtendedObservableCollection<VisualStudioSolution>();
+            AllProjects = new ExtendedObservableCollection<VsProject>();
+            AllSolutions = new ExtendedObservableCollection<VsSolution>();
 
             UsedNuGetPackages = new ExtendedObservableCollection<NuGetPackage>();
-            UsedProjectReferences = new ExtendedObservableCollection<VisualStudioProject>();
+            UsedProjectReferences = new ExtendedObservableCollection<VsProject>();
 
-            FilteredProjects = new ObservableCollectionView<VisualStudioProject>(AllProjects);
+            FilteredProjects = new ObservableCollectionView<VsProject>(AllProjects);
             LoadProjectsCommand = new AsyncRelayCommand(LoadProjectsAsync);
 
             FilteredProjects.CollectionChanged += (sender, args) =>
@@ -58,11 +58,11 @@ namespace ProjectDependencyBrowser.ViewModels
             };
 
             OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackage>(OpenNuGetWebsite);
-            OpenProjectDirectoryCommand = new RelayCommand<VisualStudioProject>(OpenProjectDirectory);
-            TryOpenSolutionCommand = new RelayCommand<VisualStudioSolution>(TryOpenSolution);
+            OpenProjectDirectoryCommand = new RelayCommand<VsProject>(OpenProjectDirectory);
+            TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
-            SetProjectFilterCommand = new RelayCommand<VisualStudioProject>(SetProjectFilter);
-            SetSolutionFilterCommand = new RelayCommand<VisualStudioSolution>(SetSolutionFilter);
+            SetProjectFilterCommand = new RelayCommand<VsProject>(SetProjectFilter);
+            SetSolutionFilterCommand = new RelayCommand<VsSolution>(SetSolutionFilter);
             SetNuGetPackageFilterCommand = new RelayCommand<NuGetPackage>(SetNuGetPackageFilter);
 
             ClearFilterCommand = new RelayCommand(ClearFilter);
@@ -93,24 +93,24 @@ namespace ProjectDependencyBrowser.ViewModels
 
 
         /// <summary>Gets a list of all loaded projects. </summary>
-        public ExtendedObservableCollection<VisualStudioProject> AllProjects { get; private set; }
+        public ExtendedObservableCollection<VsProject> AllProjects { get; private set; }
 
         /// <summary>Gets a list of all loaded solutions. </summary>
-        public ExtendedObservableCollection<VisualStudioSolution> AllSolutions { get; private set; }
+        public ExtendedObservableCollection<VsSolution> AllSolutions { get; private set; }
 
         /// <summary>Gets a list of the filtered projects. </summary>
-        public ObservableCollectionView<VisualStudioProject> FilteredProjects { get; private set; }
+        public ObservableCollectionView<VsProject> FilteredProjects { get; private set; }
 
 
         /// <summary>Gets a list of all installed NuGet packages in the loaded projects. </summary>
         public ExtendedObservableCollection<NuGetPackage> UsedNuGetPackages { get; private set; }
 
         /// <summary>Gets a list of all referenced projects in the loaded projects. </summary>
-        public ExtendedObservableCollection<VisualStudioProject> UsedProjectReferences { get; private set; }
+        public ExtendedObservableCollection<VsProject> UsedProjectReferences { get; private set; }
 
 
         /// <summary>Gets or sets the selected project. </summary>
-        public VisualStudioProject SelectedProject
+        public VsProject SelectedProject
         {
             get { return _selectedProject; }
             set
@@ -121,12 +121,12 @@ namespace ProjectDependencyBrowser.ViewModels
         }
 
         /// <summary>Gets all solutions which reference the currently selected project. </summary>
-        public List<VisualStudioSolution> SelectedProjectSolutions
+        public List<VsSolution> SelectedProjectSolutions
         {
             get
             {
                 if (SelectedProject == null)
-                    return new List<VisualStudioSolution>();
+                    return new List<VsSolution>();
 
                 return AllSolutions
                     .Where(s => s.Projects.Contains(SelectedProject))
@@ -207,15 +207,18 @@ namespace ProjectDependencyBrowser.ViewModels
         {
             var tuple = await RunTaskAsync(async () =>
             {
-                var projectsTask = VisualStudioProject.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions);
-                var solutionsTask = VisualStudioSolution.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions);
+                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions);
+                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions);
 
                 await Task.WhenAll(projectsTask, solutionsTask);
+                await Task.Run(() =>
+                {
+                    var repository = new VsProjectRepository(projectsTask.Result);
+                    foreach (var solution in solutionsTask.Result)
+                        solution.LoadProjects(repository, IgnoreExceptions);
+                });
 
-                foreach (var solution in solutionsTask.Result)
-                    solution.LoadProjects(projectsTask.Result, IgnoreExceptions);
-
-                return new Tuple<List<VisualStudioProject>, List<VisualStudioSolution>>(projectsTask.Result, solutionsTask.Result);
+                return new Tuple<List<VsProject>, List<VsSolution>>(projectsTask.Result, solutionsTask.Result);
             });
 
             if (tuple != null)
@@ -267,7 +270,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Removes all filters, shows all projects and selects the given project. </summary>
         /// <param name="project">The project to select. </param>
-        public void SelectProject(VisualStudioProject project)
+        public void SelectProject(VsProject project)
         {
             ClearFilter();
             SelectedProject = FilteredProjects.FirstOrDefault(p => p.HasSameProjectFile(project));
@@ -275,7 +278,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Tries to open the solution. </summary>
         /// <param name="solution">The solution. </param>
-        public void TryOpenSolution(VisualStudioSolution solution)
+        public void TryOpenSolution(VsSolution solution)
         {
             var title = string.Format("Open solution '{0}'?", solution.Name);
             var message = string.Format("Open solution '{0}' at location \n{1}?", solution.Name, solution.Path);
@@ -292,7 +295,7 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.IsNuGetFilterEnabled = true;
         }
 
-        private void SetSolutionFilter(VisualStudioSolution solution)
+        private void SetSolutionFilter(VsSolution solution)
         {
             ClearFilter();
 
@@ -300,7 +303,7 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.IsSolutionFilterEnabled = true;
         }
 
-        private void SetProjectFilter(VisualStudioProject project)
+        private void SetProjectFilter(VsProject project)
         {
             ClearFilter();
 
@@ -308,7 +311,7 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.IsProjectReferenceFilterEnabled = true;
         }
 
-        private void OpenProjectDirectory(VisualStudioProject project)
+        private void OpenProjectDirectory(VsProject project)
         {
             var directory = Path.GetDirectoryName(project.Path);
             if (directory != null)
