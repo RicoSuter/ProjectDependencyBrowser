@@ -146,13 +146,20 @@
             
             <!-- Filters -->
             <TabItem Header="Filter projects" IsEnabled="{Binding IsLoaded}">
-                <StackPanel Margin="8">
-                    <TextBlock Text="Project name: " FontWeight="Bold" Margin="0,0,0,4" />
-                    <TextBox Text="{Binding Filter.ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             Margin="0,0,0,8" x:Name="ProjectNameFilter" GotFocus="OnProjectNameFilterGotFocus"
-                             KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
-
-                    <Grid>
+                <Grid Margin="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel>
+                        <TextBlock Text="Project name: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding Filter.ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                Margin="0,0,0,8" x:Name="ProjectNameFilter" GotFocus="OnProjectNameFilterGotFocus"
+                                KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
+                    </StackPanel>
+                    
+                    <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -200,7 +207,7 @@
                             </TextBlock>
                         </Button>
                     </Grid>
-                </StackPanel>
+                </Grid>
             </TabItem>
 
             <!-- About -->
