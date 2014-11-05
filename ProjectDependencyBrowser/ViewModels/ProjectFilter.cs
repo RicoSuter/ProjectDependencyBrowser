@@ -29,7 +29,7 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _showOnlyProjectsWithNuGetPackages;
 
         private NuGetPackage _nuGetPackageFilter;
-        private VsProject _projectReferenceFilter;
+        private VsProjectReference _projectReferenceFilter;
         private VsSolution _solutionFilter;
 
         private Dictionary<VsProject, List<VsSolution>> _projectSolutionUsages;
@@ -133,7 +133,7 @@ namespace ProjectDependencyBrowser.ViewModels
         }
 
         /// <summary>Gets or sets the project reference filter. </summary>
-        public VsProject ProjectReferenceFilter
+        public VsProjectReference ProjectReferenceFilter
         {
             get { return _projectReferenceFilter; }
             set

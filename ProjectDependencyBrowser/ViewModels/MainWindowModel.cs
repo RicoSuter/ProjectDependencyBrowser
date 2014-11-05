@@ -17,6 +17,7 @@ using System.Windows.Input;
 using MyToolkit.Build;
 using MyToolkit.Collections;
 using MyToolkit.Command;
+using MyToolkit.Messaging;
 using MyToolkit.Mvvm;
 using MyToolkit.Storage;
 using MyToolkit.Utilities;
@@ -46,7 +47,7 @@ namespace ProjectDependencyBrowser.ViewModels
             AllSolutions = new ExtendedObservableCollection<VsSolution>();
 
             UsedNuGetPackages = new ExtendedObservableCollection<NuGetPackage>();
-            UsedProjectReferences = new ExtendedObservableCollection<VsProject>();
+            UsedProjectReferences = new ExtendedObservableCollection<VsProjectReference>();
 
             FilteredProjects = new ObservableCollectionView<VsProject>(AllProjects);
             LoadProjectsCommand = new AsyncRelayCommand(LoadProjectsAsync);
@@ -61,7 +62,7 @@ namespace ProjectDependencyBrowser.ViewModels
             OpenProjectDirectoryCommand = new RelayCommand<VsProject>(OpenProjectDirectory);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
-            SetProjectFilterCommand = new RelayCommand<VsProject>(SetProjectFilter);
+            SetProjectFilterCommand = new AsyncRelayCommand<VsProject>(SetProjectFilterAsync);
             SetSolutionFilterCommand = new RelayCommand<VsSolution>(SetSolutionFilter);
             SetNuGetPackageFilterCommand = new RelayCommand<NuGetPackage>(SetNuGetPackageFilter);
 
@@ -106,7 +107,7 @@ namespace ProjectDependencyBrowser.ViewModels
         public ExtendedObservableCollection<NuGetPackage> UsedNuGetPackages { get; private set; }
 
         /// <summary>Gets a list of all referenced projects in the loaded projects. </summary>
-        public ExtendedObservableCollection<VsProject> UsedProjectReferences { get; private set; }
+        public ExtendedObservableCollection<VsProjectReference> UsedProjectReferences { get; private set; }
 
 
         /// <summary>Gets or sets the selected project. </summary>
@@ -239,8 +240,8 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.SolutionFilter = AllSolutions.FirstOrDefault();
             Filter.AnalyzeProjectsAndSolutions(AllProjects, AllSolutions);
 
-            UsedProjectReferences.Initialize(AllProjects.SelectMany(p => p
-                .ProjectReferences)
+            UsedProjectReferences.Initialize(AllProjects
+                .SelectMany(p => p.ProjectReferences)
                 .DistinctBy(p => p.Path)
                 .OrderBy(p => p.Name));
 
@@ -303,12 +304,18 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.IsSolutionFilterEnabled = true;
         }
 
-        private void SetProjectFilter(VsProject project)
+        private async Task SetProjectFilterAsync(VsProject project)
         {
             ClearFilter();
 
-            Filter.ProjectReferenceFilter = project;
-            Filter.IsProjectReferenceFilterEnabled = true;
+            var selectedProjectReference = UsedProjectReferences.FirstOrDefault(p => p.IsSameProject(project));
+            if (selectedProjectReference != null)
+            {
+                Filter.ProjectReferenceFilter = selectedProjectReference;
+                Filter.IsProjectReferenceFilterEnabled = true;
+            }
+            else
+                await Messenger.Default.SendAsync(new TextMessage("The project is not referenced in any project. ", "Project not referenced"));
         }
 
         private void OpenProjectDirectory(VsProject project)
