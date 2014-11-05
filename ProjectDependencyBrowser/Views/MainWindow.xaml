@@ -295,7 +295,7 @@
                                     <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
                                     <TextBlock Text="{Binding SelectedProject.Name}" />
                                 </StackPanel>
-                                <StackPanel Grid.Column="1">
+                                <StackPanel Grid.Column="1" Grid.ColumnSpan="2">
                                     <TextBlock Text="Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
                                     <TextBlock Text="{Binding SelectedProject.Namespace}" />
                                 </StackPanel>
