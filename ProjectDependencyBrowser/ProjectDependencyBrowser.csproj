@@ -54,6 +54,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Analyzers\AnalyzeResult.cs" />
+    <Compile Include="Analyzers\NuGetPackageDependencyAnalyzer.cs" />
     <Compile Include="ViewModels\MainWindowModel.cs" />
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

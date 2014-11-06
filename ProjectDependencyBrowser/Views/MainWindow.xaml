@@ -10,10 +10,10 @@
         Title="Project Dependency Browser" Background="#EEEEEE"
         Height="700" Width="1200" MinHeight="700" MinWidth="1200"
         WindowStartupLocation="CenterScreen">
-    
+
     <Window.Resources>
         <viewModels:MainWindowModel x:Key="ViewModel" />
-        
+
         <converters:VisibilityConverter x:Key="VisibilityConverter" />
         <converters:NotConverter x:Key="NotConverter" />
 
@@ -32,7 +32,7 @@
                                   CommandParameter="{Binding}" />
                     </ContextMenu>
                 </StackPanel.ContextMenu>
-                
+
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding FileName}" />
             </StackPanel>
@@ -98,10 +98,10 @@
             </StackPanel>
         </DataTemplate>
     </Window.Resources>
-    
+
     <Grid DataContext="{StaticResource ViewModel}" Margin="8"
           IsEnabled="{Binding IsLoading, Converter={StaticResource NotConverter}}">
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -118,7 +118,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    
+
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
@@ -143,7 +143,7 @@
                             Padding="8,4,8,4" Margin="8,4,0,0" />
                 </Grid>
             </TabItem>
-            
+
             <!-- Filters -->
             <TabItem Header="Filter projects" IsEnabled="{Binding IsLoaded}">
                 <Grid Margin="8">
@@ -151,14 +151,14 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    
+
                     <StackPanel>
                         <TextBlock Text="Project name: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding Filter.ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                 Margin="0,0,0,8" x:Name="ProjectNameFilter" GotFocus="OnProjectNameFilterGotFocus"
                                 KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
                     </StackPanel>
-                    
+
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -200,7 +200,7 @@
                             <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithNuGetPackages, Mode=TwoWay}" 
                                       Content="Only projects with installed NuGet packages" Margin="0,0,0,8" />
                         </StackPanel>
-                        
+
                         <Button Command="{Binding ClearFilterCommand}" Padding="8" Grid.Column="4" Margin="0,0,0,4">
                             <TextBlock>
                                 Clear<LineBreak />filters
@@ -246,7 +246,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                
+
                 <TextBlock FontWeight="Bold" Margin="0,0,0,4">
                     Projects 
                     (<Run Text="{Binding FilteredProjects.Count, Mode=OneWay}" /> / 
@@ -266,7 +266,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                
+
                 <TextBlock Text="Project" FontWeight="Bold" Margin="0,0,0,4" />
                 <Border Background="White" BorderBrush="#999999" BorderThickness="1" Grid.Row="1">
                     <Grid Margin="8">
@@ -285,34 +285,37 @@
                         <StackPanel Grid.ColumnSpan="4">
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="0.25*" />
+                                    <ColumnDefinition Width="0.75*" />
                                 </Grid.ColumnDefinitions>
-                                
+
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
                                     <TextBlock Text="{Binding SelectedProject.Name}" />
                                 </StackPanel>
-                                <StackPanel Grid.Column="1" Grid.ColumnSpan="2">
+                                <StackPanel Grid.Column="1">
                                     <TextBlock Text="Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
                                     <TextBlock Text="{Binding SelectedProject.Namespace}" />
                                 </StackPanel>
-                                <StackPanel Grid.Column="3">
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <Button Content="Open project directory" 
-                                                Command="{Binding OpenProjectDirectoryCommand}"
-                                                CommandParameter="{Binding SelectedProject}" 
-                                                Padding="8,4,8,4" />
-                                    </StackPanel>
+                                
+                                <StackPanel Orientation="Horizontal" 
+                                            HorizontalAlignment="Right" VerticalAlignment="Top" 
+                                            Grid.Column="0" Grid.ColumnSpan="2">
+                                    <Button Content="Open project directory" 
+                                            Command="{Binding OpenProjectDirectoryCommand}"
+                                            CommandParameter="{Binding SelectedProject}" 
+                                            Padding="8,4,8,4" Margin="0,0,8,0" />
+
+                                    <Button Content="Analyze dependencies" Padding="8,4,8,4"
+                                            Command="{Binding AnalyzeProjectDependenciesCommand}"
+                                            CommandParameter="{Binding SelectedProject}" />
                                 </StackPanel>
                             </Grid>
 
                             <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
                             <TextBlock Text="{Binding SelectedProject.Path}" Margin="0,0,0,8" />
                         </StackPanel>
-                        
+
                         <TextBlock Grid.Row="1" Grid.Column="0" 
                                    Text="Solutions: " FontWeight="Bold" Margin="0,0,0,4" />
                         <ListBox Grid.Row="2" Grid.Column="0" Margin="0,0,4,0" 

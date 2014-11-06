@@ -21,6 +21,7 @@ using MyToolkit.Messaging;
 using MyToolkit.Mvvm;
 using MyToolkit.Storage;
 using MyToolkit.Utilities;
+using ProjectDependencyBrowser.Analyzers;
 
 namespace ProjectDependencyBrowser.ViewModels
 {
@@ -60,6 +61,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
             OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackage>(OpenNuGetWebsite);
             OpenProjectDirectoryCommand = new RelayCommand<VsProject>(OpenProjectDirectory);
+            AnalyzeProjectDependenciesCommand = new AsyncRelayCommand<VsProject>(AnalyzeProjectDependenciesAsync);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
             SetProjectFilterCommand = new AsyncRelayCommand<VsProject>(SetProjectFilterAsync);
@@ -82,6 +84,9 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Gets the command to open a project directory. </summary>
         public ICommand OpenProjectDirectoryCommand { get; private set; }
+
+        /// <summary>Gets the command to analyze a project's dependencies. </summary>
+        public ICommand AnalyzeProjectDependenciesCommand { get; private set; }
 
         /// <summary>Gets the command to set the project filter. </summary>
         public ICommand SetProjectFilterCommand { get; private set; }
@@ -328,6 +333,14 @@ namespace ProjectDependencyBrowser.ViewModels
         private void OpenNuGetWebsite(NuGetPackage package)
         {
             Process.Start(string.Format("http://www.nuget.org/packages/{0}/{1}", package.Name, package.Version));
+        }
+
+        public async Task AnalyzeProjectDependenciesAsync(VsProject project)
+        {
+            var analyzer = new NuGetPackageDependencyAnalyzer(SelectedProject, AllProjects);
+            var results = await Task.Run(() => analyzer.Analyze());
+            var message = string.Join("\n\n", results.Select(r => r.Text));
+            await Messenger.Default.SendAsync(new TextMessage(message, "Result (experimental)"));
         }
     }
 }
