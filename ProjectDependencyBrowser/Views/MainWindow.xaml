@@ -21,9 +21,6 @@
             <StackPanel d:DataContext="{d:DesignInstance Type=build:VsProject}" Margin="0,2,0,2" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Select project" 
-                                  Command="{Binding SelectedProject, Source={StaticResource ViewModel}}" 
-                                  CommandParameter="{Binding}" />
                         <MenuItem Header="Show projects with this project reference" 
                                   Command="{Binding SetProjectFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />

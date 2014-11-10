@@ -28,7 +28,7 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _showOnlyProjectsWithMultipleSolutions;
         private bool _showOnlyProjectsWithNuGetPackages;
 
-        private NuGetPackage _nuGetPackageFilter;
+        private NuGetPackageReference _nuGetPackageFilter;
         private VsProjectReference _projectReferenceFilter;
         private VsSolution _solutionFilter;
 
@@ -122,7 +122,7 @@ namespace ProjectDependencyBrowser.ViewModels
         }
 
         /// <summary>Gets or sets the NuGet package filter. </summary>
-        public NuGetPackage NuGetPackageFilter
+        public NuGetPackageReference NuGetPackageFilter
         {
             get { return _nuGetPackageFilter; }
             set

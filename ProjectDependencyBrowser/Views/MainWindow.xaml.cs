@@ -7,7 +7,6 @@
 //-----------------------------------------------------------------------
 
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -146,15 +145,10 @@ namespace ProjectDependencyBrowser.Views
 
         private void OnProjectDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            var project = (VsProject)((ListBox)sender).SelectedItem;
-            if (project != null)
+            var projectReference = (VsProjectReference)((ListBox)sender).SelectedItem;
+            if (projectReference != null)
             {
-                Model.SelectProject(project);
-                //Dispatcher.InvokeAsync(() =>
-                //{
-                //    var item = ProjectList.ItemContainerGenerator.ContainerFromIndex(ProjectList.SelectedIndex);
-                //    ((ListBoxItem)item).Focus();
-                //});
+                Model.SelectProjectReference(projectReference);
                 // TODO: Jump to selected item
             }
         }

@@ -1,0 +1,52 @@
+﻿<Window x:Class="ProjectDependencyBrowser.Views.ProjectDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
+        xmlns:views="clr-namespace:ProjectDependencyBrowser.Views"
+        xmlns:viewModels="clr-namespace:ProjectDependencyBrowser.ViewModels"
+        Title="Project details (experimental)" Height="700" Width="900" 
+        WindowStartupLocation="CenterScreen">
+    
+    <Window.Resources>
+        <viewModels:ProjectDialogModel x:Key="ViewModel" />
+    </Window.Resources>
+
+    <Grid Margin="8" DataContext="{StaticResource ViewModel}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <StackPanel>
+            <TextBlock Text="Project" FontWeight="Bold" Margin="0,0,0,4" />
+            <TextBlock Text="{Binding Project.Name}" Margin="0,0,0,8" />
+        </StackPanel>
+
+        <Button Grid.Row="0" HorizontalAlignment="Right" Padding="8,4,8,4" Content="Close" Click="OnCloseDialog" />
+        
+        <TabControl Grid.Row="1">
+            <TabItem Header="Analysis">
+                <ListBox ItemsSource="{Binding AnalysisResult}" Margin="8" DisplayMemberPath="Text" />
+            </TabItem>
+            <TabItem Header="NuGet dependencies">
+                <Grid>
+                    <Grid.Resources>
+                        <views:EdgeColorConverter x:Key="EdgeToEdgeColorConverter"/>
+                        <Style TargetType="{x:Type controls:EdgeControl}">
+                            <Style.Setters>
+                                <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Self}, Path=Edge.EdgeColor, Converter={StaticResource EdgeToEdgeColorConverter}}"/>
+                            </Style.Setters>
+                        </Style>
+                    </Grid.Resources>
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <controls:GraphLayout x:Name="GraphLayout"
+                                              LayoutAlgorithmType="EfficientSugiyama"
+                                              OverlapRemovalAlgorithmType="FSA"
+                                              HighlightAlgorithmType="Simple">
+                        </controls:GraphLayout>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

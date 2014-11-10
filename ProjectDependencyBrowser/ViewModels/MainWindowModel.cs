@@ -22,6 +22,7 @@ using MyToolkit.Mvvm;
 using MyToolkit.Storage;
 using MyToolkit.Utilities;
 using ProjectDependencyBrowser.Analyzers;
+using ProjectDependencyBrowser.Messages;
 
 namespace ProjectDependencyBrowser.ViewModels
 {
@@ -47,7 +48,7 @@ namespace ProjectDependencyBrowser.ViewModels
             AllProjects = new ExtendedObservableCollection<VsProject>();
             AllSolutions = new ExtendedObservableCollection<VsSolution>();
 
-            UsedNuGetPackages = new ExtendedObservableCollection<NuGetPackage>();
+            UsedNuGetPackages = new ExtendedObservableCollection<NuGetPackageReference>();
             UsedProjectReferences = new ExtendedObservableCollection<VsProjectReference>();
 
             FilteredProjects = new ObservableCollectionView<VsProject>(AllProjects);
@@ -59,14 +60,14 @@ namespace ProjectDependencyBrowser.ViewModels
                     SelectedProject = FilteredProjects.FirstOrDefault();
             };
 
-            OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackage>(OpenNuGetWebsite);
+            OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackageReference>(OpenNuGetWebsite);
             OpenProjectDirectoryCommand = new RelayCommand<VsProject>(OpenProjectDirectory);
-            AnalyzeProjectDependenciesCommand = new AsyncRelayCommand<VsProject>(AnalyzeProjectDependenciesAsync);
+            AnalyzeProjectDependenciesCommand = new RelayCommand<VsProject>(AnalyzeProjectDependencies);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
-            SetProjectFilterCommand = new AsyncRelayCommand<VsProject>(SetProjectFilterAsync);
+            SetProjectFilterCommand = new AsyncRelayCommand<VsProjectReference>(SetProjectFilterAsync);
             SetSolutionFilterCommand = new RelayCommand<VsSolution>(SetSolutionFilter);
-            SetNuGetPackageFilterCommand = new RelayCommand<NuGetPackage>(SetNuGetPackageFilter);
+            SetNuGetPackageFilterCommand = new RelayCommand<NuGetPackageReference>(SetNuGetPackageFilter);
 
             ClearFilterCommand = new RelayCommand(ClearFilter);
 
@@ -109,7 +110,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
 
         /// <summary>Gets a list of all installed NuGet packages in the loaded projects. </summary>
-        public ExtendedObservableCollection<NuGetPackage> UsedNuGetPackages { get; private set; }
+        public ExtendedObservableCollection<NuGetPackageReference> UsedNuGetPackages { get; private set; }
 
         /// <summary>Gets a list of all referenced projects in the loaded projects. </summary>
         public ExtendedObservableCollection<VsProjectReference> UsedProjectReferences { get; private set; }
@@ -255,7 +256,7 @@ namespace ProjectDependencyBrowser.ViewModels
             UsedNuGetPackages.Initialize(AllProjects
                 .SelectMany(p => p.NuGetReferences)
                 .DistinctBy(n => n.Name + "-" + n.Version)
-                .OrderByThenBy(p => p.Name, p => VersionHelper.FromString(p.Version)));
+                .OrderByThenBy(p => p.Name, p => VersionUtilities.FromString(p.Version)));
 
             Filter.NuGetPackageFilter = UsedNuGetPackages.FirstOrDefault();
         }
@@ -282,6 +283,14 @@ namespace ProjectDependencyBrowser.ViewModels
             SelectedProject = FilteredProjects.FirstOrDefault(p => p.IsSameProject(project));
         }
 
+        /// <summary>Removes all filters, shows all projects and selects the given project. </summary>
+        /// <param name="projectReference">The project reference to select. </param>
+        public void SelectProjectReference(VsProjectReference projectReference)
+        {
+            ClearFilter();
+            SelectedProject = FilteredProjects.FirstOrDefault(p => p.IsSameProject(projectReference));
+        }
+
         /// <summary>Tries to open the solution. </summary>
         /// <param name="solution">The solution. </param>
         public void TryOpenSolution(VsSolution solution)
@@ -293,7 +302,7 @@ namespace ProjectDependencyBrowser.ViewModels
                 Process.Start(solution.Path);
         }
 
-        private void SetNuGetPackageFilter(NuGetPackage package)
+        private void SetNuGetPackageFilter(NuGetPackageReference package)
         {
             ClearFilter();
 
@@ -309,11 +318,11 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.IsSolutionFilterEnabled = true;
         }
 
-        private async Task SetProjectFilterAsync(VsProject project)
+        private async Task SetProjectFilterAsync(VsProjectReference projectReference)
         {
             ClearFilter();
 
-            var selectedProjectReference = UsedProjectReferences.FirstOrDefault(p => p.IsSameProject(project));
+            var selectedProjectReference = UsedProjectReferences.FirstOrDefault(p => p.IsSameProject(projectReference));
             if (selectedProjectReference != null)
             {
                 Filter.ProjectReferenceFilter = selectedProjectReference;
@@ -330,17 +339,14 @@ namespace ProjectDependencyBrowser.ViewModels
                 Process.Start(directory);
         }
 
-        private void OpenNuGetWebsite(NuGetPackage package)
+        private void OpenNuGetWebsite(NuGetPackageReference package)
         {
             Process.Start(string.Format("http://www.nuget.org/packages/{0}/{1}", package.Name, package.Version));
         }
 
-        public async Task AnalyzeProjectDependenciesAsync(VsProject project)
+        public void AnalyzeProjectDependencies(VsProject project)
         {
-            var analyzer = new NuGetPackageDependencyAnalyzer(SelectedProject, AllProjects);
-            var results = await Task.Run(() => analyzer.Analyze());
-            var message = string.Join("\n\n", results.Select(r => r.Text));
-            await Messenger.Default.SendAsync(new TextMessage(message, "Result (experimental)"));
+            Messenger.Default.Send(new ShowProjectDetails(SelectedProject));
         }
     }
 }

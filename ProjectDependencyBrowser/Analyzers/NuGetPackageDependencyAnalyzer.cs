@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MyToolkit.Build;
 
 namespace ProjectDependencyBrowser.Analyzers
@@ -24,51 +25,79 @@ namespace ProjectDependencyBrowser.Analyzers
             _allProjects = allProjects;
         }
 
-        public IList<AnalyzeResult> Analyze()
+        public async Task<IList<AnalyzeResult>> AnalyzeAsync()
         {
             var results = new List<AnalyzeResult>();
-            var dependencies = new List<Tuple<VsProject, VsReference>>();
-            var diamondDependencies = new List<VsProject>();
+            var dependencies = new List<Tuple<VsProject, VsReferenceBase>>();
+            var rootPackagesOfDiamondDependencies = new List<VsProject>();
 
-            LoadProjectDependencies(_project, dependencies, new List<VsProject>(), diamondDependencies);
+            await LoadProjectDependenciesAsync(_project, dependencies, new List<VsProject>(), rootPackagesOfDiamondDependencies);
 
-            if (diamondDependencies.Count > 0)
-                results.Add(new AnalyzeResult("Diamond dependencies detected. Root packages: \n   " + 
-                    string.Join("\n   ", diamondDependencies.Select(p => p.Name))));
-
-            var groups = dependencies.GroupBy(p => p.Item2.Name).ToList();
-            foreach (var group in groups)
+            if (rootPackagesOfDiamondDependencies.Count > 0)
             {
-                if (group.Any(p => p.Item2.Version != group.First().Item2.Version))
-                {
-                    var text = "NuGet package '" + group.Key + "' is used in various versions: \n   " +
-                        string.Join("\n   ", group.Select(p => p.Item1.Name + " => " + p.Item2.Version));
-
-                    results.Add(new AnalyzeResult(text));
-                }
+                results.Add(new AnalyzeResult("Diamond dependencies detected. Root packages: \n   " +
+                    string.Join("\n   ", rootPackagesOfDiamondDependencies.Select(p => p.Name))));
             }
 
-            return results;
+            return await Task.Run(() =>
+            {
+                var groups = dependencies.GroupBy(p => p.Item2.Name).ToList();
+                foreach (var group in groups)
+                {
+                    if (group.Any(p => p.Item2.Version != group.First().Item2.Version))
+                    {
+                        var involvedPackages = string.Join("\n   ", group.Select(p => string.Format("{0}: {1}", p.Item1.Name, p.Item2.Version)));
+                        var text = string.Format("NuGet package '{0}' is used in various versions: \n   {1}", group.Key, involvedPackages);
+
+                        var majorOrMinorAreDifferent = AreMajorOrMinorVersionDifferent(group);
+                        if (majorOrMinorAreDifferent)
+                            text += "\nWarning: Minor or major versions are different!";
+                        else
+                            text += "\nInfo: Only patch versions are different.";
+
+                        results.Add(new AnalyzeResult(text));
+                    }
+                }
+                return results;
+            });
         }
 
-        private void LoadProjectDependencies(VsProject project, List<Tuple<VsProject, VsReference>> dependencies, List<VsProject> scannedProjects, List<VsProject> diamondDependencies)
+        private static bool AreMajorOrMinorVersionDifferent(IEnumerable<Tuple<VsProject, VsReferenceBase>> group)
+        {
+            return group
+                .Where(p => p.Item2.Version.Split('.').Length >= 2)
+                .Select(p =>
+                {
+                    var arr = p.Item2.Version.Split('.');
+                    return arr[0] + "." + arr[1];
+                })
+                .GroupBy(p => p)
+                .Count() > 1;
+        }
+
+        private async Task LoadProjectDependenciesAsync(VsProject project, List<Tuple<VsProject, VsReferenceBase>> dependencies,
+            List<VsProject> scannedProjects, List<VsProject> rootPackagesOfDiamondDependencies)
         {
             if (scannedProjects.Contains(project))
             {
-                if (diamondDependencies.All(p => p.Name != project.Name))
-                    diamondDependencies.Add(project);
+                if (rootPackagesOfDiamondDependencies.All(p => p.Name != project.Name))
+                    rootPackagesOfDiamondDependencies.Add(project);
                 return;
             }
-
             scannedProjects.Add(project);
 
             foreach (var package in project.NuGetReferences)
             {
-                dependencies.Add(new Tuple<VsProject, VsReference>(project, package));
+                dependencies.Add(new Tuple<VsProject, VsReferenceBase>(project, package));
 
                 var referencedProject = _allProjects.FirstOrDefault(p => p.Name == package.Name);
                 if (referencedProject != null)
-                    LoadProjectDependencies(referencedProject, dependencies, scannedProjects, diamondDependencies);
+                    await LoadProjectDependenciesAsync(referencedProject, dependencies, scannedProjects, rootPackagesOfDiamondDependencies);
+                else
+                {
+                    var externalDependencies = await package.GetAllDependenciesAsync();
+                    dependencies.AddRange(externalDependencies.Select(p => new Tuple<VsProject, VsReferenceBase>(project, p)));
+                }
             }
         }
     }
