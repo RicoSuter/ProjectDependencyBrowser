@@ -50,18 +50,24 @@ namespace ProjectDependencyBrowser.Views
 
         private async void LoadNuGetDependencyGraph()
         {
-            var graph = new BidirectionalGraph<object, IEdge<object>>();
-            graph.AddVertex(_project);
-            await AddNuGetPackagesToGraphAsync(_project, graph, _project.NuGetReferences);
-
-            foreach (var problemGroups in _packages.GroupBy(p => p.Name).Where(g => g.Count() > 1))
+            try
             {
-                graph.AddEdge(new MyEdge(problemGroups.First(), problemGroups.Last()) { EdgeColor = Colors.Red});
+                var graph = new BidirectionalGraph<object, IEdge<object>>();
+                graph.AddVertex(_project);
+                await AddNuGetPackagesToGraphAsync(_project, graph, _project.NuGetReferences);
+
+                foreach (var problemGroups in _packages.GroupBy(p => p.Name).Where(g => g.Count() > 1))
+                {
+                    graph.AddEdge(new MyEdge(problemGroups.First(), problemGroups.Last()) { EdgeColor = Colors.Red });
+                }
+
+                GraphLayout.Graph = graph;
             }
-
-            GraphLayout.Graph = graph;
+            catch (Exception ex)
+            {
+                MessageBox.Show("Exception: " + ex.Message);
+            }
         }
-
 
         private async Task AddNuGetPackagesToGraphAsync(object parent, BidirectionalGraph<object, IEdge<object>> graph, IEnumerable<NuGetPackageReference> packages)
         {
