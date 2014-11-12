@@ -186,7 +186,7 @@ namespace ProjectDependencyBrowser.ViewModels
         /// <param name="exception">The exception. </param>
         public override void HandleException(Exception exception)
         {
-            MessageBox.Show("Exception: " + exception.Message);
+            Messenger.Default.SendAsync(new TextMessage("Exception: " + exception.Message));
         }
 
         /// <summary>Implementation of the initialization method. 
