@@ -73,17 +73,18 @@ namespace ProjectDependencyBrowser.ViewModels
             await RunTaskAsync(async () =>
             {
                 var graph = new BidirectionalGraph<object, IEdge<object>>();
-                graph.AddVertex(Project);
-
-                var packagesInGraph = new List<NuGetPackageReference>();
-                await AddNuGetPackagesToGraphAsync(Project, graph, Project.NuGetReferences, packagesInGraph);
-
-                foreach (var problemGroups in packagesInGraph.GroupBy(p => p.Name).Where(g => g.Count() > 1))
+                if (Project.NuGetReferences.Count > 0)
                 {
-                    graph.AddEdge(new MyEdge(problemGroups.First(), problemGroups.Last()) { EdgeColor = Colors.Red });
-                }
+                    graph.AddVertex(Project);
 
-                Graph = graph;
+                    var packagesInGraph = new List<NuGetPackageReference>();
+                    await AddNuGetPackagesToGraphAsync(Project, graph, Project.NuGetReferences, packagesInGraph);
+
+                    foreach (var problemGroups in packagesInGraph.GroupBy(p => p.Name).Where(g => g.Count() > 1))
+                        graph.AddEdge(new MyEdge(problemGroups.First(), problemGroups.Last()) { EdgeColor = Colors.Red });
+
+                    Graph = graph;
+                }
             });
         }
 
@@ -97,7 +98,7 @@ namespace ProjectDependencyBrowser.ViewModels
                 if (existingPackage == null)
                 {
                     AddPackageToGraph(graph, package, packagesInGraph);
-                    existingPackage = package;
+                    AddEdge(parent, package, graph);
 
                     if (await package.IsNuGetOrgPackageAsync())
                     {
@@ -111,11 +112,16 @@ namespace ProjectDependencyBrowser.ViewModels
                             await AddNuGetPackagesToGraphAsync(package, graph, referencedProject.NuGetReferences, packagesInGraph);
                     }
                 }
-
-                var edge = new MyEdge(parent, existingPackage) { EdgeColor = Colors.Green };
-                if (!graph.ContainsEdge(edge))
-                    graph.AddEdge(edge);
+                else
+                    AddEdge(parent, existingPackage, graph);
             }
+        }
+
+        private void AddEdge(object source, NuGetPackageReference target, BidirectionalGraph<object, IEdge<object>> graph)
+        {
+            var edge = new MyEdge(source, target) { EdgeColor = Colors.Green };
+            if (!graph.ContainsEdge(edge))
+                graph.AddEdge(edge);
         }
 
         private NuGetPackageReference TryGetExistingPackage(NuGetPackageReference package, IEnumerable<NuGetPackageReference> packagesInGraph)
