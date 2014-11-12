@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using GraphSharp;
 using MyToolkit.Build;
 using MyToolkit.Messaging;
 using MyToolkit.Mvvm;
 using ProjectDependencyBrowser.Analyzers;
+using QuickGraph;
 
 namespace ProjectDependencyBrowser.ViewModels
 {
     public class ProjectDialogModel : ViewModelBase
     {
         private IList<AnalyzeResult> _analysisResult;
+        private object _graph;
 
         /// <summary>Gets the project. </summary>
         public VsProject Project { get; private set; }
@@ -25,6 +31,13 @@ namespace ProjectDependencyBrowser.ViewModels
             set { Set(ref _analysisResult, value); }
         }
 
+        /// <summary>Gets or sets the graph. </summary>
+        public object Graph
+        {
+            get { return _graph; }
+            private set { Set(ref _graph, value); }
+        }
+
         /// <summary>Initializes the view model. </summary>
         /// <param name="project">The project to display. </param>
         /// <param name="allProjects">All projects. </param>
@@ -35,7 +48,8 @@ namespace ProjectDependencyBrowser.ViewModels
 
             RaiseAllPropertiesChanged();
 
-            await AnalyzeAsync();
+            await Task.Yield();
+            await Task.WhenAll(AnalyzeAsync(), LoadNuGetDependencyGraphAsync());
         }
 
         /// <summary>Handles an exception which occured in the <see cref="RunTaskAsync"/> method. </summary>
@@ -50,8 +64,82 @@ namespace ProjectDependencyBrowser.ViewModels
             await RunTaskAsync(async () =>
             {
                 var analyzer = new NuGetPackageDependencyAnalyzer(Project, AllProjects);
-                AnalysisResult = await analyzer.AnalyzeAsync();
+                AnalysisResult = await Task.Run(async () => await analyzer.AnalyzeAsync()); // TODO: Remove hack
             });
         }
+
+        private async Task LoadNuGetDependencyGraphAsync()
+        {
+            await RunTaskAsync(async () =>
+            {
+                var graph = new BidirectionalGraph<object, IEdge<object>>();
+                graph.AddVertex(Project);
+
+                var packagesInGraph = new List<NuGetPackageReference>();
+                await AddNuGetPackagesToGraphAsync(Project, graph, Project.NuGetReferences, packagesInGraph);
+
+                foreach (var problemGroups in packagesInGraph.GroupBy(p => p.Name).Where(g => g.Count() > 1))
+                {
+                    graph.AddEdge(new MyEdge(problemGroups.First(), problemGroups.Last()) { EdgeColor = Colors.Red });
+                }
+
+                Graph = graph;
+            });
+        }
+
+        /// <exception cref="WebException">There was a connection exception. </exception>
+        /// <exception cref="NuGetPackageNotFoundException">The NuGet package could not be found on nuget.org</exception>
+        private async Task AddNuGetPackagesToGraphAsync(object parent, BidirectionalGraph<object, IEdge<object>> graph, IEnumerable<NuGetPackageReference> packages, List<NuGetPackageReference> packagesInGraph)
+        {
+            foreach (var package in packages)
+            {
+                var existingPackage = TryGetExistingPackage(package, packagesInGraph);
+                if (existingPackage == null)
+                {
+                    AddPackageToGraph(graph, package, packagesInGraph);
+                    existingPackage = package;
+
+                    if (await package.IsNuGetOrgPackageAsync())
+                    {
+                        var dependencies = await package.GetDependenciesAsync();
+                        await AddNuGetPackagesToGraphAsync(package, graph, dependencies, packagesInGraph);
+                    }
+                    else
+                    {
+                        var referencedProject = AllProjects.FirstOrDefault(p => p.Name == package.Name);
+                        if (referencedProject != null)
+                            await AddNuGetPackagesToGraphAsync(package, graph, referencedProject.NuGetReferences, packagesInGraph);
+                    }
+                }
+
+                var edge = new MyEdge(parent, existingPackage) { EdgeColor = Colors.Green };
+                if (!graph.ContainsEdge(edge))
+                    graph.AddEdge(edge);
+            }
+        }
+
+        private NuGetPackageReference TryGetExistingPackage(NuGetPackageReference package, IEnumerable<NuGetPackageReference> packagesInGraph)
+        {
+            return packagesInGraph.FirstOrDefault(p => p.Name == package.Name && p.Version == package.Version);
+        }
+
+        private void AddPackageToGraph(BidirectionalGraph<object, IEdge<object>> graph, NuGetPackageReference package, List<NuGetPackageReference> packagesInGraph)
+        {
+            var existingPackage = packagesInGraph.FirstOrDefault(p => p.Name == package.Name && p.Version == package.Version);
+            if (existingPackage == null)
+            {
+                packagesInGraph.Add(package);
+                graph.AddVertex(package);
+            }
+        }
+    }
+
+    public class MyEdge : TypedEdge<Object>
+    {
+        public String Id { get; set; }
+
+        public Color EdgeColor { get; set; }
+
+        public MyEdge(Object source, Object target) : base(source, target, EdgeTypes.General) { }
     }
 }

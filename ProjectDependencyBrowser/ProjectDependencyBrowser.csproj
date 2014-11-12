@@ -76,6 +76,7 @@
     <Compile Include="Messages\ShowProjectDetails.cs" />
     <Compile Include="ViewModels\MainWindowModel.cs" />
     <Compile Include="ViewModels\ProjectDialogModel.cs" />
+    <Compile Include="Converters\EdgeColorConverter.cs" />
     <Compile Include="Views\ProjectDialog.xaml.cs">
       <DependentUpon>ProjectDialog.xaml</DependentUpon>
     </Compile>
