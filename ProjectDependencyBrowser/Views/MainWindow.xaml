@@ -5,7 +5,6 @@
         xmlns:viewModels="clr-namespace:ProjectDependencyBrowser.ViewModels"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"  
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:build="clr-namespace:MyToolkit.Build;assembly=MyToolkit.Extended"
         mc:Ignorable="d"
         Title="Project Dependency Browser" Background="#EEEEEE"
         Height="700" Width="1200" MinHeight="700" MinWidth="1200"

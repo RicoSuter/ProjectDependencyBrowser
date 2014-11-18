@@ -1,4 +1,12 @@
-﻿using System;
+﻿//-----------------------------------------------------------------------
+// <copyright file="ProjectDialogModel.cs" company="MyToolkit">
+//     Copyright (c) Rico Suter. All rights reserved.
+// </copyright>
+// <license>http://mytoolkit.codeplex.com/license</license>
+// <author>Rico Suter, mail@rsuter.com</author>
+//-----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -6,6 +14,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using GraphSharp;
 using MyToolkit.Build;
+using MyToolkit.Build.Exceptions;
 using MyToolkit.Messaging;
 using MyToolkit.Mvvm;
 using ProjectDependencyBrowser.Analyzers;

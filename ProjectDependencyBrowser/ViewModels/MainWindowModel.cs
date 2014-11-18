@@ -21,7 +21,6 @@ using MyToolkit.Messaging;
 using MyToolkit.Mvvm;
 using MyToolkit.Storage;
 using MyToolkit.Utilities;
-using ProjectDependencyBrowser.Analyzers;
 using ProjectDependencyBrowser.Messages;
 
 namespace ProjectDependencyBrowser.ViewModels
@@ -220,9 +219,8 @@ namespace ProjectDependencyBrowser.ViewModels
                 await Task.WhenAll(projectsTask, solutionsTask);
                 await Task.Run(() =>
                 {
-                    var repository = new VsProjectRepository(projectsTask.Result);
                     foreach (var solution in solutionsTask.Result)
-                        solution.LoadProjects(repository, IgnoreExceptions);
+                        solution.LoadProjects(IgnoreExceptions);
                 });
 
                 return new Tuple<List<VsProject>, List<VsSolution>>(projectsTask.Result, solutionsTask.Result);

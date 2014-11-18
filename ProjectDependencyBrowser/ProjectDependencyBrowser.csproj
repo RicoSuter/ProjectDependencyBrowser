@@ -42,6 +42,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\GraphSharp.Controls.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Build" />
     <Reference Include="QuickGraph, Version=3.2.40122.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\QuickGraph.dll</HintPath>
@@ -135,9 +136,6 @@
       <Project>{F01F49C0-5DA2-4757-B4E0-02EC7A187DED}</Project>
       <Name>MyToolkit</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
