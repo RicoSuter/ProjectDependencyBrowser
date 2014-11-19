@@ -5,6 +5,8 @@
         xmlns:viewModels="clr-namespace:ProjectDependencyBrowser.ViewModels"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"  
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:build="clr-namespace:MyToolkit.Build;assembly=MyToolkit.Extended"
+        xmlns:converters1="clr-namespace:ProjectDependencyBrowser.Converters"
         mc:Ignorable="d"
         Title="Project Dependency Browser" Background="#EEEEEE"
         Height="700" Width="1200" MinHeight="700" MinWidth="1200"
@@ -15,6 +17,7 @@
 
         <converters:VisibilityConverter x:Key="VisibilityConverter" />
         <converters:NotConverter x:Key="NotConverter" />
+        <converters1:ProjectTypesConverter x:Key="ProjectTypesConverter" />
 
         <DataTemplate x:Key="ProjectReferenceTemplate">
             <StackPanel d:DataContext="{d:DesignInstance Type=build:VsProject}" Margin="0,2,0,2" Background="Transparent">
@@ -35,7 +38,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="NuGetPackageTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:NuGetPackage}" Margin="0,2,0,2" Background="Transparent">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:NuGetPackageReference}" Margin="0,2,0,2" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Show projects with this NuGet package" 
@@ -310,6 +313,11 @@
 
                             <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
                             <TextBlock Text="{Binding SelectedProject.Path}" Margin="0,0,0,8" />
+
+                            <StackPanel Visibility="{Binding SelectedProject.ProjectTypes, Converter={StaticResource VisibilityConverter}}">
+                                <TextBlock Text="Project type: " FontWeight="Bold" Margin="0,0,0,4" />
+                                <TextBlock Text="{Binding SelectedProject.ProjectTypes, Converter={StaticResource ProjectTypesConverter}}" Margin="0,0,0,8" />
+                            </StackPanel>
                         </StackPanel>
 
                         <TextBlock Grid.Row="1" Grid.Column="0" 

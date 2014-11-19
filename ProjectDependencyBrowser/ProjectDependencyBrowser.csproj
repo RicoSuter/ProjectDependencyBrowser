@@ -74,6 +74,7 @@
     </ApplicationDefinition>
     <Compile Include="Analyzers\AnalyzeResult.cs" />
     <Compile Include="Analyzers\NuGetPackageDependencyAnalyzer.cs" />
+    <Compile Include="Converters\ProjectTypesConverter.cs" />
     <Compile Include="Messages\ShowProjectDetails.cs" />
     <Compile Include="ViewModels\MainWindowModel.cs" />
     <Compile Include="ViewModels\ProjectDialogModel.cs" />
