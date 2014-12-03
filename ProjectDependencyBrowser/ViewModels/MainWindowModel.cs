@@ -44,11 +44,11 @@ namespace ProjectDependencyBrowser.ViewModels
 
             IgnoreExceptions = true;
 
-            AllProjects = new ExtendedObservableCollection<VsProject>();
-            AllSolutions = new ExtendedObservableCollection<VsSolution>();
+            AllProjects = new MtObservableCollection<VsProject>();
+            AllSolutions = new MtObservableCollection<VsSolution>();
 
-            UsedNuGetPackages = new ExtendedObservableCollection<NuGetPackageReference>();
-            UsedProjectReferences = new ExtendedObservableCollection<VsProjectReference>();
+            UsedNuGetPackages = new MtObservableCollection<NuGetPackageReference>();
+            UsedProjectReferences = new MtObservableCollection<VsProjectReference>();
 
             FilteredProjects = new ObservableCollectionView<VsProject>(AllProjects);
             LoadProjectsCommand = new AsyncRelayCommand(LoadProjectsAsync);
@@ -64,7 +64,7 @@ namespace ProjectDependencyBrowser.ViewModels
             AnalyzeProjectDependenciesCommand = new RelayCommand<VsProject>(AnalyzeProjectDependencies);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
-            SetProjectFilterCommand = new AsyncRelayCommand<VsProjectReference>(SetProjectFilterAsync);
+            SetProjectFilterCommand = new AsyncRelayCommand<VsProject>(SetProjectFilterAsync);
             SetSolutionFilterCommand = new RelayCommand<VsSolution>(SetSolutionFilter);
             SetNuGetPackageFilterCommand = new RelayCommand<NuGetPackageReference>(SetNuGetPackageFilter);
 
@@ -99,20 +99,20 @@ namespace ProjectDependencyBrowser.ViewModels
 
 
         /// <summary>Gets a list of all loaded projects. </summary>
-        public ExtendedObservableCollection<VsProject> AllProjects { get; private set; }
+        public MtObservableCollection<VsProject> AllProjects { get; private set; }
 
         /// <summary>Gets a list of all loaded solutions. </summary>
-        public ExtendedObservableCollection<VsSolution> AllSolutions { get; private set; }
+        public MtObservableCollection<VsSolution> AllSolutions { get; private set; }
 
         /// <summary>Gets a list of the filtered projects. </summary>
         public ObservableCollectionView<VsProject> FilteredProjects { get; private set; }
 
 
         /// <summary>Gets a list of all installed NuGet packages in the loaded projects. </summary>
-        public ExtendedObservableCollection<NuGetPackageReference> UsedNuGetPackages { get; private set; }
+        public MtObservableCollection<NuGetPackageReference> UsedNuGetPackages { get; private set; }
 
         /// <summary>Gets a list of all referenced projects in the loaded projects. </summary>
-        public ExtendedObservableCollection<VsProjectReference> UsedProjectReferences { get; private set; }
+        public MtObservableCollection<VsProjectReference> UsedProjectReferences { get; private set; }
 
 
         /// <summary>Gets or sets the selected project. </summary>
@@ -181,7 +181,7 @@ namespace ProjectDependencyBrowser.ViewModels
         /// <summary>Gets the project list filter. </summary>
         public ProjectFilter Filter { get; private set; }
 
-        /// <summary>Handles an exception which occured in the <see cref="RunTaskAsync"/> method. </summary>
+        /// <summary>Handles an exception which occured in the <see cref="ViewModelBase.RunTaskAsync{T}(System.Func{T})"/> method. </summary>
         /// <param name="exception">The exception. </param>
         public override void HandleException(Exception exception)
         {
@@ -316,11 +316,11 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.IsSolutionFilterEnabled = true;
         }
 
-        private async Task SetProjectFilterAsync(VsProjectReference projectReference)
+        private async Task SetProjectFilterAsync(VsProject project)
         {
             ClearFilter();
 
-            var selectedProjectReference = UsedProjectReferences.FirstOrDefault(p => p.IsSameProject(projectReference));
+            var selectedProjectReference = UsedProjectReferences.FirstOrDefault(p => p.IsSameProject(project));
             if (selectedProjectReference != null)
             {
                 Filter.ProjectReferenceFilter = selectedProjectReference;
