@@ -64,7 +64,7 @@ namespace ProjectDependencyBrowser.ViewModels
             AnalyzeProjectDependenciesCommand = new RelayCommand<VsProject>(AnalyzeProjectDependencies);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
-            SetProjectFilterCommand = new AsyncRelayCommand<VsProject>(SetProjectFilterAsync);
+            SetProjectFilterCommand = new AsyncRelayCommand<VsObject>(SetProjectFilterAsync);
             SetSolutionFilterCommand = new RelayCommand<VsSolution>(SetSolutionFilter);
             SetNuGetPackageFilterCommand = new RelayCommand<NuGetPackageReference>(SetNuGetPackageFilter);
 
@@ -316,11 +316,13 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.IsSolutionFilterEnabled = true;
         }
 
-        private async Task SetProjectFilterAsync(VsProject project)
+        private async Task SetProjectFilterAsync(VsObject project)
         {
             ClearFilter();
 
-            var selectedProjectReference = UsedProjectReferences.FirstOrDefault(p => p.IsSameProject(project));
+            var selectedProjectReference = project is VsProject ? 
+                UsedProjectReferences.FirstOrDefault(p => p.IsSameProject((VsProject)project)) : 
+                UsedProjectReferences.FirstOrDefault(p => p.IsSameProject((VsProjectReference)project));
             if (selectedProjectReference != null)
             {
                 Filter.ProjectReferenceFilter = selectedProjectReference;
