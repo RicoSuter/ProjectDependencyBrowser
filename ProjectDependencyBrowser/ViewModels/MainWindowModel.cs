@@ -219,8 +219,9 @@ namespace ProjectDependencyBrowser.ViewModels
                 await Task.WhenAll(projectsTask, solutionsTask);
                 await Task.Run(() =>
                 {
+                    var projectCache = projectsTask.Result.ToDictionary(p => p.Path, p => p);
                     foreach (var solution in solutionsTask.Result)
-                        solution.LoadProjects(IgnoreExceptions);
+                        solution.LoadProjects(IgnoreExceptions, projectCache);
                 });
 
                 return new Tuple<List<VsProject>, List<VsSolution>>(projectsTask.Result, solutionsTask.Result);
