@@ -1,3 +1,5 @@
+# Project Dependency Browser 
+
 Project Dependency Browser scans a directory for Visual Studio projects and shows their project, assembly and NuGet dependencies in a flexible user interface. The application also provides various filters for example to find projects which depend on a particular NuGet package.
 
 Features: 
