@@ -10,6 +10,6 @@ Features:
 
 **This is a fully working beta version, please provide feedback to improve the application.**
 
-Project Dependency Browser developed by [Rico Suter](http://rsuter.com) using the [MyToolkit](http://https://github.com/MyToolkit/Core) library. 
+Project Dependency Browser is developed by [Rico Suter](http://rsuter.com) using the [MyToolkit](http://https://github.com/MyToolkit/Core) library. 
 
 ![](http://rsuter.com/Projects/ProjectDependencyBrowser/Screenshot01.png)
