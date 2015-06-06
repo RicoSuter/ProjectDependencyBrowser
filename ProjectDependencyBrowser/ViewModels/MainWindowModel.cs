@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using MyToolkit.Build;
 using MyToolkit.Collections;
@@ -22,6 +23,7 @@ using MyToolkit.Mvvm;
 using MyToolkit.Storage;
 using MyToolkit.Utilities;
 using ProjectDependencyBrowser.Messages;
+using MessageBox = System.Windows.MessageBox;
 
 namespace ProjectDependencyBrowser.ViewModels
 {
@@ -34,6 +36,8 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _isLoaded;
         private bool _ignoreExceptions;
         private bool _automaticallyScanDirectory;
+        private bool _minimizeWindowAfterSolutionLaunch;
+        private bool _enableShowApplicationHotKey;
 
         /// <summary>Initializes a new instance of the <see cref="MainWindowModel"/> class. </summary>
         public MainWindowModel()
@@ -168,6 +172,20 @@ namespace ProjectDependencyBrowser.ViewModels
             set { Set(ref _automaticallyScanDirectory, value); }
         }
 
+        /// <summary>Gets or sets a value indicating whether to hide the window after launching a solution.</summary>
+        public bool MinimizeWindowAfterSolutionLaunch
+        {
+            get { return _minimizeWindowAfterSolutionLaunch; }
+            set { Set(ref _minimizeWindowAfterSolutionLaunch, value); }
+        }
+
+        /// <summary>Gets or sets a value indicating whether to hide the window after launching a solution.</summary>
+        public bool EnableShowApplicationHotKey
+        {
+            get { return _enableShowApplicationHotKey; }
+            set { Set(ref _enableShowApplicationHotKey, value); }
+        }
+
         /// <summary>Gets or sets a value indicating whether some projects have been loaded. </summary>
         public bool IsLoaded
         {
@@ -195,6 +213,8 @@ namespace ProjectDependencyBrowser.ViewModels
             RootDirectory = ApplicationSettings.GetSetting("RootDirectory", "");
             AutomaticallyScanDirectory = ApplicationSettings.GetSetting("AutomaticallyScanDirectory", false);
             IgnoreExceptions = ApplicationSettings.GetSetting("IgnoreExceptions", true);
+            MinimizeWindowAfterSolutionLaunch = ApplicationSettings.GetSetting("MinimizeWindowAfterSolutionLaunch", true);
+            EnableShowApplicationHotKey = ApplicationSettings.GetSetting("EnableShowApplicationHotKey", false);
 
             if (AutomaticallyScanDirectory && !string.IsNullOrEmpty(RootDirectory))
                 await LoadProjectsAsync();
@@ -207,6 +227,8 @@ namespace ProjectDependencyBrowser.ViewModels
             ApplicationSettings.SetSetting("RootDirectory", RootDirectory);
             ApplicationSettings.SetSetting("AutomaticallyScanDirectory", AutomaticallyScanDirectory);
             ApplicationSettings.SetSetting("IgnoreExceptions", IgnoreExceptions);
+            ApplicationSettings.SetSetting("MinimizeWindowAfterSolutionLaunch", MinimizeWindowAfterSolutionLaunch);
+            ApplicationSettings.SetSetting("EnableShowApplicationHotKey", EnableShowApplicationHotKey);
         }
 
         private async Task LoadProjectsAsync()
@@ -298,7 +320,12 @@ namespace ProjectDependencyBrowser.ViewModels
             var message = string.Format("Open solution '{0}' at location \n{1}?", solution.Name, solution.Path);
 
             if (MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
                 Process.Start(solution.Path);
+
+                if (MinimizeWindowAfterSolutionLaunch)
+                    System.Windows.Application.Current.MainWindow.WindowState = WindowState.Minimized;
+            }
         }
 
         private void SetNuGetPackageFilter(NuGetPackageReference package)

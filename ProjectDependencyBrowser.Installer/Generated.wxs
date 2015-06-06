@@ -5,6 +5,9 @@
     </Fragment>
     <Fragment>
         <ComponentGroup Id="SourceComponentGroup">
+            <Component Id="cmpEF68B2BE0E01726626F61EBECBA49DFF" Directory="RootDirectory" Guid="*">
+                <File Id="filCF57FB10CDA988BA62EB22AF5741BF1C" KeyPath="yes" Source="$(var.SourcePath)\GlobalHotKey.dll" />
+            </Component>
             <Component Id="cmpF7D91D85AC47E007B0CC50D947727128" Directory="RootDirectory" Guid="*">
                 <File Id="fil0FE44A875A9A7C70A5DBF22D9E8A5F9D" KeyPath="yes" Source="$(var.SourcePath)\GraphSharp.Controls.dll" />
             </Component>

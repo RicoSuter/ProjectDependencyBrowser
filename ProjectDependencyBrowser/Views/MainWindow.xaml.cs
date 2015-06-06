@@ -6,6 +6,7 @@
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
+using GlobalHotKey;
 using MyToolkit.Build;
 using MyToolkit.Model;
 using MyToolkit.Mvvm;
@@ -36,6 +38,7 @@ namespace ProjectDependencyBrowser.Views
 
             Closed += delegate { Model.CallOnUnloaded(); };
             Activated += delegate { FocusProjectNameFilter(); };
+            Loaded += delegate { RegisterHotKey(); };
 
             Model.PropertyChanged += async (sender, args) =>
             {
@@ -49,11 +52,27 @@ namespace ProjectDependencyBrowser.Views
 
             CheckForApplicationUpdate();
         }
-
+        
         /// <summary>Gets the view model. </summary>
         public MainWindowModel Model
         {
             get { return (MainWindowModel)Resources["ViewModel"]; }
+        }
+
+        private void RegisterHotKey()
+        {
+            if (Model.EnableShowApplicationHotKey)
+            {
+                var hotKeyManager = new HotKeyManager();
+                hotKeyManager.Register(new HotKey(Key.V, ModifierKeys.Windows | ModifierKeys.Control));
+                hotKeyManager.KeyPressed += (sender, args) =>
+                {
+                    System.Windows.Application.Current.MainWindow.Activate();
+
+                    if (System.Windows.Application.Current.MainWindow.WindowState == WindowState.Minimized)
+                        System.Windows.Application.Current.MainWindow.WindowState = WindowState.Normal;
+                };
+            }
         }
 
         private void FocusProjectNameFilter()
