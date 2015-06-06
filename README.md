@@ -12,4 +12,6 @@ Features:
 
 Project Dependency Browser is developed by [Rico Suter](http://rsuter.com) using the [MyToolkit](http://https://github.com/MyToolkit/Core) library. 
 
+(This project has originally been hosted on [CodePlex](http://projectdependencybrowser.codeplex.com))
+
 ![](http://rsuter.com/Projects/ProjectDependencyBrowser/Screenshot01.png)
