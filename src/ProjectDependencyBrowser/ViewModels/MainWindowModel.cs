@@ -22,6 +22,7 @@ using MyToolkit.Messaging;
 using MyToolkit.Mvvm;
 using MyToolkit.Storage;
 using MyToolkit.Utilities;
+using ProjectDependencyBrowser.Analyzers;
 using ProjectDependencyBrowser.Messages;
 using MessageBox = System.Windows.MessageBox;
 
@@ -38,6 +39,7 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _automaticallyScanDirectory;
         private bool _minimizeWindowAfterSolutionLaunch;
         private bool _enableShowApplicationHotKey;
+        private IEnumerable<AnalyzeResult> _analyzeResults;
 
         /// <summary>Initializes a new instance of the <see cref="MainWindowModel"/> class. </summary>
         public MainWindowModel()
@@ -126,7 +128,10 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _selectedProject, value))
+                {
                     RaisePropertyChanged(() => SelectedProjectSolutions);
+                    AnalyzeProjectAsync();
+                }
             }
         }
 
@@ -204,6 +209,13 @@ namespace ProjectDependencyBrowser.ViewModels
         public override void HandleException(Exception exception)
         {
             Messenger.Default.SendAsync(new TextMessage("Exception: " + exception.Message));
+        }
+
+        /// <summary>Gets or sets the analyze results. </summary>
+        public IEnumerable<AnalyzeResult> AnalyzeResults
+        {
+            get { return _analyzeResults; }
+            set { Set(ref _analyzeResults, value); }
         }
 
         /// <summary>Implementation of the initialization method. 
@@ -370,6 +382,15 @@ namespace ProjectDependencyBrowser.ViewModels
         private void OpenNuGetWebsite(NuGetPackageReference package)
         {
             Process.Start(string.Format("http://www.nuget.org/packages/{0}/{1}", package.Name, package.Version));
+        }
+
+        private Task AnalyzeProjectAsync()
+        {
+            return RunTaskAsync(async () =>
+            {
+                var analyzer = new NuGetAssemblyReferencesAnalyzer(SelectedProject);
+                AnalyzeResults = await Task.Run(async () => await analyzer.AnalyzeAsync()); 
+            });
         }
 
         public void AnalyzeProject(VsProject project)
