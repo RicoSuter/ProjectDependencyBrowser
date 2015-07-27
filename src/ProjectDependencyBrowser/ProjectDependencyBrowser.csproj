@@ -47,12 +47,6 @@
       <HintPath>..\Libs\GraphSharp.Controls.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build" />
-    <Reference Include="MyToolkit">
-      <HintPath>..\packages\MyToolkit.2.3.30.0\lib\portable-net45+wp8+win8+wpa81\MyToolkit.dll</HintPath>
-    </Reference>
-    <Reference Include="MyToolkit.Extended">
-      <HintPath>..\packages\MyToolkit.Extended.2.3.30.0\lib\net45\MyToolkit.Extended.dll</HintPath>
-    </Reference>
     <Reference Include="QuickGraph, Version=3.2.40122.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\QuickGraph.dll</HintPath>
@@ -84,7 +78,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Analyzers\AnalyzeResult.cs" />
+    <Compile Include="Analyzers\NuGetAssemblyReferencesAnalyzer.cs" />
     <Compile Include="Analyzers\NuGetPackageDependencyAnalyzer.cs" />
+    <Compile Include="Converters\AssemblyReferenceColorConverter.cs" />
     <Compile Include="Converters\ProjectTypesConverter.cs" />
     <Compile Include="Messages\ShowProjectDetails.cs" />
     <Compile Include="ViewModels\MainWindowModel.cs" />
@@ -140,6 +136,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\MyToolkit\src\MyToolkit.Extended.Wpf\MyToolkit.Extended.Wpf45.csproj">
+      <Project>{0D8F527D-868F-4DE3-8559-EA3597D9D079}</Project>
+      <Name>MyToolkit.Extended.Wpf45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\MyToolkit\src\MyToolkit\MyToolkit.csproj">
+      <Project>{F01F49C0-5DA2-4757-B4E0-02EC7A187DED}</Project>
+      <Name>MyToolkit</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

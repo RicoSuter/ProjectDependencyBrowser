@@ -57,8 +57,11 @@ namespace ProjectDependencyBrowser.ViewModels
 
             RaiseAllPropertiesChanged();
 
+            //await Task.Yield();
+            //await Task.WhenAll(AnalyzeAsync(), LoadNuGetDependencyGraphAsync());
+
             await Task.Yield();
-            await Task.WhenAll(AnalyzeAsync(), LoadNuGetDependencyGraphAsync());
+            await AnalyzeAsync();
         }
 
         /// <summary>Handles an exception which occured in the <see cref="RunTaskAsync"/> method. </summary>
@@ -72,7 +75,8 @@ namespace ProjectDependencyBrowser.ViewModels
         {
             await RunTaskAsync(async () =>
             {
-                var analyzer = new NuGetPackageDependencyAnalyzer(Project, AllProjects);
+                //var analyzer = new NuGetPackageDependencyAnalyzer(Project, AllProjects);
+                var analyzer = new NuGetAssemblyReferencesAnalyzer(Project);
                 AnalysisResult = await Task.Run(async () => await analyzer.AnalyzeAsync()); // TODO: Remove hack
             });
         }

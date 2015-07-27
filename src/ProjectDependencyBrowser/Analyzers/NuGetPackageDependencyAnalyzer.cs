@@ -35,7 +35,7 @@ namespace ProjectDependencyBrowser.Analyzers
 
             if (rootPackagesOfDiamondDependencies.Count > 0)
             {
-                results.Add(new AnalyzeResult("Diamond dependencies detected. Root packages: \n   " +
+                results.Add(new AnalyzeResult("Diamond dependencies detected", "Root packages: \n   " +
                     string.Join("\n   ", rootPackagesOfDiamondDependencies.Select(p => p.Name))));
             }
 
@@ -55,7 +55,7 @@ namespace ProjectDependencyBrowser.Analyzers
                         else
                             text += "\nInfo: Only patch versions are different.";
 
-                        results.Add(new AnalyzeResult(text));
+                        results.Add(new AnalyzeResult("Diamond dependency problem", text));
                     }
                 }
                 return results;

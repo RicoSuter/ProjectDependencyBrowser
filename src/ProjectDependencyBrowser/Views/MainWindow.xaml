@@ -18,9 +18,11 @@
         <converters:VisibilityConverter x:Key="VisibilityConverter" />
         <converters:NotConverter x:Key="NotConverter" />
         <converters1:ProjectTypesConverter x:Key="ProjectTypesConverter" />
+        <converters1:AssemblyReferenceColorConverter x:Key="AssemblyReferenceColorConverter" />
 
         <DataTemplate x:Key="ProjectReferenceTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VsProject}" Margin="0,2,0,2" Background="Transparent">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VsProject}" 
+                        Margin="0,4,0,4" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Show projects with this project reference" 
@@ -38,7 +40,9 @@
         </DataTemplate>
 
         <DataTemplate x:Key="NuGetPackageTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:NuGetPackageReference}" Margin="0,2,0,2" Background="Transparent">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:NuGetPackageReference}"
+                        Margin="0,4,0,4" Background="Transparent">
+
                 <StackPanel.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Show projects with this NuGet package" 
@@ -50,20 +54,29 @@
                     </ContextMenu>
                 </StackPanel.ContextMenu>
 
-                <TextBlock Text="{Binding Name}" FontWeight="Bold" />
-                <TextBlock Text="{Binding Version}" />
+                <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="DarkBlue" />
+                <TextBlock Text="{Binding Version}" Foreground="DarkBlue" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="AssemblyReferenceTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:AssemblyReference}" Margin="0,2,0,2">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:AssemblyReference}" Margin="0,4,0,4">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" />
                 <TextBlock Text="{Binding Version}" />
+                <TextBlock Text="{Binding HintPath}" 
+                           Visibility="{Binding HintPath, Converter={StaticResource VisibilityConverter}}"  />
+
+                <TextBlock Visibility="{Binding IsNuGetReference, Converter={StaticResource VisibilityConverter}}" 
+                           Foreground="{Binding Converter={StaticResource AssemblyReferenceColorConverter}}" >
+                    <Run Text="{Binding NuGetPackage, Mode=OneWay}" FontWeight="Bold" />
+                    <LineBreak />
+                    <Run Text="{Binding NuGetPackageVersion, Mode=OneWay}" />
+                </TextBlock>
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="SolutionTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VsSolution}" Margin="0,2,0,2" Background="Transparent">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VsSolution}" Margin="0,4,0,4" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Show all projects in this solution" 
@@ -80,7 +93,7 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="SolutionListTemplate">
-            <StackPanel d:DataContext="{d:DesignInstance Type=build:VsSolution}" Margin="0,2,0,2" Background="Transparent">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VsSolution}" Margin="0,4,0,4" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Show all projects in this solution" 
@@ -281,17 +294,10 @@
                     <Grid Margin="8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.ColumnSpan="4">
+                        <StackPanel>
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.25*" />
@@ -306,7 +312,7 @@
                                     <TextBlock Text="Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
                                     <TextBlock Text="{Binding SelectedProject.Namespace}" />
                                 </StackPanel>
-                                
+
                                 <StackPanel Orientation="Horizontal" 
                                             HorizontalAlignment="Right" VerticalAlignment="Top" 
                                             Grid.Column="0" Grid.ColumnSpan="2">
@@ -315,8 +321,8 @@
                                             CommandParameter="{Binding SelectedProject}" 
                                             Padding="8,4,8,4" Margin="0,0,8,0" />
 
-                                    <Button Content="Analyze dependencies" Padding="8,4,8,4"
-                                            Command="{Binding AnalyzeProjectDependenciesCommand}"
+                                    <Button Content="Analyze Project" Padding="8,4,8,4"
+                                            Command="{Binding AnalyzeProjectCommand}"
                                             CommandParameter="{Binding SelectedProject}" />
                                 </StackPanel>
                             </Grid>
@@ -330,35 +336,62 @@
                             </StackPanel>
                         </StackPanel>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" 
-                                   Text="Solutions: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <ListBox Grid.Row="2" Grid.Column="0" Margin="0,0,4,0" 
-                                 MouseDoubleClick="OnSolutionDoubleClicked"
-                                 KeyUp="OnSolutionKeyUp" HorizontalContentAlignment="Stretch"
-                                 ItemTemplate="{StaticResource SolutionListTemplate}"
-                                 ItemsSource="{Binding SelectedProjectSolutions}" />
+                        <TabControl Grid.Row="1">
+                            <TabItem Header="Solution &amp; Project References">
+                                <Grid Margin="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="1" Grid.Column="1" 
-                                   Text="Referenced projects: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <ListBox Grid.Row="2" Grid.Column="1" Margin="0,0,4,0" 
-                                 MouseDoubleClick="OnProjectDoubleClicked"
-                                 KeyUp="OnProjectKeyUp" HorizontalContentAlignment="Stretch"
-                                 ItemTemplate="{StaticResource ProjectReferenceTemplate}"
-                                 ItemsSource="{Binding SelectedProject.ProjectReferences}" />
+                                    <TextBlock Grid.Row="0" Grid.Column="0" 
+                                               Text="Solutions: " FontWeight="Bold" Margin="0,0,0,4" />
+                                    <ListBox Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" 
+                                             MouseDoubleClick="OnSolutionDoubleClicked"
+                                             KeyUp="OnSolutionKeyUp" HorizontalContentAlignment="Stretch"
+                                             ItemTemplate="{StaticResource SolutionListTemplate}"
+                                             ItemsSource="{Binding SelectedProjectSolutions}" />
 
-                        <TextBlock Grid.Row="1" Grid.Column="2" 
-                                   Text="NuGet packages: " FontWeight="Bold" Margin="4,0,0,4" />
-                        <ListBox Grid.Row="2" Grid.Column="2" Margin="4,0,4,0" 
-                                 HorizontalContentAlignment="Stretch"
-                                 ItemTemplate="{StaticResource NuGetPackageTemplate}"
-                                 ItemsSource="{Binding SelectedProject.NuGetReferences}" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" 
+                                               Text="Referenced projects: " FontWeight="Bold" Margin="0,0,0,4" />
+                                    <ListBox Grid.Row="1" Grid.Column="1" Margin="0,0,4,0" 
+                                             MouseDoubleClick="OnProjectDoubleClicked"
+                                             KeyUp="OnProjectKeyUp" HorizontalContentAlignment="Stretch"
+                                             ItemTemplate="{StaticResource ProjectReferenceTemplate}"
+                                             ItemsSource="{Binding SelectedProject.ProjectReferences}" />
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="External References">
+                                <Grid Margin="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="1" Grid.Column="3" 
-                                   Text="Referenced assemblies: " FontWeight="Bold" Margin="4,0,0,0" />
-                        <ListBox Grid.Row="2" Grid.Column="3" Margin="4,0,0,0" 
-                                 HorizontalContentAlignment="Stretch"
-                                 ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
-                                 ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
+                                    <TextBlock Grid.Row="0" Grid.Column="0" 
+                                               Text="NuGet packages: " FontWeight="Bold" Margin="4,0,0,4" />
+                                    <ListBox Grid.Row="1" Grid.Column="0" Margin="4,0,4,0" 
+                                             HorizontalContentAlignment="Stretch"
+                                             ItemTemplate="{StaticResource NuGetPackageTemplate}"
+                                             ItemsSource="{Binding SelectedProject.NuGetReferences}" />
+
+                                    <TextBlock Grid.Row="0" Grid.Column="1" 
+                                               Text="Referenced assemblies: " FontWeight="Bold" Margin="4,0,0,0" />
+                                    <ListBox Grid.Row="1" Grid.Column="1" Margin="4,0,0,0" 
+                                             HorizontalContentAlignment="Stretch"
+                                             ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
+                                             ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
+                                </Grid>
+                            </TabItem>
+                        </TabControl>
                     </Grid>
                 </Border>
             </Grid>

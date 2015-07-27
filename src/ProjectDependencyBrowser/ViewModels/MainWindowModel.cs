@@ -65,7 +65,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
             OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackageReference>(OpenNuGetWebsite);
             OpenProjectDirectoryCommand = new RelayCommand<VsProject>(OpenProjectDirectory);
-            AnalyzeProjectDependenciesCommand = new RelayCommand<VsProject>(AnalyzeProjectDependencies);
+            AnalyzeProjectCommand = new RelayCommand<VsProject>(AnalyzeProject);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
             SetProjectFilterCommand = new AsyncRelayCommand<VsObject>(SetProjectFilterAsync);
@@ -90,7 +90,7 @@ namespace ProjectDependencyBrowser.ViewModels
         public ICommand OpenProjectDirectoryCommand { get; private set; }
 
         /// <summary>Gets the command to analyze a project's dependencies. </summary>
-        public ICommand AnalyzeProjectDependenciesCommand { get; private set; }
+        public ICommand AnalyzeProjectCommand { get; private set; }
 
         /// <summary>Gets the command to set the project filter. </summary>
         public ICommand SetProjectFilterCommand { get; private set; }
@@ -372,7 +372,7 @@ namespace ProjectDependencyBrowser.ViewModels
             Process.Start(string.Format("http://www.nuget.org/packages/{0}/{1}", package.Name, package.Version));
         }
 
-        public void AnalyzeProjectDependencies(VsProject project)
+        public void AnalyzeProject(VsProject project)
         {
             Messenger.Default.Send(new ShowProjectDetails(SelectedProject));
         }

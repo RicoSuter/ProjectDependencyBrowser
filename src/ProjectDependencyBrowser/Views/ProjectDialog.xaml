@@ -27,8 +27,22 @@
         
         <TabControl Grid.Row="1">
             <TabItem Header="Analysis">
-                <ListBox ItemsSource="{Binding AnalysisResult}" Margin="8" DisplayMemberPath="Text" />
+                <ListBox ItemsSource="{Binding AnalysisResult}" Margin="8">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{Binding Title}" FontWeight="Bold" />
+                                <TextBlock Grid.Row="1" Text="{Binding Text}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </TabItem>
+            
             <TabItem Header="NuGet dependencies">
                 <Grid>
                     <Grid.Resources>
