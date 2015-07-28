@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="ProjectDialogModel.cs" company="MyToolkit">
+// <copyright file="ProjectDetailsDialogModel.cs" company="MyToolkit">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
 // <license>http://mytoolkit.codeplex.com/license</license>
@@ -22,9 +22,9 @@ using QuickGraph;
 
 namespace ProjectDependencyBrowser.ViewModels
 {
-    public class ProjectDialogModel : ViewModelBase
+    public class ProjectDetailsDialogModel : ViewModelBase
     {
-        private IList<AnalyzeResult> _analysisResult;
+        private IEnumerable<AnalyzeResult> _analysisResult;
         private object _graph;
 
         /// <summary>Gets the project. </summary>
@@ -34,7 +34,7 @@ namespace ProjectDependencyBrowser.ViewModels
         public IList<VsProject> AllProjects { get; private set; }
 
         /// <summary>Gets or sets the analysis result. </summary>
-        public IList<AnalyzeResult> AnalysisResult
+        public IEnumerable<AnalyzeResult> AnalysisResult
         {
             get { return _analysisResult; }
             set { Set(ref _analysisResult, value); }
@@ -72,8 +72,8 @@ namespace ProjectDependencyBrowser.ViewModels
         {
             await RunTaskAsync(async () =>
             {
-                var analyzer = new NuGetPackageDependencyAnalyzer(Project, AllProjects);
-                AnalysisResult = await Task.Run(async () => await analyzer.AnalyzeAsync()); // TODO: Remove hack
+                var analyzer = new NuGetPackageDependencyAnalyzer();
+                AnalysisResult = await Task.Run(async () => await analyzer.AnalyzeAsync(Project, AllProjects, null)); // TODO: Remove hack
             });
         }
 

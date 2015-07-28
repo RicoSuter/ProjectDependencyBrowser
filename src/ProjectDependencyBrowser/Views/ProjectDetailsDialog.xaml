@@ -1,4 +1,4 @@
-﻿<Window x:Class="ProjectDependencyBrowser.Views.ProjectDialog"
+﻿<Window x:Class="ProjectDependencyBrowser.Views.ProjectDetailsDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
@@ -8,7 +8,7 @@
         WindowStartupLocation="CenterScreen">
     
     <Window.Resources>
-        <viewModels:ProjectDialogModel x:Key="ViewModel" />
+        <viewModels:ProjectDetailsDialogModel x:Key="ViewModel" />
         <converters:EdgeColorConverter x:Key="EdgeToEdgeColorConverter"/>
     </Window.Resources>
 

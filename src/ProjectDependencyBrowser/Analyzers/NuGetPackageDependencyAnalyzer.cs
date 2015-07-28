@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="MainWindow.xaml.cs" company="MyToolkit">
+// <copyright file="NuGetPackageDependencyAnalyzer.cs" company="MyToolkit">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
 // <license>http://projectdependencybrowser.codeplex.com/license</license>
@@ -16,22 +16,14 @@ namespace ProjectDependencyBrowser.Analyzers
 {
     public class NuGetPackageDependencyAnalyzer
     {
-        private readonly VsProject _project;
-        private readonly IList<VsProject> _allProjects;
-
-        public NuGetPackageDependencyAnalyzer(VsProject project, IList<VsProject> allProjects)
-        {
-            _project = project;
-            _allProjects = allProjects;
-        }
-
-        public async Task<IList<AnalyzeResult>> AnalyzeAsync()
+        public async Task<IEnumerable<AnalyzeResult>> AnalyzeAsync(
+            VsProject project, IList<VsProject> allProjects, IList<VsSolution> allSolutions)
         {
             var results = new List<AnalyzeResult>();
             var dependencies = new List<Tuple<VsProject, VsReferenceBase>>();
             var rootPackagesOfDiamondDependencies = new List<VsProject>();
 
-            await LoadProjectDependenciesAsync(_project, dependencies, new List<VsProject>(), rootPackagesOfDiamondDependencies);
+            await LoadProjectDependenciesAsync(project, allProjects, dependencies, new List<VsProject>(), rootPackagesOfDiamondDependencies);
 
             if (rootPackagesOfDiamondDependencies.Count > 0)
             {
@@ -75,7 +67,7 @@ namespace ProjectDependencyBrowser.Analyzers
                 .Count() > 1;
         }
 
-        private async Task LoadProjectDependenciesAsync(VsProject project, List<Tuple<VsProject, VsReferenceBase>> dependencies,
+        private async Task LoadProjectDependenciesAsync(VsProject project, IList<VsProject> allProjects, List<Tuple<VsProject, VsReferenceBase>> dependencies,
             List<VsProject> scannedProjects, List<VsProject> rootPackagesOfDiamondDependencies)
         {
             if (scannedProjects.Contains(project))
@@ -90,9 +82,9 @@ namespace ProjectDependencyBrowser.Analyzers
             {
                 dependencies.Add(new Tuple<VsProject, VsReferenceBase>(project, package));
 
-                var referencedProject = _allProjects.FirstOrDefault(p => p.Name == package.Name);
+                var referencedProject = allProjects.FirstOrDefault(p => p.Name == package.Name);
                 if (referencedProject != null)
-                    await LoadProjectDependenciesAsync(referencedProject, dependencies, scannedProjects, rootPackagesOfDiamondDependencies);
+                    await LoadProjectDependenciesAsync(referencedProject, allProjects, dependencies, scannedProjects, rootPackagesOfDiamondDependencies);
                 else
                 {
                     var externalDependencies = await package.GetAllDependenciesAsync();

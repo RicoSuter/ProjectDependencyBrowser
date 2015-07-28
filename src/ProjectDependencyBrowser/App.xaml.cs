@@ -28,7 +28,7 @@ namespace ProjectDependencyBrowser
         /// <exception cref="InvalidOperationException"><see cref="M:System.Windows.Window.ShowDialog" /> is called on a <see cref="T:System.Windows.Window" /> that is visible-or-<see cref="M:System.Windows.Window.ShowDialog" /> is called on a visible <see cref="T:System.Windows.Window" /> that was opened by calling <see cref="M:System.Windows.Window.ShowDialog" />.</exception>
         private void ShowProjectDetails(ShowProjectDetails message)
         {
-            var dialog = new ProjectDialog(message.Project, ((MainWindow)Current.MainWindow).Model.AllProjects);
+            var dialog = new ProjectDetailsDialog(message.Project, ((MainWindow)Current.MainWindow).Model.AllProjects);
             //dialog.Owner = Current.MainWindow;
             dialog.Show();
         }

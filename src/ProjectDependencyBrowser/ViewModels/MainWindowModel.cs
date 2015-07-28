@@ -13,8 +13,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
+using Microsoft.Build.Evaluation;
 using MyToolkit.Build;
 using MyToolkit.Collections;
 using MyToolkit.Command;
@@ -24,7 +24,6 @@ using MyToolkit.Storage;
 using MyToolkit.Utilities;
 using ProjectDependencyBrowser.Analyzers;
 using ProjectDependencyBrowser.Messages;
-using MessageBox = System.Windows.MessageBox;
 
 namespace ProjectDependencyBrowser.ViewModels
 {
@@ -39,7 +38,15 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _automaticallyScanDirectory;
         private bool _minimizeWindowAfterSolutionLaunch;
         private bool _enableShowApplicationHotKey;
+
         private IEnumerable<AnalyzeResult> _analyzeResults;
+        private readonly Dictionary<VsProject, IEnumerable<AnalyzeResult>> _allAnalyzeResults = 
+            new Dictionary<VsProject, IEnumerable<AnalyzeResult>>();
+        
+        private readonly IEnumerable<IProjectAnalyzer> _projectAnalyzers = new List<IProjectAnalyzer>
+        {
+            new NuGetAssemblyReferenceAnalyzer()
+        }; 
 
         /// <summary>Initializes a new instance of the <see cref="MainWindowModel"/> class. </summary>
         public MainWindowModel()
@@ -67,7 +74,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
             OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackageReference>(OpenNuGetWebsite);
             OpenProjectDirectoryCommand = new RelayCommand<VsProject>(OpenProjectDirectory);
-            AnalyzeProjectCommand = new RelayCommand<VsProject>(AnalyzeProject);
+            ShowProjectDetailsCommand = new RelayCommand<VsProject>(ShowProjectDetails);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
             SetProjectFilterCommand = new AsyncRelayCommand<VsObject>(SetProjectFilterAsync);
@@ -92,7 +99,7 @@ namespace ProjectDependencyBrowser.ViewModels
         public ICommand OpenProjectDirectoryCommand { get; private set; }
 
         /// <summary>Gets the command to analyze a project's dependencies. </summary>
-        public ICommand AnalyzeProjectCommand { get; private set; }
+        public ICommand ShowProjectDetailsCommand { get; private set; }
 
         /// <summary>Gets the command to set the project filter. </summary>
         public ICommand SetProjectFilterCommand { get; private set; }
@@ -243,12 +250,16 @@ namespace ProjectDependencyBrowser.ViewModels
             ApplicationSettings.SetSetting("EnableShowApplicationHotKey", EnableShowApplicationHotKey);
         }
 
+        private ProjectCollection _projectCollection; 
+
         private async Task LoadProjectsAsync()
         {
+            ClearLoadedProjects();
+
             var tuple = await RunTaskAsync(async () =>
             {
-                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions);
-                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions);
+                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions, _projectCollection);
+                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions, _projectCollection);
 
                 await Task.WhenAll(projectsTask, solutionsTask);
                 await Task.Run(() =>
@@ -269,9 +280,27 @@ namespace ProjectDependencyBrowser.ViewModels
                 AllSolutions.Initialize(solutions.OrderBy(p => p.Name));
                 AllProjects.Initialize(projects.OrderBy(p => p.Name));
 
+                SelectedProject = FilteredProjects.FirstOrDefault();
+
                 InitializeFilter();
                 IsLoaded = true;
             }
+        }
+
+        private void ClearLoadedProjects()
+        {
+            _allAnalyzeResults.Clear();
+
+            if (_projectCollection != null)
+            {
+                _projectCollection.UnloadAllProjects();
+                _projectCollection.Dispose();
+            }
+
+            _projectCollection = new ProjectCollection();
+
+            AllSolutions.Clear();
+            AllProjects.Clear();
         }
 
         private void InitializeFilter()
@@ -336,7 +365,7 @@ namespace ProjectDependencyBrowser.ViewModels
                 Process.Start(solution.Path);
 
                 if (MinimizeWindowAfterSolutionLaunch)
-                    System.Windows.Application.Current.MainWindow.WindowState = WindowState.Minimized;
+                    Application.Current.MainWindow.WindowState = WindowState.Minimized;
             }
         }
 
@@ -384,16 +413,32 @@ namespace ProjectDependencyBrowser.ViewModels
             Process.Start(string.Format("http://www.nuget.org/packages/{0}/{1}", package.Name, package.Version));
         }
 
-        private Task AnalyzeProjectAsync()
+        private async Task AnalyzeProjectAsync()
         {
-            return RunTaskAsync(async () =>
+            var selectedProject = SelectedProject;
+            
+            await RunTaskAsync(async () =>
             {
-                var analyzer = new NuGetAssemblyReferencesAnalyzer(SelectedProject);
-                AnalyzeResults = await Task.Run(async () => await analyzer.AnalyzeAsync()); 
+                if (selectedProject != null && !_allAnalyzeResults.ContainsKey(selectedProject))
+                {
+                    _allAnalyzeResults[selectedProject] = null;
+
+                    var allResults = new List<AnalyzeResult>();
+                    foreach (var analyzer in _projectAnalyzers)
+                    {
+                        var results = await Task.Run(async () => await analyzer.AnalyzeAsync(SelectedProject, AllProjects, AllSolutions));
+                        allResults.AddRange(results);
+                    }
+
+                    _allAnalyzeResults[selectedProject] = allResults;
+                }
             });
+
+            if (selectedProject != null && _allAnalyzeResults.ContainsKey(SelectedProject))
+                AnalyzeResults = _allAnalyzeResults[SelectedProject];
         }
 
-        public void AnalyzeProject(VsProject project)
+        public void ShowProjectDetails(VsProject project)
         {
             Messenger.Default.Send(new ShowProjectDetails(SelectedProject));
         }

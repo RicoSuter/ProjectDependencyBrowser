@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -78,16 +79,17 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Analyzers\AnalyzeResult.cs" />
-    <Compile Include="Analyzers\NuGetAssemblyReferencesAnalyzer.cs" />
+    <Compile Include="Analyzers\IProjectAnalyzer.cs" />
+    <Compile Include="Analyzers\NuGetAssemblyReferenceAnalyzer.cs" />
     <Compile Include="Analyzers\NuGetPackageDependencyAnalyzer.cs" />
     <Compile Include="Converters\AssemblyReferenceColorConverter.cs" />
     <Compile Include="Converters\ProjectTypesConverter.cs" />
     <Compile Include="Messages\ShowProjectDetails.cs" />
     <Compile Include="ViewModels\MainWindowModel.cs" />
-    <Compile Include="ViewModels\ProjectDialogModel.cs" />
+    <Compile Include="ViewModels\ProjectDetailsDialogModel.cs" />
     <Compile Include="Converters\EdgeColorConverter.cs" />
-    <Compile Include="Views\ProjectDialog.xaml.cs">
-      <DependentUpon>ProjectDialog.xaml</DependentUpon>
+    <Compile Include="Views\ProjectDetailsDialog.xaml.cs">
+      <DependentUpon>ProjectDetailsDialog.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -102,7 +104,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\ProjectDialog.xaml">
+    <Page Include="Views\ProjectDetailsDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -81,7 +81,7 @@
 
                 <TextBlock Visibility="{Binding IsNuGetReference, Converter={StaticResource VisibilityConverter}}" 
                            Foreground="{Binding Converter={StaticResource AssemblyReferenceColorConverter}}" >
-                    <Run Text="{Binding NuGetPackage, Mode=OneWay}" FontWeight="Bold" />
+                    <Run Text="{Binding NuGetPackageName, Mode=OneWay}" FontWeight="Bold" />
                     <LineBreak />
                     <Run Text="{Binding NuGetPackageVersion, Mode=OneWay}" />
                 </TextBlock>
@@ -327,8 +327,8 @@
                                                 CommandParameter="{Binding SelectedProject}" 
                                                 Padding="8,4,8,4" Margin="0,0,8,0" />
 
-                                        <Button Content="Analyze Project" Padding="8,4,8,4"
-                                                Command="{Binding AnalyzeProjectCommand}"
+                                        <Button Content="Project details" Padding="8,4,8,4"
+                                                Command="{Binding ShowProjectDetailsCommand}"
                                                 CommandParameter="{Binding SelectedProject}" />
                                     </StackPanel>
                                 </Grid>
@@ -401,7 +401,7 @@
                         </Grid>
                     </TabItem>
                     <!-- Tab: Analyze Results -->
-                    <TabItem Header="Analyze Results">
+                    <TabItem Header="Analysis results">
                         <Grid Margin="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -411,7 +411,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Text="Analyze Results: " FontWeight="Bold" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="0" Text="Analysis results: " FontWeight="Bold" Margin="0,0,0,4" />
                             <ListBox Grid.Row="1" Margin="0,0,4,0" 
                                      HorizontalContentAlignment="Stretch"
                                      ItemTemplate="{StaticResource AnalyzeResultTemplate}"

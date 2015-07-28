@@ -395,6 +395,9 @@
             <Component Id="cmp3A914B6C87AC51BB09822FF34BA4B612" Directory="RootDirectory" Guid="*">
                 <File Id="filB6ADD1F869C4BB9DB47E45E785EFC062" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.Extended.pdb" />
             </Component>
+            <Component Id="cmp5DA04D879E472CDB59610C78E2C06D67" Directory="RootDirectory" Guid="*">
+                <File Id="fil9DE1E33FF998D56AD5CDDBB114A9D14E" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.Extended.xml" />
+            </Component>
             <Component Id="cmp26462F562C414B4105A6C02B787B44E3" Directory="RootDirectory" Guid="*">
                 <File Id="filD0D967A880C1A24B91AB2210161ED9CA" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.pdb" />
             </Component>
@@ -416,20 +419,8 @@
             <Component Id="cmp839DE72B6D13BD19B6BB1437ABD0ABE6" Directory="RootDirectory" Guid="*">
                 <File Id="fil5468A59D52A996DB2A5E000426C72BB9" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyBrowser.vshost.exe.config" />
             </Component>
-            <Component Id="cmpAC0CC226FF6E190BA0BCB32593B8E836" Directory="RootDirectory" Guid="*">
-                <File Id="fil091E2D2788C08B941C15A9FCF2F0D1A9" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyVisualizer.exe" />
-            </Component>
-            <Component Id="cmp0E6124E7007048356C2FA2D7F2FDA15D" Directory="RootDirectory" Guid="*">
-                <File Id="filBD3541469A7C3C84BACE69FD5397A145" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyVisualizer.exe.config" />
-            </Component>
-            <Component Id="cmp395E97EF5153087CB310F474B552F888" Directory="RootDirectory" Guid="*">
-                <File Id="fil2F0AFEA46C040201515FABD7AEF177B9" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyVisualizer.pdb" />
-            </Component>
-            <Component Id="cmpB0DA6BE1C4BE933CB2C456515D171C08" Directory="RootDirectory" Guid="*">
-                <File Id="fil0B5388401F0B3B5A09654D323D1D2B4C" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyVisualizer.vshost.exe.config" />
-            </Component>
-            <Component Id="cmpBE0CECF07BDD24EEEF370E3F0232D4CB" Directory="RootDirectory" Guid="*">
-                <File Id="filC08F6390B6C3EA80352E3B2F88166195" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyVisualizer.vshost.exe.manifest" />
+            <Component Id="cmpB5A32562A27447D30228CBBB7CEB0011" Directory="RootDirectory" Guid="*">
+                <File Id="fil665E6B01BDD5EB490D7542A434C069DF" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyBrowser.vshost.exe.manifest" />
             </Component>
             <Component Id="cmp7DD8572C962FD8E0DC4C577AD3A9044D" Directory="RootDirectory" Guid="*">
                 <File Id="filBA75D61EB8E9712FDB892FF2ED23BE78" KeyPath="yes" Source="$(var.SourcePath)\QuickGraph.dll" />
