@@ -235,6 +235,8 @@ namespace ProjectDependencyBrowser.ViewModels
             MinimizeWindowAfterSolutionLaunch = ApplicationSettings.GetSetting("MinimizeWindowAfterSolutionLaunch", true);
             EnableShowApplicationHotKey = ApplicationSettings.GetSetting("EnableShowApplicationHotKey", false);
 
+            Filter.ProjectPathFilter = ApplicationSettings.GetSetting("ProjectPathFilter", string.Empty);
+
             if (AutomaticallyScanDirectory && !string.IsNullOrEmpty(RootDirectory))
                 await LoadProjectsAsync();
         }
@@ -248,6 +250,7 @@ namespace ProjectDependencyBrowser.ViewModels
             ApplicationSettings.SetSetting("IgnoreExceptions", IgnoreExceptions);
             ApplicationSettings.SetSetting("MinimizeWindowAfterSolutionLaunch", MinimizeWindowAfterSolutionLaunch);
             ApplicationSettings.SetSetting("EnableShowApplicationHotKey", EnableShowApplicationHotKey);
+            ApplicationSettings.SetSetting("ProjectPathFilter", Filter.ProjectPathFilter);
         }
 
         private ProjectCollection _projectCollection; 

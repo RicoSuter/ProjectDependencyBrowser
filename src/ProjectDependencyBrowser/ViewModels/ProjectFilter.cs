@@ -19,6 +19,7 @@ namespace ProjectDependencyBrowser.ViewModels
     public class ProjectFilter : ObservableObject
     {
         private string _projectNameFilter = string.Empty;
+        private string _projectPathFilter = "*";
 
         private bool _isNuGetFilterEnabled;
         private bool _isProjectReferenceFilterEnabled;
@@ -55,6 +56,17 @@ namespace ProjectDependencyBrowser.ViewModels
             }
         }
 
+        /// <summary>Gets or sets the project path filter. </summary>
+        public string ProjectPathFilter
+        {
+            get { return _projectPathFilter; }
+            set
+            {
+                if (Set(ref _projectPathFilter, value))
+                    Update();
+            }
+        }
+        
         /// <summary>Gets or sets a value indicating whether the NuGet filter is enabled. </summary>
         public bool IsNuGetFilterEnabled
         {
@@ -169,10 +181,12 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private void Update()
         {
-            var terms = ProjectNameFilter.ToLower().Split(' ');
+            var nameTerms = ProjectNameFilter.ToLower().Split(' ');
+            var pathTerms = ProjectPathFilter.ToLower().Split(' ');
 
             FilteredProjects.Filter = project =>
-                (terms.All(t => project.Name.ToLower().Contains(t))) &&
+                (nameTerms.All(t => project.Name.ToLower().Contains(t))) &&
+                (pathTerms.All(t => project.Path.ToLower().Contains(t))) &&
                 ApplyShowOnlyProjectsWithNuGetPackagesFilter(project) &&
                 ApplyShowOnlyProjectsWithoutSolutionFilter(project) &&
                 ApplyShowOnlyProjectsWithMultipleSolutionsFilter(project) &&
