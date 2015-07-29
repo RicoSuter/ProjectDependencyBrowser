@@ -302,6 +302,8 @@ namespace ProjectDependencyBrowser.ViewModels
 
             _projectCollection = new ProjectCollection();
 
+            IsLoaded = false;
+
             AllSolutions.Clear();
             AllProjects.Clear();
         }
@@ -329,15 +331,7 @@ namespace ProjectDependencyBrowser.ViewModels
         /// <summary>Removes all filters and shows all projects in the list. </summary>
         public void ClearFilter()
         {
-            Filter.ShowOnlyProjectsWithNuGetPackages = false;
-            Filter.ShowOnlyProjectsWithoutSolution = false;
-            Filter.ShowOnlyProjectsWithMultipleSolutions = false;
-
-            Filter.IsSolutionFilterEnabled = false;
-            Filter.IsProjectReferenceFilterEnabled = false;
-            Filter.IsNuGetFilterEnabled = false;
-
-            Filter.ProjectNameFilter = string.Empty;
+            Filter.Clear();
         }
 
         /// <summary>Removes all filters, shows all projects and selects the given project. </summary>

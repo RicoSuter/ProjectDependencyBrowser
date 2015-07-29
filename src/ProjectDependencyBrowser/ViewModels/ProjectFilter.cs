@@ -19,7 +19,8 @@ namespace ProjectDependencyBrowser.ViewModels
     public class ProjectFilter : ObservableObject
     {
         private string _projectNameFilter = string.Empty;
-        private string _projectPathFilter = "*";
+        private string _projectPathFilter = string.Empty;
+        private string _projectNamespaceFilter = string.Empty;
 
         private bool _isNuGetFilterEnabled;
         private bool _isProjectReferenceFilterEnabled;
@@ -63,6 +64,17 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _projectPathFilter, value))
+                    Update();
+            }
+        }
+
+        /// <summary>Gets or sets the project namespace filter. </summary>
+        public string ProjectNamespaceFilter
+        {
+            get { return _projectNamespaceFilter; }
+            set
+            {
+                if (Set(ref _projectNamespaceFilter, value))
                     Update();
             }
         }
@@ -179,14 +191,31 @@ namespace ProjectDependencyBrowser.ViewModels
             }
         }
 
+        /// <summary>Removes all filters and shows all projects in the list. </summary>
+        public void Clear()
+        {
+            ShowOnlyProjectsWithNuGetPackages = false;
+            ShowOnlyProjectsWithoutSolution = false;
+            ShowOnlyProjectsWithMultipleSolutions = false;
+
+            IsSolutionFilterEnabled = false;
+            IsProjectReferenceFilterEnabled = false;
+            IsNuGetFilterEnabled = false;
+
+            ProjectNameFilter = string.Empty;
+            ProjectNamespaceFilter = string.Empty;
+        }
+
         private void Update()
         {
             var nameTerms = ProjectNameFilter.ToLower().Split(' ');
             var pathTerms = ProjectPathFilter.ToLower().Split(' ');
+            var namespaceTerms = ProjectNamespaceFilter.ToLower().Split(' ');
 
             FilteredProjects.Filter = project =>
                 (nameTerms.All(t => project.Name.ToLower().Contains(t))) &&
                 (pathTerms.All(t => project.Path.ToLower().Contains(t))) &&
+                (namespaceTerms.All(t => project.Namespace.ToLower().Contains(t))) &&
                 ApplyShowOnlyProjectsWithNuGetPackagesFilter(project) &&
                 ApplyShowOnlyProjectsWithoutSolutionFilter(project) &&
                 ApplyShowOnlyProjectsWithMultipleSolutionsFilter(project) &&

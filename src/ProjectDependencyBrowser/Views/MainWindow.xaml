@@ -8,6 +8,7 @@
         xmlns:build="clr-namespace:MyToolkit.Build;assembly=MyToolkit.Extended"
         xmlns:converters1="clr-namespace:ProjectDependencyBrowser.Converters"
         xmlns:analyzers="clr-namespace:ProjectDependencyBrowser.Analyzers"
+        xmlns:controls="clr-namespace:MyToolkit.Controls;assembly=MyToolkit.Extended"
         mc:Ignorable="d"
         Title="Project Dependency Browser" Background="#EEEEEE"
         Height="700" Width="1200" MinHeight="700" MinWidth="1200"
@@ -194,11 +195,17 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <StackPanel Grid.ColumnSpan="3">
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,4,0">
                         <TextBlock Text="Project name: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding Filter.ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  x:Name="ProjectNameFilter" GotFocus="OnProjectNameFilterGotFocus" Margin="0,0,0,8"
                                  KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="4,0,4,0">
+                        <TextBlock Text="Project namespace: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding Filter.ProjectNamespaceFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="0,0,0,8" AcceptsReturn="False" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Margin="0,0,4,0" Grid.Column="0">
@@ -228,7 +235,7 @@
                                   SelectedItem="{Binding Filter.ProjectReferenceFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
                     </StackPanel>
                     
-                    <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" Margin="8,0,0,0">
+                    <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" Margin="4,0,0,0">
                         <TextBlock Text="Project path: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding Filter.ProjectPathFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                  Margin="0,0,0,12" AcceptsReturn="False" />
@@ -292,6 +299,7 @@
                     (<Run Text="{Binding FilteredProjects.Count, Mode=OneWay}" /> / 
                      <Run Text="{Binding AllProjects.Count, Mode=OneWay}" />)
                 </TextBlock>
+                
                 <ListBox Grid.Row="1" x:Name="ProjectList" KeyDown="OnKeyDown"
                          SelectionMode="Single" HorizontalContentAlignment="Stretch"
                          ItemsSource="{Binding FilteredProjects}" 
@@ -330,9 +338,10 @@
                                         <Button Content="Open project directory" 
                                                 Command="{Binding OpenProjectDirectoryCommand}"
                                                 CommandParameter="{Binding SelectedProject}" 
-                                                Padding="8,4,8,4" Margin="0,0,8,0" />
+                                                Padding="8,4,8,4" />
 
-                                        <Button Content="Project details" Padding="8,4,8,4"
+                                        <Button Content="Project details" Padding="8,4,8,4" Margin="8,0,0,0"
+                                                x:Name="ProjectDetailsButton"
                                                 Command="{Binding ShowProjectDetailsCommand}"
                                                 CommandParameter="{Binding SelectedProject}" />
                                     </StackPanel>
@@ -382,27 +391,32 @@
                             <!-- Referenced projects -->
                             <TextBlock Grid.Row="0" Grid.Column="0"  
                                        Text="Referenced projects: " FontWeight="Bold" Margin="0,0,0,4" />
-                            <ListBox Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" 
-                                     MouseDoubleClick="OnProjectDoubleClicked"
-                                     KeyUp="OnProjectKeyUp" HorizontalContentAlignment="Stretch"
-                                     ItemTemplate="{StaticResource ProjectReferenceTemplate}"
-                                     ItemsSource="{Binding SelectedProject.ProjectReferences}" />
+                            <controls:FilterListBox x:Name="ProjectReferencesList" 
+                                                    Grid.Row="1" Grid.Column="0" 
+                                                    Margin="0,0,4,0"                                      
+                                                    MouseDoubleClick="OnProjectDoubleClicked"
+                                                    KeyUp="OnProjectKeyUp" FilterPath="Name"
+                                                    HorizontalContentAlignment="Stretch"
+                                                    ItemTemplate="{StaticResource ProjectReferenceTemplate}"
+                                                    ItemsSource="{Binding SelectedProject.ProjectReferences}" />
 
                             <!-- NuGet projects -->
                             <TextBlock Grid.Row="0" Grid.Column="1" 
                                        Text="NuGet packages: " FontWeight="Bold" Margin="4,0,0,4" />
-                            <ListBox Grid.Row="1" Grid.Column="1" Margin="4,0,4,0" 
-                                     HorizontalContentAlignment="Stretch"
-                                     ItemTemplate="{StaticResource NuGetPackageTemplate}"
-                                     ItemsSource="{Binding SelectedProject.NuGetReferences}" />
+                            <controls:FilterListBox x:Name="NuGetReferencesList" 
+                                                    Grid.Row="1" Grid.Column="1" Margin="4,0,4,0" 
+                                                    HorizontalContentAlignment="Stretch" FilterPath="Name"
+                                                    ItemTemplate="{StaticResource NuGetPackageTemplate}"
+                                                    ItemsSource="{Binding SelectedProject.NuGetReferences}" />
 
                             <!-- Referenced assemblies -->
                             <TextBlock Grid.Row="0" Grid.Column="2" 
                                        Text="Referenced assemblies: " FontWeight="Bold" Margin="4,0,0,0" />
-                            <ListBox Grid.Row="1" Grid.Column="2" Margin="4,0,0,0" 
-                                     HorizontalContentAlignment="Stretch"
-                                     ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
-                                     ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
+                            <controls:FilterListBox x:Name="AssemblyReferencesList" 
+                                                    Grid.Row="1" Grid.Column="2" Margin="4,0,0,0" 
+                                                    HorizontalContentAlignment="Stretch" FilterPath="Name"
+                                                    ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
+                                                    ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
                         </Grid>
                     </TabItem>
                     <!-- Tab: Analyze Results -->

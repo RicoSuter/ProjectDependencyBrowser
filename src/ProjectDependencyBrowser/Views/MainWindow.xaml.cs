@@ -17,6 +17,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using GlobalHotKey;
 using MyToolkit.Build;
+using MyToolkit.Controls;
 using MyToolkit.Model;
 using MyToolkit.Mvvm;
 using MyToolkit.Utilities;
@@ -33,8 +34,12 @@ namespace ProjectDependencyBrowser.Views
         public MainWindow()
         {
             InitializeComponent();
-
+            
             ViewModelHelper.RegisterViewModel(Model, this);
+
+#if !DEBUG
+            ProjectDetailsButton.Visibility = Visibility.Collapsed;
+#endif
 
             Closed += delegate { Model.CallOnUnloaded(); };
             Activated += delegate { FocusProjectNameFilter(); };
@@ -44,9 +49,18 @@ namespace ProjectDependencyBrowser.Views
             {
                 if (args.IsProperty<MainWindowModel>(i => i.IsLoaded))
                 {
-                    Tabs.SelectedIndex = 1;
-                    await Task.Delay(250);
-                    FocusProjectNameFilter();
+                    if (Model.IsLoaded)
+                    {
+                        Tabs.SelectedIndex = 1;
+                        await Task.Delay(250);
+                        FocusProjectNameFilter();
+                    }
+                }
+                else if (args.IsProperty<MainWindowModel>(i => i.SelectedProject))
+                {
+                    ProjectReferencesList.Filter = string.Empty;
+                    NuGetReferencesList.Filter = string.Empty;
+                    AssemblyReferencesList.Filter = string.Empty;
                 }
             };
 
@@ -164,7 +178,7 @@ namespace ProjectDependencyBrowser.Views
 
         private void OnProjectDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            var projectReference = (VsProjectReference)((ListBox)sender).SelectedItem;
+            var projectReference = (VsProjectReference)((FilterListBox)sender).SelectedItem;
             if (projectReference != null)
             {
                 Model.SelectProjectReference(projectReference);
@@ -178,7 +192,7 @@ namespace ProjectDependencyBrowser.Views
             {
                 if (e.Key == Key.Enter || e.Key == Key.Return)
                 {
-                    var project = (VsProject)((ListBox)sender).SelectedItem;
+                    var project = (VsProject)((FilterListBox)sender).SelectedItem;
                     if (project != null)
                         Model.SelectProject(project);
                 }
