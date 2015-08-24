@@ -261,7 +261,7 @@
             <TabItem Header="About">
                 <StackPanel Margin="8">
                     <TextBlock Margin="0,0,0,8" FontSize="14">
-                        <Hyperlink NavigateUri="http://projectdependencybrowser.codeplex.com" Click="OnOpenHyperlink">Project Dependency Browser</Hyperlink>
+                        <Hyperlink NavigateUri="http://projectdependencybrowser.org" Click="OnOpenHyperlink">Project Dependency Browser</Hyperlink>
                         has been developed by 
                         <Hyperlink NavigateUri="http://www.rsuter.com" Click="OnOpenHyperlink">Rico Suter</Hyperlink>.
                     </TextBlock>
@@ -284,7 +284,8 @@
                    Visibility="{Binding IsLoaded, Converter={StaticResource NotConverter}}" />
         <Grid Grid.Row="2" Visibility="{Binding IsLoaded, Converter={StaticResource VisibilityConverter}}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MaxWidth="350" />
+                <ColumnDefinition Width="350" MinWidth="250" MaxWidth="550" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
@@ -308,14 +309,20 @@
                          ItemTemplate="{StaticResource ProjectReferenceTemplate}" />
             </Grid>
 
+            <GridSplitter Grid.Column="1" Width="8" ResizeBehavior="PreviousAndNext" />
+
             <!-- Selected project -->
-            <Grid Grid.Column="1" Margin="8,0,0,0" Visibility="{Binding SelectedProject, Converter={StaticResource VisibilityConverter}}">
+            <Grid Grid.Column="2" Visibility="{Binding SelectedProject, Converter={StaticResource VisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Project" FontWeight="Bold" Margin="0,0,0,4" />
+                <StackPanel>
+                    <TextBlock Text="Project" FontWeight="Bold" Margin="0,0,0,4" />
+                </StackPanel>
+
                 <TabControl Grid.Row="1">
                     <!-- Tab: Overview -->
                     <TabItem Header="Overview">
@@ -326,32 +333,14 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0">
-                                <Grid Margin="0,0,0,8">
-                                    <StackPanel>
-                                        <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
-                                        <TextBlock Text="{Binding SelectedProject.Name}" />
-                                    </StackPanel>
-
-                                    <StackPanel Orientation="Horizontal"
-                                                HorizontalAlignment="Right" VerticalAlignment="Top" 
-                                                Grid.Column="0">
-                                        <Button Content="Open project directory" 
-                                                Command="{Binding OpenProjectDirectoryCommand}"
-                                                CommandParameter="{Binding SelectedProject}" 
-                                                Padding="8,4,8,4" />
-
-                                        <Button Content="Project details" Padding="8,4,8,4" Margin="8,0,0,0"
-                                                x:Name="ProjectDetailsButton"
-                                                Command="{Binding ShowProjectDetailsCommand}"
-                                                CommandParameter="{Binding SelectedProject}" />
-                                    </StackPanel>
-                                </Grid>
+                                <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
+                                <TextBox Text="{Binding SelectedProject.Name, Mode=OneWay}" Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
 
                                 <TextBlock Text="Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
-                                <TextBlock Text="{Binding SelectedProject.Namespace}" Margin="0,0,0,8" />
+                                <TextBox Text="{Binding SelectedProject.Namespace, Mode=OneWay}" Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
 
                                 <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
-                                <TextBlock Text="{Binding SelectedProject.Path}" Margin="0,0,0,8" />
+                                <TextBox Text="{Binding SelectedProject.Path, Mode=OneWay}" Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
 
                                 <StackPanel Visibility="{Binding SelectedProject.ProjectTypes, Converter={StaticResource VisibilityConverter}}">
                                     <TextBlock Text="Project type: " FontWeight="Bold" Margin="0,0,0,4" />
@@ -379,9 +368,11 @@
                     <TabItem Header="References">
                         <Grid Margin="8">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="30*" />
-                                <ColumnDefinition Width="30*" />
-                                <ColumnDefinition Width="40*" />
+                                <ColumnDefinition Width="30*" MinWidth="160" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="30*" MinWidth="160" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="40*" MinWidth="160" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -393,28 +384,36 @@
                                        Text="Referenced projects: " FontWeight="Bold" Margin="0,0,0,4" />
                             <controls:FilterListBox x:Name="ProjectReferencesList" 
                                                     Grid.Row="1" Grid.Column="0" 
-                                                    Margin="0,0,4,0"                                      
+                                                    Margin="0,0,4,0"
                                                     MouseDoubleClick="OnProjectDoubleClicked"
                                                     KeyUp="OnProjectKeyUp" FilterPath="Name"
                                                     HorizontalContentAlignment="Stretch"
                                                     ItemTemplate="{StaticResource ProjectReferenceTemplate}"
                                                     ItemsSource="{Binding SelectedProject.ProjectReferences}" />
 
+                            <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" />
+
                             <!-- NuGet projects -->
-                            <TextBlock Grid.Row="0" Grid.Column="1" 
+                            <TextBlock Grid.Row="0" Grid.Column="2" 
                                        Text="NuGet packages: " FontWeight="Bold" Margin="4,0,0,4" />
                             <controls:FilterListBox x:Name="NuGetReferencesList" 
-                                                    Grid.Row="1" Grid.Column="1" Margin="4,0,4,0" 
-                                                    HorizontalContentAlignment="Stretch" FilterPath="Name"
+                                                    Grid.Row="1" Grid.Column="2" 
+                                                    Margin="4,0,4,0"
+                                                    HorizontalContentAlignment="Stretch" 
+                                                    FilterPath="Name"
                                                     ItemTemplate="{StaticResource NuGetPackageTemplate}"
                                                     ItemsSource="{Binding SelectedProject.NuGetReferences}" />
 
+                            <GridSplitter Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" />
+                            
                             <!-- Referenced assemblies -->
-                            <TextBlock Grid.Row="0" Grid.Column="2" 
+                            <TextBlock Grid.Row="0" Grid.Column="4" 
                                        Text="Referenced assemblies: " FontWeight="Bold" Margin="4,0,0,0" />
                             <controls:FilterListBox x:Name="AssemblyReferencesList" 
-                                                    Grid.Row="1" Grid.Column="2" Margin="4,0,0,0" 
-                                                    HorizontalContentAlignment="Stretch" FilterPath="Name"
+                                                    Grid.Row="1" Grid.Column="4" 
+                                                    Margin="4,0,0,0"
+                                                    HorizontalContentAlignment="Stretch" 
+                                                    FilterPath="Name"
                                                     ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
                                                     ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
                         </Grid>
@@ -438,6 +437,17 @@
                         </Grid>
                     </TabItem>
                 </TabControl>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,8,0,0" Grid.Row="2">
+                    <Button Content="Open project directory" 
+                                Command="{Binding OpenProjectDirectoryCommand}"
+                                CommandParameter="{Binding SelectedProject}" 
+                                Padding="8,4,8,4" />
+                    <Button Content="Project details" Padding="8,4,8,4" Margin="8,0,0,0"
+                                x:Name="ProjectDetailsButton"
+                                Command="{Binding ShowProjectDetailsCommand}"
+                                CommandParameter="{Binding SelectedProject}" />
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>
