@@ -30,6 +30,8 @@
         <DirectoryRef Id="INSTALLFOLDER">
             <Directory Id="RootDirectory" Name="Project Dependency Browser" />
         </DirectoryRef>
+        
+        <Icon Id="ApplicationIcon" SourceFile="$(var.SourcePath)\ApplicationIcon.ico" />
 
         <DirectoryRef Id="ApplicationProgramsFolder">
             <Component Id="ApplicationComponent">
@@ -42,6 +44,7 @@
                                Value="1" KeyPath="yes"/>
 
                 <Shortcut Id="ApplicationStartMenuShortcut"
+                          Icon="ApplicationIcon"
                           Name="Project Dependency Browser"
                           Description="Project Dependency Browser"
                           Target="[#filA5EBBF9F38D88E859FC16465CE338E77]"
