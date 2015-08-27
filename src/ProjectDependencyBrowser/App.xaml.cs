@@ -7,6 +7,7 @@
 //-----------------------------------------------------------------------
 
 using System;
+using System.Reflection;
 using System.Windows;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -21,16 +22,19 @@ namespace ProjectDependencyBrowser
     {
         public static TelemetryClient Telemetry = new TelemetryClient();
 
+        public App()
+        {
+            InitializeTelemetry();
+        }
+
         /// <summary>Raises the <see cref="E:System.Windows.Application.Startup"/> event. </summary>
         /// <param name="e">A <see cref="T:System.Windows.StartupEventArgs"/> that contains the event data.</param>
         protected override void OnStartup(StartupEventArgs e)
         {
-            Telemetry.InstrumentationKey = "c5864186-40da-4391-8921-5991d5e91b2b";
-            Telemetry.Context.Session.Id = Guid.NewGuid().ToString();
-            Telemetry.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
-
             Messenger.Default.Register(DefaultActions.GetTextMessageAction());
             Messenger.Default.Register<ShowProjectDetails>(ShowProjectDetails);
+
+            Telemetry.TrackEvent("ApplicationStart");
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
         }
@@ -49,8 +53,20 @@ namespace ProjectDependencyBrowser
         /// <param name="e">An <see cref="T:System.Windows.ExitEventArgs"/> that contains the event data.</param>
         protected override void OnExit(ExitEventArgs e)
         {
+            Telemetry.TrackEvent("ApplicationExit");
             Telemetry.Flush();
         }
+
+        private void InitializeTelemetry()
+        {
+            var instrumentationKey = "c5864186-40da-4391-8921-5991d5e91b2b";
+            TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
+            Telemetry.InstrumentationKey = instrumentationKey;
+            Telemetry.Context.Session.Id = Guid.NewGuid().ToString();
+            Telemetry.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
+            Telemetry.Context.Component.Version = GetType().Assembly.GetName().Version.ToString();
+        }
+
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
         {
