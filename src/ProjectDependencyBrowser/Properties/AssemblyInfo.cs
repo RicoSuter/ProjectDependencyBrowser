@@ -25,4 +25,4 @@ using System.Windows;
     ResourceDictionaryLocation.SourceAssembly 
 )]
 
-[assembly: AssemblyVersion("0.8.*")]
+[assembly: AssemblyVersion("0.9.*")]
