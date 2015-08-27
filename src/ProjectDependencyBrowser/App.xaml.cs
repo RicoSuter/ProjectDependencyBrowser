@@ -12,6 +12,7 @@ using System.Windows;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using MyToolkit.Messaging;
+using MyToolkit.Storage;
 using ProjectDependencyBrowser.Messages;
 using ProjectDependencyBrowser.Views;
 
@@ -61,7 +62,9 @@ namespace ProjectDependencyBrowser
         {
             var instrumentationKey = "c5864186-40da-4391-8921-5991d5e91b2b";
             TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
+
             Telemetry.InstrumentationKey = instrumentationKey;
+            Telemetry.Context.User.AccountId = ApplicationSettings.GetSetting("TelemetryAccountId", Guid.NewGuid().ToString());
             Telemetry.Context.Session.Id = Guid.NewGuid().ToString();
             Telemetry.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
             Telemetry.Context.Component.Version = GetType().Assembly.GetName().Version.ToString();
