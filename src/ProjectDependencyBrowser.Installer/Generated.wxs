@@ -20,6 +20,12 @@
             <Component Id="cmpEBA1336248859A6F3E4876330086B897" Directory="RootDirectory" Guid="*">
                 <File Id="filE2D3A1CB0CA4124C156F8C38E6FAA40A" KeyPath="yes" Source="$(var.SourcePath)\GraphSharp.pdb" />
             </Component>
+            <Component Id="cmp47425D20B2F391879642B80A90278AAC" Directory="RootDirectory" Guid="*">
+                <File Id="fil8C2DCF70057F8D63A2AB43A9F8CDF0BD" KeyPath="yes" Source="$(var.SourcePath)\Microsoft.ApplicationInsights.dll" />
+            </Component>
+            <Component Id="cmp22963C55268924B7FEB12573FA62BD93" Directory="RootDirectory" Guid="*">
+                <File Id="fil21E58DDA50D7E6ADFBE0F2991B2A28F1" KeyPath="yes" Source="$(var.SourcePath)\Microsoft.ApplicationInsights.xml" />
+            </Component>
             <Component Id="cmp0AD7778AC85723AB7C1079D0D66319E0" Directory="RootDirectory" Guid="*">
                 <Class Id="{0E19D751-4FA4-3845-BC33-2AC43276CCC2}" Context="InprocServer32" Description="MyToolkit.Model.ObservableObject" ThreadingModel="both" ForeignServer="mscoree.dll">
                     <ProgId Id="MyToolkit.Model.ObservableObject" Description="MyToolkit.Model.ObservableObject" />

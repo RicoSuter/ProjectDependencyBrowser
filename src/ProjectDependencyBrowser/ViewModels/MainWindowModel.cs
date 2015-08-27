@@ -363,6 +363,8 @@ namespace ProjectDependencyBrowser.ViewModels
 
                 if (MinimizeWindowAfterSolutionLaunch)
                     Application.Current.MainWindow.WindowState = WindowState.Minimized;
+
+                App.Telemetry.TrackEvent("OpenSolution");
             }
         }
 
