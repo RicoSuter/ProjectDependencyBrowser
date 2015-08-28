@@ -9,7 +9,7 @@ Features:
 - Find all projects which have installed a given NuGet package
 - View all referenced assemblies and projects for a given project
 - List all projects which reference a given project
-- Analyze the projects for issues (e.g. version missmatches between assembly and NuGet references)
+- Analyze projects for issues (e.g. version missmatches between assembly and NuGet references)
 - Can be used as solution launcher: Just start it, select project using arrow keys and press enter
 - It takes 3 minutes to install and setup the application
 
