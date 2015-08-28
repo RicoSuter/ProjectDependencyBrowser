@@ -39,9 +39,9 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _minimizeWindowAfterSolutionLaunch;
         private bool _enableShowApplicationHotKey;
 
-        private IEnumerable<AnalyzeResult> _analyzeResults;
-        private readonly Dictionary<VsProject, IEnumerable<AnalyzeResult>> _allAnalyzeResults = 
-            new Dictionary<VsProject, IEnumerable<AnalyzeResult>>();
+        private IList<AnalyzeResult> _analyzeResults;
+        private readonly Dictionary<VsProject, IList<AnalyzeResult>> _allAnalyzeResults = 
+            new Dictionary<VsProject, IList<AnalyzeResult>>();
         
         private readonly IEnumerable<IProjectAnalyzer> _projectAnalyzers = new List<IProjectAnalyzer>
         {
@@ -222,7 +222,7 @@ namespace ProjectDependencyBrowser.ViewModels
         }
 
         /// <summary>Gets or sets the analyze results. </summary>
-        public IEnumerable<AnalyzeResult> AnalyzeResults
+        public IList<AnalyzeResult> AnalyzeResults
         {
             get { return _analyzeResults; }
             set { Set(ref _analyzeResults, value); }
@@ -238,6 +238,8 @@ namespace ProjectDependencyBrowser.ViewModels
             MinimizeWindowAfterSolutionLaunch = ApplicationSettings.GetSetting("MinimizeWindowAfterSolutionLaunch", true);
             EnableShowApplicationHotKey = ApplicationSettings.GetSetting("EnableShowApplicationHotKey", false);
 
+            Filter.ProjectNameFilter = ApplicationSettings.GetSetting("ProjectNameFilter", string.Empty);
+            Filter.ProjectNamespaceFilter = ApplicationSettings.GetSetting("ProjectNamespaceFilter", string.Empty);
             Filter.ProjectPathFilter = ApplicationSettings.GetSetting("ProjectPathFilter", string.Empty);
 
             if (AutomaticallyScanDirectory && !string.IsNullOrEmpty(RootDirectory))
@@ -253,6 +255,9 @@ namespace ProjectDependencyBrowser.ViewModels
             ApplicationSettings.SetSetting("IgnoreExceptions", IgnoreExceptions);
             ApplicationSettings.SetSetting("MinimizeWindowAfterSolutionLaunch", MinimizeWindowAfterSolutionLaunch);
             ApplicationSettings.SetSetting("EnableShowApplicationHotKey", EnableShowApplicationHotKey);
+
+            ApplicationSettings.SetSetting("ProjectNameFilter", Filter.ProjectNameFilter);
+            ApplicationSettings.SetSetting("ProjectPathFilter", Filter.ProjectPathFilter);
             ApplicationSettings.SetSetting("ProjectPathFilter", Filter.ProjectPathFilter);
         }
 
@@ -424,7 +429,8 @@ namespace ProjectDependencyBrowser.ViewModels
         private async Task AnalyzeProjectAsync()
         {
             var selectedProject = SelectedProject;
-            
+
+            AnalyzeResults = null;
             await RunTaskAsync(async () =>
             {
                 if (selectedProject != null && !_allAnalyzeResults.ContainsKey(selectedProject))

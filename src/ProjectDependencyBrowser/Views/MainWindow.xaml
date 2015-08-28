@@ -47,8 +47,9 @@
                     <RowDefinition Height="Auto"></RowDefinition>
                     <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
-                <TextBlock Text="{Binding Title}" FontWeight="Bold" />
-                <TextBlock Grid.Row="1" Text="{Binding Text}" />
+                
+                <TextBlock Text="{Binding Title}" FontWeight="Bold" TextWrapping="Wrap" />
+                <TextBlock Grid.Row="1" Text="{Binding Text}" TextWrapping="Wrap" />
             </Grid>
         </DataTemplate>
 
@@ -378,9 +379,12 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Referenced projects -->
-                            <TextBlock Grid.Row="0" Grid.Column="0"  
-                                       Text="Referenced projects: " FontWeight="Bold" Margin="0,0,0,4" />
+                            <!-- Projects references -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Bold" Margin="0,0,0,4">
+                                Projects references 
+                                (<Run Text="{Binding ElementName=ProjectReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
+                                <Run Text="{Binding SelectedProject.ProjectReferences.Count, Mode=OneWay}" />)
+                            </TextBlock>
                             <controls:FilterListBox x:Name="ProjectReferencesList" 
                                                     Grid.Row="1" Grid.Column="0" 
                                                     Margin="0,0,4,0"
@@ -392,9 +396,12 @@
 
                             <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" />
 
-                            <!-- NuGet projects -->
-                            <TextBlock Grid.Row="0" Grid.Column="2" 
-                                       Text="NuGet packages: " FontWeight="Bold" Margin="4,0,0,4" />
+                            <!-- NuGet packages -->
+                            <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="Bold" Margin="4,0,0,4">
+                                NuGet packages 
+                                (<Run Text="{Binding ElementName=NuGetReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
+                                <Run Text="{Binding SelectedProject.NuGetReferences.Count, Mode=OneWay}" />)
+                            </TextBlock>
                             <controls:FilterListBox x:Name="NuGetReferencesList" 
                                                     Grid.Row="1" Grid.Column="2" 
                                                     Margin="4,0,4,0"
@@ -404,10 +411,13 @@
                                                     ItemsSource="{Binding SelectedProject.NuGetReferences}" />
 
                             <GridSplitter Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" />
-                            
-                            <!-- Referenced assemblies -->
-                            <TextBlock Grid.Row="0" Grid.Column="4" 
-                                       Text="Referenced assemblies: " FontWeight="Bold" Margin="4,0,0,0" />
+
+                            <!-- Assembly references -->
+                            <TextBlock Grid.Row="0" Grid.Column="4" FontWeight="Bold" Margin="4,0,0,0">
+                                Assembly references
+                                (<Run Text="{Binding ElementName=AssemblyReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
+                                <Run Text="{Binding SelectedProject.AssemblyReferences.Count, Mode=OneWay}" />)
+                            </TextBlock>
                             <controls:FilterListBox x:Name="AssemblyReferencesList" 
                                                     Grid.Row="1" Grid.Column="4" 
                                                     Margin="4,0,0,0"
@@ -418,7 +428,18 @@
                         </Grid>
                     </TabItem>
                     <!-- Tab: Analyze Results -->
-                    <TabItem Header="Analysis results">
+                    <TabItem Header="{Binding}">
+                        <TabItem.HeaderTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock Visibility="{Binding AnalyzeResults, Converter={StaticResource VisibilityConverter}}">
+                                        Analyze results (<Run Text="{Binding AnalyzeResults.Count, Mode=OneWay}" />)
+                                    </TextBlock>
+                                    <TextBlock Text="Analyze results" Visibility="{Binding AnalyzeResults, Converter={StaticResource NotConverter}}" />
+                                </Grid>
+                            </DataTemplate>
+                        </TabItem.HeaderTemplate>
+                        
                         <Grid Margin="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -430,7 +451,7 @@
 
                             <TextBlock Grid.Row="0" Text="Analysis results: " FontWeight="Bold" Margin="0,0,0,4" />
                             <ListBox Grid.Row="1" Margin="0,0,4,0" 
-                                     HorizontalContentAlignment="Stretch"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                      ItemTemplate="{StaticResource AnalyzeResultTemplate}"
                                      ItemsSource="{Binding AnalyzeResults}" />
                         </Grid>

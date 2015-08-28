@@ -31,24 +31,26 @@ namespace ProjectDependencyBrowser.Analyzers
                         "Assembly reference has no NuGet dependency in packages.config",
                         "The assembly references a DLL in the NuGet packages directory but the " +
                         "packages.config does not contain a NuGet dependency with the given name. \n" +
-                        "  Assembly: " + assembly.Name + "\n" +
-                        "  HintPath: " + assembly.HintPath);
+                        "    Assembly: " + assembly.Name + "\n" +
+                        "    HintPath: " + assembly.HintPath);
 
                     results.Add(result);
                 }
                 else
                 {
-                    var isCorrectNuGetVersionAvailable = !project.NuGetReferences
-                        .Any(r => r.Name == assembly.NuGetPackageName && r.Version == assembly.NuGetPackageVersion);
+                    var missmatchingNuGetReference = project.NuGetReferences
+                        .FirstOrDefault(r => r.Name == assembly.NuGetPackageName && r.Version != assembly.NuGetPackageVersion);
 
-                    if (isCorrectNuGetVersionAvailable)
+                    if (missmatchingNuGetReference != null)
                     {
                         var result = new AnalyzeResult(
-                            "Assembly reference is referencing the wrong NuGet assembly version",
+                            "Assembly reference version does not match corresponding NuGet version",
                             "The assembly references a DLL in the NuGet packages directory but the " +
-                            "packages.config does not contain a NuGet dependency with the correct version. \n" +
-                            "  Assembly: " + assembly.Name + "\n" +
-                            "  HintPath: " + assembly.HintPath);
+                            "packages.config does not contain a NuGet dependency with the referenced version. \n" +
+                            "    NuGet Package: " + missmatchingNuGetReference.Name + "\n" +
+                            "        Version: " + missmatchingNuGetReference.Version + "\n" +
+                            "    Assembly: " + assembly.Name + "\n" +
+                            "        HintPath: " + assembly.HintPath);
 
                         results.Add(result);
                     }

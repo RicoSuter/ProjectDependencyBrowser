@@ -204,6 +204,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
             ProjectNameFilter = string.Empty;
             ProjectNamespaceFilter = string.Empty;
+            ProjectPathFilter = string.Empty;
         }
 
         private void Update()
