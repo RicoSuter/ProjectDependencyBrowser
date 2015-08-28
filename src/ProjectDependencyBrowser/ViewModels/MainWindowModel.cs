@@ -74,6 +74,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
             OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackageReference>(OpenNuGetWebsite);
             OpenProjectDirectoryCommand = new RelayCommand<VsProject>(OpenProjectDirectory);
+            CopyProjectDirectoryPathCommand = new RelayCommand<VsProject>(CopyProjectDirectoryPath);
             ShowProjectDetailsCommand = new RelayCommand<VsProject>(ShowProjectDetails);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
@@ -97,6 +98,8 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Gets the command to open a project directory. </summary>
         public ICommand OpenProjectDirectoryCommand { get; private set; }
+
+        public ICommand CopyProjectDirectoryPathCommand { get; private set; }
 
         /// <summary>Gets the command to analyze a project's dependencies. </summary>
         public ICommand ShowProjectDetailsCommand { get; private set; }
@@ -406,6 +409,12 @@ namespace ProjectDependencyBrowser.ViewModels
             if (directory != null)
                 Process.Start(directory);
         }
+
+        private void CopyProjectDirectoryPath(VsProject project)
+        {
+            Clipboard.SetText(Path.GetDirectoryName(project.Path));
+        }
+
 
         private void OpenNuGetWebsite(NuGetPackageReference package)
         {

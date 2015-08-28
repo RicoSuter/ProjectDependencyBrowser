@@ -11,8 +11,7 @@
         xmlns:controls="clr-namespace:MyToolkit.Controls;assembly=MyToolkit.Extended"
         mc:Ignorable="d"
         Title="Project Dependency Browser" Background="#EEEEEE"
-        Height="700" Width="1200" MinHeight="700" MinWidth="1200"
-        WindowStartupLocation="CenterScreen">
+        Height="700" Width="1200" MinHeight="700" MinWidth="1200">
 
     <Window.Resources>
         <viewModels:MainWindowModel x:Key="ViewModel" />
@@ -439,11 +438,15 @@
                 </TabControl>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,8,0,0" Grid.Row="2">
-                    <Button Content="Open project directory" 
+                    <Button Content="Open project directory" Margin="0,0,8,0"
                                 Command="{Binding OpenProjectDirectoryCommand}"
                                 CommandParameter="{Binding SelectedProject}" 
                                 Padding="8,4,8,4" />
-                    <Button Content="Project details" Padding="8,4,8,4" Margin="8,0,0,0"
+                    <Button Content="Copy project directory path" Margin="0,0,8,0"
+                                Command="{Binding CopyProjectDirectoryPathCommand}"
+                                CommandParameter="{Binding SelectedProject}" 
+                                Padding="8,4,8,4" />
+                    <Button Content="Project details" Padding="8,4,8,4" Margin="0,0,8,0"
                                 x:Name="ProjectDetailsButton"
                                 Command="{Binding ShowProjectDetailsCommand}"
                                 CommandParameter="{Binding SelectedProject}" />

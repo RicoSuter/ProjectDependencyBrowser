@@ -64,7 +64,7 @@ namespace ProjectDependencyBrowser
             TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
 
             Telemetry.InstrumentationKey = instrumentationKey;
-            Telemetry.Context.User.AccountId = ApplicationSettings.GetSetting("TelemetryAccountId", Guid.NewGuid().ToString());
+            Telemetry.Context.User.Id = ApplicationSettings.GetSetting("TelemetryUserId", Guid.NewGuid().ToString());
             Telemetry.Context.Session.Id = Guid.NewGuid().ToString();
             Telemetry.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
             Telemetry.Context.Component.Version = GetType().Assembly.GetName().Version.ToString();

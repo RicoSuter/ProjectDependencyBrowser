@@ -422,9 +422,6 @@
             <Component Id="cmp839DE72B6D13BD19B6BB1437ABD0ABE6" Directory="RootDirectory" Guid="*">
                 <File Id="fil5468A59D52A996DB2A5E000426C72BB9" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyBrowser.vshost.exe.config" />
             </Component>
-            <Component Id="cmpB5A32562A27447D30228CBBB7CEB0011" Directory="RootDirectory" Guid="*">
-                <File Id="fil665E6B01BDD5EB490D7542A434C069DF" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyBrowser.vshost.exe.manifest" />
-            </Component>
             <Component Id="cmp7DD8572C962FD8E0DC4C577AD3A9044D" Directory="RootDirectory" Guid="*">
                 <File Id="filBA75D61EB8E9712FDB892FF2ED23BE78" KeyPath="yes" Source="$(var.SourcePath)\QuickGraph.dll" />
             </Component>

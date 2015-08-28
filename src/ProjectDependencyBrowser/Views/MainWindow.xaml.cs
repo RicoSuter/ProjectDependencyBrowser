@@ -15,11 +15,14 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Threading;
 using GlobalHotKey;
 using MyToolkit.Build;
 using MyToolkit.Controls;
 using MyToolkit.Model;
 using MyToolkit.Mvvm;
+using MyToolkit.Serialization;
+using MyToolkit.Storage;
 using MyToolkit.Utilities;
 using ProjectDependencyBrowser.ViewModels;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
@@ -44,7 +47,7 @@ namespace ProjectDependencyBrowser.Views
             Closed += delegate { Model.CallOnUnloaded(); };
             Activated += delegate { FocusProjectNameFilter(); };
             Loaded += delegate { RegisterHotKey(); };
-
+            
             Model.PropertyChanged += async (sender, args) =>
             {
                 if (args.IsProperty<MainWindowModel>(i => i.IsLoaded))
@@ -65,8 +68,9 @@ namespace ProjectDependencyBrowser.Views
             };
 
             CheckForApplicationUpdate();
+            LoadWindowState();
         }
-        
+
         /// <summary>Gets the view model. </summary>
         public MainWindowModel Model
         {
@@ -197,6 +201,27 @@ namespace ProjectDependencyBrowser.Views
                         Model.SelectProject(project);
                 }
             }
+        }
+
+        private void LoadWindowState()
+        {
+            Width = ApplicationSettings.GetSetting("WindowWidth", Width);
+            Height = ApplicationSettings.GetSetting("WindowHeight", Height);
+            Left = ApplicationSettings.GetSetting("WindowLeft", Left);
+            Top = ApplicationSettings.GetSetting("WindowTop", Top);
+            WindowState = ApplicationSettings.GetSetting("WindowState", WindowState);
+
+            if (Left == Double.NaN)
+                WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            ApplicationSettings.SetSetting("WindowWidth", Width);
+            ApplicationSettings.SetSetting("WindowHeight", Height);
+            ApplicationSettings.SetSetting("WindowLeft", Left);
+            ApplicationSettings.SetSetting("WindowTop", Top);
+            ApplicationSettings.SetSetting("WindowState", WindowState);
         }
     }
 }
