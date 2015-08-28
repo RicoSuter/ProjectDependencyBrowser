@@ -1,6 +1,6 @@
-# Project Dependency Browser 
+# Project Dependency Browser
 
-[![Build status](https://ci.appveyor.com/api/projects/status/7gso36fpsb3b440m?svg=true)](https://ci.appveyor.com/project/rsuter/projectdependencybrowser)
+<!---[![Build status](https://ci.appveyor.com/api/projects/status/7gso36fpsb3b440m?svg=true)](https://ci.appveyor.com/project/rsuter/projectdependencybrowser)-->
 
 Project Dependency Browser scans a directory for Visual Studio projects and shows their project, assembly and NuGet dependencies in a flexible user interface. The application also provides various filters for example to find projects which depend on a particular NuGet package.
 
