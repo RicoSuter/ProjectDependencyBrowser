@@ -33,6 +33,10 @@
         
         <Icon Id="ApplicationIcon" SourceFile="$(var.SourcePath)\ApplicationIcon.ico" />
 
+        <InstallExecuteSequence>
+            <RemoveShortcuts>0</RemoveShortcuts>
+        </InstallExecuteSequence>
+
         <DirectoryRef Id="ApplicationProgramsFolder">
             <Component Id="ApplicationComponent">
                 <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
@@ -49,6 +53,10 @@
                           Description="Project Dependency Browser"
                           Target="[#filA5EBBF9F38D88E859FC16465CE338E77]"
                           WorkingDirectory="RootDirectory"/>
+
+                <RemoveFile Id="RemoveShortcut"
+                            Name="Project Dependency Browser"
+                            On="uninstall" />
             </Component>
         </DirectoryRef>
     </Fragment>

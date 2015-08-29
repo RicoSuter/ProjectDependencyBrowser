@@ -108,7 +108,11 @@ namespace ProjectDependencyBrowser.Views
 
         private async void CheckForApplicationUpdate()
         {
-            var updater = new ApplicationUpdater(GetType().Assembly, "http://rsuter.com/Projects/ProjectDependencyBrowser/updates.xml");
+            var updater = new ApplicationUpdater(
+                "ProjectDependencyBrowser.msi", 
+                GetType().Assembly, 
+                "http://rsuter.com/Projects/ProjectDependencyBrowser/updates.xml");
+
             await updater.CheckForUpdate(this);
         }
 
@@ -222,6 +226,8 @@ namespace ProjectDependencyBrowser.Views
             ApplicationSettings.SetSetting("WindowLeft", Left);
             ApplicationSettings.SetSetting("WindowTop", Top);
             ApplicationSettings.SetSetting("WindowState", WindowState);
+
+            Model.CallOnUnloaded();
         }
     }
 }

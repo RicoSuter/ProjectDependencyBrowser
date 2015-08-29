@@ -65,6 +65,9 @@
                         <MenuItem Header="Show on NuGet.org website" 
                                   Command="{Binding OpenNuGetWebsiteCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
+                        <MenuItem Header="Copy NuGet ID" 
+                                  Command="{Binding CopyNuGetIdCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
                     </ContextMenu>
                 </StackPanel.ContextMenu>
 
@@ -137,7 +140,7 @@
         <!-- Tabs -->
         <TabControl Margin="-8,0,-8,8" Height="160" x:Name="Tabs">
             <!-- Scan directory -->
-            <TabItem Header="Root directory">
+            <TabItem Header="Configuration">
                 <Grid Margin="8" VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -151,7 +154,7 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel>
-                        <TextBlock Text="Root directory: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBlock Text="Root directory to scan for Visual Studio projects: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding RootDirectory, Mode=TwoWay}" />
                     </StackPanel>
 
@@ -181,7 +184,7 @@
             </TabItem>
 
             <!-- Filters -->
-            <TabItem Header="Filter projects" IsEnabled="{Binding IsLoaded}">
+            <TabItem Header="Projects" IsEnabled="{Binding IsLoaded}">
                 <Grid Margin="8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -255,6 +258,18 @@
                         </TextBlock>
                     </Button>
                 </Grid>
+            </TabItem>
+
+            <!-- Logs -->
+            <TabItem Header="Logs">
+                <ListBox ItemsSource="{Binding Logs}" Margin="8" 
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding}" Margin="0,2,0,2" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </TabItem>
 
             <!-- About -->

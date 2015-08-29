@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -57,6 +58,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
             IgnoreExceptions = true;
 
+            Logs = new ObservableCollection<string>();
             AllProjects = new MtObservableCollection<VsProject>();
             AllSolutions = new MtObservableCollection<VsSolution>();
 
@@ -73,6 +75,7 @@ namespace ProjectDependencyBrowser.ViewModels
             };
 
             OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackageReference>(OpenNuGetWebsite);
+            CopyNuGetIdCommand = new RelayCommand<NuGetPackageReference>(CopyNuGetId);
             OpenProjectDirectoryCommand = new RelayCommand<VsProject>(OpenProjectDirectory);
             CopyProjectDirectoryPathCommand = new RelayCommand<VsProject>(CopyProjectDirectoryPath);
             ShowProjectDetailsCommand = new RelayCommand<VsProject>(ShowProjectDetails);
@@ -92,6 +95,8 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Gets the command to open a NuGet package website. </summary>
         public ICommand OpenNuGetWebsiteCommand { get; set; }
+
+        public ICommand CopyNuGetIdCommand { get; set; }
 
         /// <summary>Gets the command to open a solution. </summary>
         public ICommand TryOpenSolutionCommand { get; private set; }
@@ -228,6 +233,13 @@ namespace ProjectDependencyBrowser.ViewModels
             set { Set(ref _analyzeResults, value); }
         }
 
+        public ObservableCollection<string> Logs { get; private set; }
+
+        private void AddLog(string log)
+        {
+            Logs.Insert(0, DateTime.Now + " - " + log);
+        }
+
         /// <summary>Implementation of the initialization method. 
         /// If the view model is already initialized the method is not called again by the Initialize method. </summary>
         protected async override void OnLoaded()
@@ -257,7 +269,7 @@ namespace ProjectDependencyBrowser.ViewModels
             ApplicationSettings.SetSetting("EnableShowApplicationHotKey", EnableShowApplicationHotKey);
 
             ApplicationSettings.SetSetting("ProjectNameFilter", Filter.ProjectNameFilter);
-            ApplicationSettings.SetSetting("ProjectPathFilter", Filter.ProjectPathFilter);
+            ApplicationSettings.SetSetting("ProjectNamespaceFilter", Filter.ProjectNamespaceFilter);
             ApplicationSettings.SetSetting("ProjectPathFilter", Filter.ProjectPathFilter);
         }
 
@@ -267,17 +279,18 @@ namespace ProjectDependencyBrowser.ViewModels
         {
             ClearLoadedProjects();
 
+            var errors = new Dictionary<string, Exception>();
             var tuple = await RunTaskAsync(async () =>
             {
-                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions, _projectCollection);
-                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions, _projectCollection);
+                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions, _projectCollection, errors);
+                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions, _projectCollection, errors);
 
                 await Task.WhenAll(projectsTask, solutionsTask);
                 await Task.Run(() =>
                 {
                     var projectCache = projectsTask.Result.ToDictionary(p => p.Path, p => p);
                     foreach (var solution in solutionsTask.Result)
-                        solution.LoadProjects(IgnoreExceptions, projectCache);
+                        solution.LoadProjects(IgnoreExceptions, projectCache, errors);
                 });
 
                 return new Tuple<List<VsProject>, List<VsSolution>>(projectsTask.Result, solutionsTask.Result);
@@ -292,6 +305,9 @@ namespace ProjectDependencyBrowser.ViewModels
                 AllProjects.Initialize(projects.OrderBy(p => p.Name));
 
                 SelectedProject = FilteredProjects.FirstOrDefault();
+
+                foreach (var error in errors)
+                    AddLog(error.Key + "\n" + error.Value.Message);
 
                 InitializeFilter();
                 IsLoaded = true;
@@ -426,6 +442,11 @@ namespace ProjectDependencyBrowser.ViewModels
             Process.Start(string.Format("http://www.nuget.org/packages/{0}/{1}", package.Name, package.Version));
         }
 
+        private void CopyNuGetId(NuGetPackageReference package)
+        {
+            Clipboard.SetText(package.Name);
+        }
+        
         private async Task AnalyzeProjectAsync()
         {
             var selectedProject = SelectedProject;
