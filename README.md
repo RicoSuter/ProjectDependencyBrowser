@@ -1,6 +1,6 @@
-# Project Dependency Browser 
+# Project Dependency Browser
 
-[![Build status](https://ci.appveyor.com/api/projects/status/7gso36fpsb3b440m?svg=true)](https://ci.appveyor.com/project/rsuter/projectdependencybrowser)
+<!---[![Build status](https://ci.appveyor.com/api/projects/status/7gso36fpsb3b440m?svg=true)](https://ci.appveyor.com/project/rsuter/projectdependencybrowser)-->
 
 Project Dependency Browser scans a directory for Visual Studio projects and shows their project, assembly and NuGet dependencies in a flexible user interface. The application also provides various filters for example to find projects which depend on a particular NuGet package.
 
@@ -12,6 +12,8 @@ Features:
 - Analyze projects for issues (e.g. version missmatches between assembly and NuGet references)
 - Can be used as solution launcher: Just start it, select project using arrow keys and press enter
 - It takes 3 minutes to install and setup the application
+
+#### [Download Project Dependency Browser](https://github.com/rsuter/ProjectDependencyBrowser/releases)
 
 Project Dependency Browser is developed by [Rico Suter](http://rsuter.com) using the [MyToolkit](http://mytoolkit.io) library. 
 
