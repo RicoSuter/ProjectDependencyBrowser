@@ -1,4 +1,4 @@
-# Project Dependency Browser
+# Project Dependency Browser for .NET
 
 <!---[![Build status](https://ci.appveyor.com/api/projects/status/7gso36fpsb3b440m?svg=true)](https://ci.appveyor.com/project/rsuter/projectdependencybrowser)-->
 
