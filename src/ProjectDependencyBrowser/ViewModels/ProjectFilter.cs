@@ -22,7 +22,9 @@ namespace ProjectDependencyBrowser.ViewModels
         private string _projectPathFilter = string.Empty;
         private string _projectNamespaceFilter = string.Empty;
 
-        private bool _isNuGetFilterEnabled;
+        private bool _isNuGetPackageFilterEnabled;
+        private bool _isNuGetPackageNameFilterEnabled;
+
         private bool _isProjectReferenceFilterEnabled;
         private bool _isSolutionFilterEnabled;
 
@@ -31,16 +33,17 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _showOnlyProjectsWithNuGetPackages;
 
         private NuGetPackageReference _nuGetPackageFilter;
+        private NuGetPackageVersionGroup _nuGetPackageNameFilter;
         private VsProjectReference _projectReferenceFilter;
         private VsSolution _solutionFilter;
 
         private Dictionary<VsProject, List<VsSolution>> _projectSolutionUsages;
 
-        /// <summary>Initializes a new instance of the <see cref="ProjectFilter"/> class. </summary>
-        /// <param name="filteredProjects">The filtered projects view. </param>
+        /// <summary>Initializes a new instance of the <see cref="ProjectFilter" /> class.</summary>
+        /// <param name="filteredProjects">The filtered projects view.</param>
         public ProjectFilter(ObservableCollectionView<VsProject> filteredProjects)
         {
-            FilteredProjects = filteredProjects; 
+            FilteredProjects = filteredProjects;
         }
 
         /// <summary>Gets the filtered view of the projects. </summary>
@@ -80,12 +83,23 @@ namespace ProjectDependencyBrowser.ViewModels
         }
         
         /// <summary>Gets or sets a value indicating whether the NuGet filter is enabled. </summary>
-        public bool IsNuGetFilterEnabled
+        public bool IsNuGetPackageFilterEnabled
         {
-            get { return _isNuGetFilterEnabled; }
+            get { return _isNuGetPackageFilterEnabled; }
             set
             {
-                if (Set(ref _isNuGetFilterEnabled, value))
+                if (Set(ref _isNuGetPackageFilterEnabled, value))
+                    Update();
+            }
+        }
+
+        /// <summary>Gets or sets a value indicating whether the NuGet filter is enabled. </summary>
+        public bool IsNuGetPackageNameFilterEnabled
+        {
+            get { return _isNuGetPackageNameFilterEnabled; }
+            set
+            {
+                if (Set(ref _isNuGetPackageNameFilterEnabled, value))
                     Update();
             }
         }
@@ -156,6 +170,18 @@ namespace ProjectDependencyBrowser.ViewModels
             }
         }
 
+        /// <summary>Gets or sets the NuGet package filter. </summary>
+        public NuGetPackageVersionGroup NuGetPackageNameFilter
+        {
+            get { return _nuGetPackageNameFilter; }
+            set
+            {
+                if (Set(ref _nuGetPackageNameFilter, value))
+                    Update();
+            }
+        }
+        
+
         /// <summary>Gets or sets the project reference filter. </summary>
         public VsProjectReference ProjectReferenceFilter
         {
@@ -187,7 +213,10 @@ namespace ProjectDependencyBrowser.ViewModels
             foreach (var solution in allSolutions)
             {
                 foreach (var project in solution.Projects)
-                    _projectSolutionUsages[project].Add(solution);
+                {
+                    if (_projectSolutionUsages.ContainsKey(project))
+                        _projectSolutionUsages[project].Add(solution);
+                }
             }
         }
 
@@ -200,7 +229,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
             IsSolutionFilterEnabled = false;
             IsProjectReferenceFilterEnabled = false;
-            IsNuGetFilterEnabled = false;
+            IsNuGetPackageFilterEnabled = false;
 
             ProjectNameFilter = string.Empty;
             ProjectNamespaceFilter = string.Empty;
@@ -214,15 +243,26 @@ namespace ProjectDependencyBrowser.ViewModels
             var namespaceTerms = ProjectNamespaceFilter.ToLower().Split(' ');
 
             FilteredProjects.Filter = project =>
-                (nameTerms.All(t => project.Name.ToLower().Contains(t))) &&
-                (pathTerms.All(t => project.Path.ToLower().Contains(t))) &&
-                (namespaceTerms.All(t => project.Namespace.ToLower().Contains(t))) &&
-                ApplyShowOnlyProjectsWithNuGetPackagesFilter(project) &&
-                ApplyShowOnlyProjectsWithoutSolutionFilter(project) &&
-                ApplyShowOnlyProjectsWithMultipleSolutionsFilter(project) &&
-                ApplyNuGetFilter(project) &&
-                ApplySolutionFilter(project) &&
-                ApplyProjectReferenceFilter(project);
+            {
+                var projectName = project.Name.ToLower();
+                var projectPath = project.Path.ToLower();
+                var projectNamespace = project.Namespace.ToLower();
+
+                return 
+                    (nameTerms.All(t => projectName.Contains(t) || project.Solutions.Any(solution => {
+                        var solutionFilename = solution.FileName.ToLower();
+                        return solutionFilename.Contains(t);
+                    }))) &&
+                    (pathTerms.All(t => projectPath.Contains(t))) &&
+                    (namespaceTerms.All(t => projectNamespace.Contains(t))) &&
+                    ApplyShowOnlyProjectsWithNuGetPackagesFilter(project) &&
+                    ApplyShowOnlyProjectsWithoutSolutionFilter(project) &&
+                    ApplyShowOnlyProjectsWithMultipleSolutionsFilter(project) &&
+                    ApplyNuGetPackageFilter(project) &&
+                    ApplyNuGetPackageNameFilter(project) &&
+                    ApplySolutionFilter(project) &&
+                    ApplyProjectReferenceFilter(project);
+            };
         }
 
         private bool ApplyShowOnlyProjectsWithNuGetPackagesFilter(VsProject project)
@@ -250,9 +290,14 @@ namespace ProjectDependencyBrowser.ViewModels
             return !IsSolutionFilterEnabled || SolutionFilter == null || SolutionFilter.Projects.Contains(project);
         }
 
-        private bool ApplyNuGetFilter(VsProject project)
+        private bool ApplyNuGetPackageFilter(VsProject project)
         {
-            return !IsNuGetFilterEnabled || NuGetPackageFilter == null || project.NuGetReferences.Any(n => n.Name == NuGetPackageFilter.Name && n.Version == NuGetPackageFilter.Version);
+            return !IsNuGetPackageFilterEnabled || NuGetPackageFilter == null || project.NuGetReferences.Any(n => n.Name == NuGetPackageFilter.Name && n.Version == NuGetPackageFilter.Version);
+        }
+
+        private bool ApplyNuGetPackageNameFilter(VsProject project)
+        {
+            return !IsNuGetPackageNameFilterEnabled || NuGetPackageNameFilter == null || project.NuGetReferences.Any(n => n.Name == NuGetPackageNameFilter.Name);
         }
     }
 }

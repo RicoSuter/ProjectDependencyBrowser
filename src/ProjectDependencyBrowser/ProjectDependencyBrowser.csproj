@@ -93,6 +93,7 @@
     <Compile Include="Converters\ProjectTypesConverter.cs" />
     <Compile Include="Messages\ShowProjectDetails.cs" />
     <Compile Include="ViewModels\MainWindowModel.cs" />
+    <Compile Include="ViewModels\NuGetPackageVersionGroup.cs" />
     <Compile Include="ViewModels\ProjectDetailsDialogModel.cs" />
     <Compile Include="Converters\EdgeColorConverter.cs" />
     <Compile Include="Views\ProjectDetailsDialog.xaml.cs">

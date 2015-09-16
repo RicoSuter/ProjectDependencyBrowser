@@ -63,6 +63,7 @@ namespace ProjectDependencyBrowser.ViewModels
             AllSolutions = new MtObservableCollection<VsSolution>();
 
             UsedNuGetPackages = new MtObservableCollection<NuGetPackageReference>();
+            UsedNuGetPackageNames = new MtObservableCollection<NuGetPackageVersionGroup>();
             UsedProjectReferences = new MtObservableCollection<VsProjectReference>();
 
             FilteredProjects = new ObservableCollectionView<VsProject>(AllProjects);
@@ -129,8 +130,11 @@ namespace ProjectDependencyBrowser.ViewModels
         public ObservableCollectionView<VsProject> FilteredProjects { get; private set; }
 
 
-        /// <summary>Gets a list of all installed NuGet packages in the loaded projects. </summary>
+        /// <summary>Gets a list of all installed NuGet package versions in the loaded projects. </summary>
         public MtObservableCollection<NuGetPackageReference> UsedNuGetPackages { get; private set; }
+
+        /// <summary>Gets a list of all installed NuGet packages in the loaded projects. </summary>
+        public MtObservableCollection<NuGetPackageVersionGroup> UsedNuGetPackageNames { get; private set; }
 
         /// <summary>Gets a list of all referenced projects in the loaded projects. </summary>
         public MtObservableCollection<VsProjectReference> UsedProjectReferences { get; private set; }
@@ -158,8 +162,8 @@ namespace ProjectDependencyBrowser.ViewModels
                 if (SelectedProject == null)
                     return new List<VsSolution>();
 
-                return AllSolutions
-                    .Where(s => s.Projects.Contains(SelectedProject))
+                return SelectedProject
+                    .Solutions
                     .OrderBy(s => s.Name)
                     .ToList();
             }
@@ -349,7 +353,17 @@ namespace ProjectDependencyBrowser.ViewModels
                 .DistinctBy(n => n.Name + "-" + n.Version)
                 .OrderByThenBy(p => p.Name, p => VersionUtilities.FromString(p.Version)));
 
+            UsedNuGetPackageNames.Initialize(UsedNuGetPackages
+                .OrderByThenBy(p => p.Name, p => p.Version)
+                .GroupBy(p => p.Name)
+                .Select(g => new NuGetPackageVersionGroup
+                {
+                    Name = g.Key,
+                    Versions = g.Count() == 1 ? g.First().Version : g.First().Version + " - " + g.Last().Version
+                }));
+
             Filter.NuGetPackageFilter = UsedNuGetPackages.FirstOrDefault();
+            Filter.NuGetPackageNameFilter = UsedNuGetPackageNames.FirstOrDefault();
         }
 
         /// <summary>Removes all filters and shows all projects in the list. </summary>
@@ -397,7 +411,7 @@ namespace ProjectDependencyBrowser.ViewModels
             ClearFilter();
 
             Filter.NuGetPackageFilter = UsedNuGetPackages.SingleOrDefault(p => p.Name == package.Name && p.Version == package.Version);
-            Filter.IsNuGetFilterEnabled = true;
+            Filter.IsNuGetPackageFilterEnabled = true;
         }
 
         private void SetSolutionFilter(VsSolution solution)

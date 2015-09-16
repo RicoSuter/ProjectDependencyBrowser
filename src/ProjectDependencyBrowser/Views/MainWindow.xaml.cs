@@ -27,6 +27,7 @@ using MyToolkit.Utilities;
 using ProjectDependencyBrowser.ViewModels;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using ListBox = System.Windows.Controls.ListBox;
+using MessageBox = System.Windows.MessageBox;
 
 namespace ProjectDependencyBrowser.Views
 {
@@ -81,15 +82,22 @@ namespace ProjectDependencyBrowser.Views
         {
             if (Model.EnableShowApplicationHotKey)
             {
-                var hotKeyManager = new HotKeyManager();
-                hotKeyManager.Register(new HotKey(Key.V, ModifierKeys.Windows | ModifierKeys.Control));
-                hotKeyManager.KeyPressed += (sender, args) =>
+                try
                 {
-                    System.Windows.Application.Current.MainWindow.Activate();
+                    var hotKeyManager = new HotKeyManager();
+                    hotKeyManager.Register(new HotKey(Key.V, ModifierKeys.Windows | ModifierKeys.Control));
+                    hotKeyManager.KeyPressed += (sender, args) =>
+                    {
+                        System.Windows.Application.Current.MainWindow.Activate();
 
-                    if (System.Windows.Application.Current.MainWindow.WindowState == WindowState.Minimized)
-                        System.Windows.Application.Current.MainWindow.WindowState = WindowState.Normal;
-                };
+                        if (System.Windows.Application.Current.MainWindow.WindowState == WindowState.Minimized)
+                            System.Windows.Application.Current.MainWindow.WindowState = WindowState.Normal;
+                    };
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show("Could not register hot key: \n" + exception.Message, "Error");
+                }
             }
         }
 

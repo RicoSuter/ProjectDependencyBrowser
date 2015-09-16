@@ -64,6 +64,7 @@ namespace ProjectDependencyBrowser
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
         {
             Telemetry.TrackException(args.ExceptionObject as Exception);
+            Telemetry.Flush();
         }
     }
 }
