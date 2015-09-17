@@ -242,6 +242,7 @@ namespace ProjectDependencyBrowser.ViewModels
             IsSolutionFilterEnabled = false;
             IsProjectReferenceFilterEnabled = false;
             IsNuGetPackageFilterEnabled = false;
+            IsNuGetPackageNameFilterEnabled = false;
 
             ProjectNameFilter = string.Empty;
             ProjectNamespaceFilter = string.Empty;

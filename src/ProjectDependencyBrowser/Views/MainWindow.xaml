@@ -173,37 +173,36 @@
 
                     <StackPanel Margin="0,4,0,0" 
                                 ToolTip="Specifies the path where the project and solution files are loaded.">
-                        <TextBlock Text="Root directory: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBlock Text="Root Directory: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding RootDirectory, Mode=TwoWay}" />
                     </StackPanel>
                                         
-                    <Button Content="Select directory..." Click="OnSelectDirectory" 
+                    <Button Content="Select Directory..." Click="OnSelectDirectory" 
                             Grid.Column="1" Grid.Row="0"
                             Padding="8,4,8,4" Margin="8,4,0,0" />
 
                     <StackPanel Grid.Column="2" Grid.Row="0" Margin="8,4,0,0" 
                                 ToolTip="Only projects whose file paths contain the specified segments (space separated) are loaded.">
-                        <TextBlock Text="Project path filter: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBlock Text="Project Path Filter: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding ProjectPathFilter, Mode=TwoWay}" />
                     </StackPanel>
 
-                    <Button Content="Load projects &amp; solutions" Command="{Binding LoadProjectsCommand}" 
-                            Grid.Column="3" Grid.Row="0"
-                            Padding="8,4,8,4" Margin="8,4,0,0" />
+                    <Button Content="Load Projects &amp; Solutions" Command="{Binding LoadProjectsCommand}" 
+                            Grid.Column="3" Grid.Row="0" Grid.RowSpan="2"
+                            Padding="16,4,16,4" Margin="8,4,0,0" />
 
                     <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Margin="0,12,0,0" Orientation="Horizontal">
                         <StackPanel Margin="0,0,16,0">
                             <CheckBox IsChecked="{Binding IgnoreExceptions, Mode=TwoWay}" 
-                                      Content="Ignore exceptions when scanning" Margin="0,0,0,8" />
+                                      Content="Ignore Exceptions when scanning" Margin="0,0,0,8" />
                             <CheckBox IsChecked="{Binding MinimizeWindowAfterSolutionLaunch, Mode=TwoWay}" 
-                                      Content="Minimize window after launching a solution" Margin="0,0,0,8" />
+                                      Content="Minimize Window after launching a Solution" Margin="0,0,0,8" />
                             <CheckBox IsChecked="{Binding AutomaticallyScanDirectory, Mode=TwoWay}" 
-                                      Content="Automatically scan directory at startup" />
+                                      Content="Automatically scan Directory at Startup" />
                         </StackPanel>
                         <StackPanel>
                             <CheckBox IsChecked="{Binding EnableShowApplicationHotKey, Mode=TwoWay}" 
-                                      Content="Enable hotkey (Ctrl-Win-V) to show application (needs restart)" Margin="0,0,0,8" />
-
+                                      Content="Enable Hotkey (Ctrl-Win-V) to show Application (needs Restart)" Margin="0,0,0,8" />
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -226,14 +225,14 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,4,0">
-                        <TextBlock Text="Project or Solution name: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBlock Text="Project or Solution Name: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding Filter.ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  x:Name="ProjectNameFilter" GotFocus="OnProjectNameFilterGotFocus" Margin="0,0,0,8"
                                  KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="0" Grid.Column="2" Margin="4,0,4,0">
-                        <TextBlock Text="Project namespace: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBlock Text="Project Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding Filter.ProjectNamespaceFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  Margin="0,0,0,8" AcceptsReturn="False" />
                     </StackPanel>
@@ -245,28 +244,28 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Margin="4,0,0,0">
-                        <TextBlock Text="Project path: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBlock Text="Project Path: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding Filter.ProjectPathFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                  Margin="0,0,0,12" AcceptsReturn="False" />
 
                         <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithoutSolution, Mode=TwoWay}" 
-                                  Content="Only projects without solution" Margin="0,0,0,8" />
+                                  Content="Only Projects without Solution" Margin="0,0,0,8" />
                         <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithMultipleSolutions, Mode=TwoWay}" 
-                                  Content="Only projects with multiple solutions" Margin="0,0,0,8" />
+                                  Content="Only Projects with multiple Solutions" Margin="0,0,0,8" />
                         <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithNuGetPackages, Mode=TwoWay}" 
-                                  Content="Only projects with installed NuGet packages" Margin="0,0,0,0" />
+                                  Content="Only Projects with installed NuGet Packages" Margin="0,0,0,0" />
                     </StackPanel>
 
                     <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="5" 
                             Command="{Binding ClearFilterCommand}" Padding="8" Margin="8,0,0,4">
                         <TextBlock>
-                            Clear<LineBreak />filters
+                            Clear<LineBreak />Filters
                         </TextBlock>
                     </Button>
 
                     <StackPanel Grid.Row="1" Margin="0,0,4,0" Grid.Column="0">
                         <CheckBox IsChecked="{Binding Filter.IsSolutionFilterEnabled, Mode=TwoWay}" 
-                                  Content="Contained in solution" FontWeight="Bold" />
+                                  Content="Contained in Solution" FontWeight="Bold" />
                         <ComboBox ItemsSource="{Binding AllSolutions}" 
                                   ItemTemplate="{StaticResource SolutionTemplate}"
                                   Visibility="{Binding Filter.IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
@@ -275,7 +274,7 @@
 
                     <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="1">
                         <CheckBox IsChecked="{Binding Filter.IsProjectReferenceFilterEnabled, Mode=TwoWay}" 
-                                  Content="Referenced by project" FontWeight="Bold" />
+                                  Content="Referenced by Project" FontWeight="Bold" />
                         <ComboBox ItemsSource="{Binding UsedProjectReferences}" 
                                   ItemTemplate="{StaticResource ProjectReferenceTemplate}"
                                   Visibility="{Binding Filter.IsProjectReferenceFilterEnabled, Converter={StaticResource VisibilityConverter}}"
@@ -284,7 +283,7 @@
 
                     <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="2">
                         <CheckBox IsChecked="{Binding Filter.IsNuGetPackageNameFilterEnabled, Mode=TwoWay}" 
-                                  Content="Installed NuGet package" FontWeight="Bold" Foreground="DarkBlue" />
+                                  Content="Installed NuGet Package Name" FontWeight="Bold" Foreground="DarkBlue" />
                         <ComboBox ItemsSource="{Binding UsedNuGetPackageNames}" 
                                   ItemTemplate="{StaticResource NuGetPackageNameTemplate}"
                                   Visibility="{Binding Filter.IsNuGetPackageNameFilterEnabled, Converter={StaticResource VisibilityConverter}}"
@@ -293,7 +292,7 @@
 
                     <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="3">
                         <CheckBox IsChecked="{Binding Filter.IsNuGetPackageFilterEnabled, Mode=TwoWay}" 
-                                  Content="Installed NuGet package version" FontWeight="Bold" Foreground="DarkBlue" />
+                                  Content="Installed NuGet Package Version" FontWeight="Bold" Foreground="DarkBlue" />
                         <ComboBox ItemsSource="{Binding UsedNuGetPackages}" 
                                   ItemTemplate="{StaticResource NuGetPackageTemplate}"
                                   Visibility="{Binding Filter.IsNuGetPackageFilterEnabled, Converter={StaticResource VisibilityConverter}}"
@@ -476,7 +475,7 @@
 
                             <!-- Project references -->
                             <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Bold" Margin="0,0,0,4">
-                                Project references 
+                                Project References 
                                 (<Run Text="{Binding ElementName=ProjectReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
                                 <Run Text="{Binding SelectedProject.ProjectReferences.Count, Mode=OneWay}" />)
                             </TextBlock>
@@ -493,7 +492,7 @@
 
                             <!-- NuGet packages -->
                             <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="Bold" Margin="4,0,0,4">
-                                NuGet packages 
+                                NuGet Packages 
                                 (<Run Text="{Binding ElementName=NuGetReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
                                 <Run Text="{Binding SelectedProject.NuGetReferences.Count, Mode=OneWay}" />)
                             </TextBlock>
@@ -509,7 +508,7 @@
 
                             <!-- Assembly references -->
                             <TextBlock Grid.Row="0" Grid.Column="4" FontWeight="Bold" Margin="4,0,0,0">
-                                Assembly references
+                                Assembly References
                                 (<Run Text="{Binding ElementName=AssemblyReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
                                 <Run Text="{Binding SelectedProject.AssemblyReferences.Count, Mode=OneWay}" />)
                             </TextBlock>
@@ -528,9 +527,9 @@
                             <DataTemplate>
                                 <Grid>
                                     <TextBlock Visibility="{Binding AnalyzeResults, Converter={StaticResource VisibilityConverter}}">
-                                        Analyze results (<Run Text="{Binding AnalyzeResults.Count, Mode=OneWay}" />)
+                                        Analyze Results (<Run Text="{Binding AnalyzeResults.Count, Mode=OneWay}" />)
                                     </TextBlock>
-                                    <TextBlock Text="Analyze results" Visibility="{Binding AnalyzeResults, Converter={StaticResource NotConverter}}" />
+                                    <TextBlock Text="Analyze Results" Visibility="{Binding AnalyzeResults, Converter={StaticResource NotConverter}}" />
                                 </Grid>
                             </DataTemplate>
                         </TabItem.HeaderTemplate>
@@ -544,7 +543,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Text="Analysis results: " FontWeight="Bold" Margin="0,0,0,4" />
+                            <TextBlock Grid.Row="0" Text="Analysis Results: " FontWeight="Bold" Margin="0,0,0,4" />
                             <ListBox Grid.Row="1" Margin="0,0,4,0" 
                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                      ItemTemplate="{StaticResource AnalyzeResultTemplate}"
@@ -554,15 +553,15 @@
                 </TabControl>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,8,0,0" Grid.Row="2">
-                    <Button Content="Open project directory" Margin="0,0,8,0"
+                    <Button Content="Open Project Directory" Margin="0,0,8,0"
                                 Command="{Binding OpenProjectDirectoryCommand}"
                                 CommandParameter="{Binding SelectedProject}" 
                                 Padding="8,4,8,4" />
-                    <Button Content="Copy project directory path" Margin="0,0,8,0"
+                    <Button Content="Copy Project Directory Path" Margin="0,0,8,0"
                                 Command="{Binding CopyProjectDirectoryPathCommand}"
                                 CommandParameter="{Binding SelectedProject}" 
                                 Padding="8,4,8,4" />
-                    <Button Content="Project details" Padding="8,4,8,4" Margin="0,0,8,0"
+                    <Button Content="Project Details" Padding="8,4,8,4" Margin="0,0,8,0"
                                 x:Name="ProjectDetailsButton"
                                 Command="{Binding ShowProjectDetailsCommand}"
                                 CommandParameter="{Binding SelectedProject}" />
