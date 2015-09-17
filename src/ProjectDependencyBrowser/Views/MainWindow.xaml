@@ -436,8 +436,9 @@
 
                                     <StackPanel Margin="0,0,32,0"
                                                 Visibility="{Binding SelectedProject.ProjectTypes, Converter={StaticResource VisibilityConverter}}">
-                                        <TextBlock Text="Project type: " FontWeight="Bold" Margin="0,0,0,4" />
-                                        <TextBlock Text="{Binding SelectedProject.ProjectTypes, Converter={StaticResource ProjectTypesConverter}}" Margin="0,0,0,8" />
+                                        <TextBlock Text="Project Types: " FontWeight="Bold" Margin="0,0,0,4" />
+                                        <TextBox Text="{Binding SelectedProject.ProjectTypes, Converter={StaticResource ProjectTypesConverter}}" 
+                                                 Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
                                     </StackPanel>
                                 </DockPanel>
                             </StackPanel>
@@ -449,7 +450,7 @@
                                 </Grid.RowDefinitions>
 
                                 <TextBlock Grid.Row="0" Grid.Column="0" 
-                                           Text="Solutions: " FontWeight="Bold" Margin="0,0,0,4" />
+                                           Text="Solutions: " FontWeight="Bold" Margin="0,8,0,4" />
                                 <ListBox Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" 
                                          MouseDoubleClick="OnSolutionDoubleClicked"
                                          KeyUp="OnSolutionKeyUp" HorizontalContentAlignment="Stretch"
