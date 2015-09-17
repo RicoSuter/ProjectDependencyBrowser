@@ -284,7 +284,7 @@
 
                     <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="2">
                         <CheckBox IsChecked="{Binding Filter.IsNuGetPackageNameFilterEnabled, Mode=TwoWay}" 
-                                  Content="Installed NuGet package" FontWeight="Bold" />
+                                  Content="Installed NuGet package" FontWeight="Bold" Foreground="DarkBlue" />
                         <ComboBox ItemsSource="{Binding UsedNuGetPackageNames}" 
                                   ItemTemplate="{StaticResource NuGetPackageNameTemplate}"
                                   Visibility="{Binding Filter.IsNuGetPackageNameFilterEnabled, Converter={StaticResource VisibilityConverter}}"
@@ -293,7 +293,7 @@
 
                     <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="3">
                         <CheckBox IsChecked="{Binding Filter.IsNuGetPackageFilterEnabled, Mode=TwoWay}" 
-                                  Content="Installed NuGet package version" FontWeight="Bold" />
+                                  Content="Installed NuGet package version" FontWeight="Bold" Foreground="DarkBlue" />
                         <ComboBox ItemsSource="{Binding UsedNuGetPackages}" 
                                   ItemTemplate="{StaticResource NuGetPackageTemplate}"
                                   Visibility="{Binding Filter.IsNuGetPackageFilterEnabled, Converter={StaticResource VisibilityConverter}}"
@@ -437,7 +437,7 @@
                                     <StackPanel Margin="0,0,32,0"
                                                 Visibility="{Binding SelectedProject.ProjectTypes, Converter={StaticResource VisibilityConverter}}">
                                         <TextBlock Text="Project Types: " FontWeight="Bold" Margin="0,0,0,4" />
-                                        <TextBox Text="{Binding SelectedProject.ProjectTypes, Converter={StaticResource ProjectTypesConverter}}" 
+                                        <TextBox Text="{Binding SelectedProject.ProjectTypes, Converter={StaticResource ProjectTypesConverter}, Mode=OneWay}" 
                                                  Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
                                     </StackPanel>
                                 </DockPanel>
