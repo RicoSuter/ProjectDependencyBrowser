@@ -26,6 +26,12 @@
             <Component Id="cmp22963C55268924B7FEB12573FA62BD93" Directory="RootDirectory" Guid="*">
                 <File Id="fil21E58DDA50D7E6ADFBE0F2991B2A28F1" KeyPath="yes" Source="$(var.SourcePath)\Microsoft.ApplicationInsights.xml" />
             </Component>
+            <Component Id="cmp7631DBD5B709FC1E44B4FFC0CFF219A1" Directory="RootDirectory" Guid="*">
+                <File Id="fil82A935CB06ABFF65732D6642382F661C" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.Build.dll" />
+            </Component>
+            <Component Id="cmp79047FF789A61233D846CFAD463FA31C" Directory="RootDirectory" Guid="*">
+                <File Id="filCCE283E43F50BF44FC01E630A44E4453" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.Build.pdb" />
+            </Component>
             <Component Id="cmp0AD7778AC85723AB7C1079D0D66319E0" Directory="RootDirectory" Guid="*">
                 <Class Id="{12760ADF-AD84-3222-B68C-AA42BD286D0C}" Context="InprocServer32" Description="MyToolkit.WorkflowEngine.WorkflowTransition" ThreadingModel="both" ForeignServer="mscoree.dll">
                     <ProgId Id="MyToolkit.WorkflowEngine.WorkflowTransition" Description="MyToolkit.WorkflowEngine.WorkflowTransition" />
@@ -413,6 +419,42 @@
             <Component Id="cmp31D065AFFB2F9C455FBCDC62BD6A0282" Directory="RootDirectory" Guid="*">
                 <File Id="fil2E9070A107598B8FB198EFBCF6062E75" KeyPath="yes" Source="$(var.SourcePath)\MyToolkit.xml" />
             </Component>
+            <Component Id="cmpCD6738D8F57DCF116E39459122ABA59B" Directory="RootDirectory" Guid="*">
+                <File Id="filDEB4AE7F6F5997476FFCA0D428DADCDF" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Frameworks.dll" />
+            </Component>
+            <Component Id="cmpA78E62B70584FD4BB15D15C7A359BE7D" Directory="RootDirectory" Guid="*">
+                <File Id="filE0969E9B07BC1545651A9C17A8F81814" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Frameworks.xml" />
+            </Component>
+            <Component Id="cmp3ADF7020F5D15876B69E53043708CB66" Directory="RootDirectory" Guid="*">
+                <File Id="filC7EC736D7AE7339E4EB4434660A09A81" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Logging.dll" />
+            </Component>
+            <Component Id="cmpE84715F635C22B8B1F1C7705D221CE08" Directory="RootDirectory" Guid="*">
+                <File Id="fil55EAAB72671D74131992E17C8470F00A" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Logging.xml" />
+            </Component>
+            <Component Id="cmpFA203C79846CDDFA89CCFEDCEAA05D8A" Directory="RootDirectory" Guid="*">
+                <File Id="fil1C4CE59D5B7EF48DCD9FA5AF17B2DF50" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Packaging.Core.dll" />
+            </Component>
+            <Component Id="cmpD8FEF4542A8804E29FBE00FD713E960A" Directory="RootDirectory" Guid="*">
+                <File Id="filED89F0F5C008119951A59FF0526C22A9" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Packaging.Core.Types.dll" />
+            </Component>
+            <Component Id="cmp1FDE7671200EE64E80EBD42D6DE00925" Directory="RootDirectory" Guid="*">
+                <File Id="fil474A495F162456B9E190A0045A43E774" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Packaging.Core.Types.xml" />
+            </Component>
+            <Component Id="cmpD2C50C41120C9C8D74F8DD885F24244F" Directory="RootDirectory" Guid="*">
+                <File Id="fil54956FC09FCD4D32E40ABB5DEE0E8B19" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Packaging.Core.xml" />
+            </Component>
+            <Component Id="cmpA6943881D84D4AB0044B4E39F98D6EDC" Directory="RootDirectory" Guid="*">
+                <File Id="filB68ABFFD0FF0404A8AA01019E8AFF1A7" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Packaging.dll" />
+            </Component>
+            <Component Id="cmp83F512A612E516C568BB0B6AE4099056" Directory="RootDirectory" Guid="*">
+                <File Id="fil6E0BBC54C2ED3C309503B9BDD723270C" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Packaging.xml" />
+            </Component>
+            <Component Id="cmpE015230C5B99E5ECEA2DCD062B2B8312" Directory="RootDirectory" Guid="*">
+                <File Id="fil32D93FE7A27783368025FBDC7276A4E7" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Versioning.dll" />
+            </Component>
+            <Component Id="cmp6B0553C21C3486CD613D06FCB5FF7FF7" Directory="RootDirectory" Guid="*">
+                <File Id="fil6C0098214075A56DB49A2BCF39C7D29D" KeyPath="yes" Source="$(var.SourcePath)\NuGet.Versioning.xml" />
+            </Component>
             <Component Id="cmp8DDA2E0B9C9992E9091632826CD14115" Directory="RootDirectory" Guid="*">
                 <File Id="filA5EBBF9F38D88E859FC16465CE338E77" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyBrowser.exe" />
             </Component>
@@ -427,9 +469,6 @@
             </Component>
             <Component Id="cmp839DE72B6D13BD19B6BB1437ABD0ABE6" Directory="RootDirectory" Guid="*">
                 <File Id="fil5468A59D52A996DB2A5E000426C72BB9" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyBrowser.vshost.exe.config" />
-            </Component>
-            <Component Id="cmpB5A32562A27447D30228CBBB7CEB0011" Directory="RootDirectory" Guid="*">
-                <File Id="fil665E6B01BDD5EB490D7542A434C069DF" KeyPath="yes" Source="$(var.SourcePath)\ProjectDependencyBrowser.vshost.exe.manifest" />
             </Component>
             <Component Id="cmp7DD8572C962FD8E0DC4C577AD3A9044D" Directory="RootDirectory" Guid="*">
                 <File Id="filBA75D61EB8E9712FDB892FF2ED23BE78" KeyPath="yes" Source="$(var.SourcePath)\QuickGraph.dll" />

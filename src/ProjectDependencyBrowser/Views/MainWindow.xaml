@@ -5,7 +5,7 @@
         xmlns:viewModels="clr-namespace:ProjectDependencyBrowser.ViewModels"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"  
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:build="clr-namespace:MyToolkit.Build;assembly=MyToolkit.Extended"
+        xmlns:build="clr-namespace:MyToolkit.Build;assembly=MyToolkit.Build"
         xmlns:converters1="clr-namespace:ProjectDependencyBrowser.Converters"
         xmlns:analyzers="clr-namespace:ProjectDependencyBrowser.Analyzers"
         xmlns:controls="clr-namespace:MyToolkit.Controls;assembly=MyToolkit.Extended"
@@ -59,14 +59,23 @@
 
                 <StackPanel.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Show projects with this NuGet package" 
-                                  Command="{Binding SetNuGetPackageFilterCommand, Source={StaticResource ViewModel}}" 
+                        <MenuItem Header="Show project with this NuGet package ID" 
+                                  Command="{Binding SetNuGetPackageIdFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
-                        <MenuItem Header="Show on NuGet.org website" 
+                        <MenuItem Header="Show package on NuGet.org website" 
                                   Command="{Binding OpenNuGetWebsiteCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
-                        <MenuItem Header="Copy NuGet ID" 
+                        <MenuItem Header="Copy NuGet package ID" 
                                   Command="{Binding CopyNuGetIdCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        
+                        <Separator />
+
+                        <MenuItem Header="Show projects with this NuGet package name" 
+                                  Command="{Binding SetNuGetPackageNameFilterCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Show projects with this NuGet package version" 
+                                  Command="{Binding SetNuGetPackageFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
                     </ContextMenu>
                 </StackPanel.ContextMenu>
@@ -151,8 +160,9 @@
             <TabItem Header="Configuration">
                 <Grid Margin="8" VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="3*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
@@ -161,12 +171,27 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <StackPanel>
-                        <TextBlock Text="Root directory to scan for Visual Studio projects: " FontWeight="Bold" Margin="0,0,0,4" />
+                    <StackPanel Margin="0,4,0,0" 
+                                ToolTip="Specifies the path where the project and solution files are loaded.">
+                        <TextBlock Text="Root directory: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding RootDirectory, Mode=TwoWay}" />
                     </StackPanel>
+                                        
+                    <Button Content="Select directory..." Click="OnSelectDirectory" 
+                            Grid.Column="1" Grid.Row="0"
+                            Padding="8,4,8,4" Margin="8,4,0,0" />
 
-                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="0,12,0,0" Orientation="Horizontal">
+                    <StackPanel Grid.Column="2" Grid.Row="0" Margin="8,4,0,0" 
+                                ToolTip="Only projects whose file paths contain the specified segments (space separated) are loaded.">
+                        <TextBlock Text="Project path filter: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding ProjectPathFilter, Mode=TwoWay}" />
+                    </StackPanel>
+
+                    <Button Content="Load projects &amp; solutions" Command="{Binding LoadProjectsCommand}" 
+                            Grid.Column="3" Grid.Row="0"
+                            Padding="8,4,8,4" Margin="8,4,0,0" />
+
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Margin="0,12,0,0" Orientation="Horizontal">
                         <StackPanel Margin="0,0,16,0">
                             <CheckBox IsChecked="{Binding IgnoreExceptions, Mode=TwoWay}" 
                                       Content="Ignore exceptions when scanning" Margin="0,0,0,8" />
@@ -178,16 +203,9 @@
                         <StackPanel>
                             <CheckBox IsChecked="{Binding EnableShowApplicationHotKey, Mode=TwoWay}" 
                                       Content="Enable hotkey (Ctrl-Win-V) to show application (needs restart)" Margin="0,0,0,8" />
+
                         </StackPanel>
                     </StackPanel>
-
-                    <Button Content="Select directory..." Click="OnSelectDirectory" 
-                            Grid.Column="1" Grid.Row="0"
-                            Padding="8,4,8,4" Margin="8,4,0,0" />
-
-                    <Button Content="Load projects &amp; solutions" Command="{Binding LoadProjectsCommand}" 
-                            Grid.Column="2" Grid.Row="0"
-                            Padding="8,4,8,4" Margin="8,4,0,0" />
                 </Grid>
             </TabItem>
 
@@ -214,9 +232,15 @@
                                  KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
                     </StackPanel>
 
-                    <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Grid.Column="2" Margin="4,0,4,0">
+                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="4,0,4,0">
                         <TextBlock Text="Project namespace: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding Filter.ProjectNamespaceFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="0,0,0,8" AcceptsReturn="False" />
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="0" Grid.Column="3" Margin="4,0,4,0">
+                        <TextBlock Text="Project NuGet Package ID: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
+                        <TextBox Text="{Binding Filter.ProjectNuGetPackageIdFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  Margin="0,0,0,8" AcceptsReturn="False" />
                     </StackPanel>
 
@@ -239,8 +263,6 @@
                             Clear<LineBreak />filters
                         </TextBlock>
                     </Button>
-
-
 
                     <StackPanel Grid.Row="1" Margin="0,0,4,0" Grid.Column="0">
                         <CheckBox IsChecked="{Binding Filter.IsSolutionFilterEnabled, Mode=TwoWay}" 
@@ -379,6 +401,16 @@
                                 <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
                                 <TextBox Text="{Binding SelectedProject.Path, Mode=OneWay}" 
                                          Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+
+                                <StackPanel Visibility="{Binding SelectedProject.NuGetPackageId, Converter={StaticResource VisibilityConverter}}">
+                                    <TextBlock Text="NuGet Package ID: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
+                                    <TextBox Text="{Binding SelectedProject.NuGetPackageId, Mode=OneWay}" Foreground="DarkBlue"
+                                             Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+
+                                    <TextBlock Text="NuSpec Path: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
+                                    <TextBox Text="{Binding SelectedProject.NuSpecFilePath, Mode=OneWay}" Foreground="DarkBlue"
+                                             Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+                                </StackPanel>
 
                                 <DockPanel>
                                     <StackPanel Margin="0,0,32,0"

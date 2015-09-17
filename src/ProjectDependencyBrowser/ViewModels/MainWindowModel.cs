@@ -32,6 +32,7 @@ namespace ProjectDependencyBrowser.ViewModels
     public class MainWindowModel : ViewModelBase
     {
         private string _rootDirectory;
+        private string _projectPathFilter;
         private VsProject _selectedProject;
 
         private bool _isLoaded;
@@ -39,6 +40,7 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _automaticallyScanDirectory;
         private bool _minimizeWindowAfterSolutionLaunch;
         private bool _enableShowApplicationHotKey;
+        private ProjectCollection _projectCollection;
 
         private IList<AnalyzeResult> _analyzeResults;
         private readonly Dictionary<VsProject, IList<AnalyzeResult>> _allAnalyzeResults = 
@@ -84,7 +86,9 @@ namespace ProjectDependencyBrowser.ViewModels
 
             SetProjectFilterCommand = new AsyncRelayCommand<VsObject>(SetProjectFilterAsync);
             SetSolutionFilterCommand = new RelayCommand<VsSolution>(SetSolutionFilter);
+            SetNuGetPackageNameFilterCommand = new RelayCommand<NuGetPackageReference>(SetNuGetPackageNameFilter);
             SetNuGetPackageFilterCommand = new RelayCommand<NuGetPackageReference>(SetNuGetPackageFilter);
+            SetNuGetPackageIdFilterCommand = new RelayCommand<NuGetPackageReference>(SetNuGetPackageIdFilter);
 
             ClearFilterCommand = new RelayCommand(ClearFilter);
 
@@ -117,7 +121,13 @@ namespace ProjectDependencyBrowser.ViewModels
         public ICommand SetSolutionFilterCommand { get; private set; }
 
         /// <summary>Gets the command to set the NuGet package filter. </summary>
+        public ICommand SetNuGetPackageNameFilterCommand { get; private set; }
+
+        /// <summary>Gets the command to set the NuGet package version filter. </summary>
         public ICommand SetNuGetPackageFilterCommand { get; private set; }
+
+        /// <summary>Gets the command to set the NuGet package ID filter. </summary>
+        public ICommand SetNuGetPackageIdFilterCommand { get; private set; }
 
 
         /// <summary>Gets a list of all loaded projects. </summary>
@@ -174,6 +184,13 @@ namespace ProjectDependencyBrowser.ViewModels
         {
             get { return _rootDirectory; }
             set { Set(ref _rootDirectory, value); }
+        }
+
+        /// <summary>Gets or sets the project path filter.</summary>
+        public string ProjectPathFilter
+        {
+            get { return _projectPathFilter; }
+            set { Set(ref _projectPathFilter, value); }
         }
 
         /// <summary>Gets the application version with build time. </summary>
@@ -249,6 +266,7 @@ namespace ProjectDependencyBrowser.ViewModels
         protected async override void OnLoaded()
         {
             RootDirectory = ApplicationSettings.GetSetting("RootDirectory", "");
+            ProjectPathFilter = ApplicationSettings.GetSetting("RootProjectPathFilter", "");
             AutomaticallyScanDirectory = ApplicationSettings.GetSetting("AutomaticallyScanDirectory", false);
             IgnoreExceptions = ApplicationSettings.GetSetting("IgnoreExceptions", true);
             MinimizeWindowAfterSolutionLaunch = ApplicationSettings.GetSetting("MinimizeWindowAfterSolutionLaunch", true);
@@ -257,6 +275,7 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.ProjectNameFilter = ApplicationSettings.GetSetting("ProjectNameFilter", string.Empty);
             Filter.ProjectNamespaceFilter = ApplicationSettings.GetSetting("ProjectNamespaceFilter", string.Empty);
             Filter.ProjectPathFilter = ApplicationSettings.GetSetting("ProjectPathFilter", string.Empty);
+            Filter.ProjectNuGetPackageIdFilter = ApplicationSettings.GetSetting("ProjectNuGetPackageIdFilter", string.Empty);
 
             if (AutomaticallyScanDirectory && !string.IsNullOrEmpty(RootDirectory))
                 await LoadProjectsAsync();
@@ -267,6 +286,7 @@ namespace ProjectDependencyBrowser.ViewModels
         protected override void OnUnloaded()
         {
             ApplicationSettings.SetSetting("RootDirectory", RootDirectory);
+            ApplicationSettings.SetSetting("RootProjectPathFilter", ProjectPathFilter);
             ApplicationSettings.SetSetting("AutomaticallyScanDirectory", AutomaticallyScanDirectory);
             ApplicationSettings.SetSetting("IgnoreExceptions", IgnoreExceptions);
             ApplicationSettings.SetSetting("MinimizeWindowAfterSolutionLaunch", MinimizeWindowAfterSolutionLaunch);
@@ -275,9 +295,8 @@ namespace ProjectDependencyBrowser.ViewModels
             ApplicationSettings.SetSetting("ProjectNameFilter", Filter.ProjectNameFilter);
             ApplicationSettings.SetSetting("ProjectNamespaceFilter", Filter.ProjectNamespaceFilter);
             ApplicationSettings.SetSetting("ProjectPathFilter", Filter.ProjectPathFilter);
+            ApplicationSettings.SetSetting("ProjectNuGetPackageIdFilter", Filter.ProjectNuGetPackageIdFilter);
         }
-
-        private ProjectCollection _projectCollection; 
 
         private async Task LoadProjectsAsync()
         {
@@ -286,8 +305,8 @@ namespace ProjectDependencyBrowser.ViewModels
             var errors = new Dictionary<string, Exception>();
             var tuple = await RunTaskAsync(async () =>
             {
-                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions, _projectCollection, errors);
-                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory, IgnoreExceptions, _projectCollection, errors);
+                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory, ProjectPathFilter, IgnoreExceptions, _projectCollection, errors);
+                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory, ProjectPathFilter, IgnoreExceptions, _projectCollection, errors);
 
                 await Task.WhenAll(projectsTask, solutionsTask);
                 await Task.Run(() =>
@@ -406,6 +425,14 @@ namespace ProjectDependencyBrowser.ViewModels
             }
         }
 
+        private void SetNuGetPackageNameFilter(NuGetPackageReference package)
+        {
+            ClearFilter();
+
+            Filter.NuGetPackageNameFilter = UsedNuGetPackageNames.SingleOrDefault(p => p.Name == package.Name);
+            Filter.IsNuGetPackageNameFilterEnabled = true;
+        }
+
         private void SetNuGetPackageFilter(NuGetPackageReference package)
         {
             ClearFilter();
@@ -420,6 +447,13 @@ namespace ProjectDependencyBrowser.ViewModels
 
             Filter.SolutionFilter = solution;
             Filter.IsSolutionFilterEnabled = true;
+        }
+
+        private void SetNuGetPackageIdFilter(NuGetPackageReference packageReference)
+        {
+            ClearFilter();
+
+            Filter.ProjectNuGetPackageIdFilter = packageReference.Name;
         }
 
         private async Task SetProjectFilterAsync(VsObject project)

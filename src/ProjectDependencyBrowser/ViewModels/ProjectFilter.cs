@@ -21,6 +21,7 @@ namespace ProjectDependencyBrowser.ViewModels
         private string _projectNameFilter = string.Empty;
         private string _projectPathFilter = string.Empty;
         private string _projectNamespaceFilter = string.Empty;
+        private string _projectNuGetPackageIdFilter = string.Empty;
 
         private bool _isNuGetPackageFilterEnabled;
         private bool _isNuGetPackageNameFilterEnabled;
@@ -81,7 +82,18 @@ namespace ProjectDependencyBrowser.ViewModels
                     Update();
             }
         }
-        
+
+        /// <summary>Gets or sets the project's NuGet package ID. </summary>
+        public string ProjectNuGetPackageIdFilter
+        {
+            get { return _projectNuGetPackageIdFilter; }
+            set
+            {
+                if (Set(ref _projectNuGetPackageIdFilter, value))
+                    Update();
+            }
+        }
+
         /// <summary>Gets or sets a value indicating whether the NuGet filter is enabled. </summary>
         public bool IsNuGetPackageFilterEnabled
         {
@@ -234,6 +246,7 @@ namespace ProjectDependencyBrowser.ViewModels
             ProjectNameFilter = string.Empty;
             ProjectNamespaceFilter = string.Empty;
             ProjectPathFilter = string.Empty;
+            ProjectNuGetPackageIdFilter = string.Empty;
         }
 
         private void Update()
@@ -241,12 +254,14 @@ namespace ProjectDependencyBrowser.ViewModels
             var nameTerms = ProjectNameFilter.ToLower().Split(' ');
             var pathTerms = ProjectPathFilter.ToLower().Split(' ');
             var namespaceTerms = ProjectNamespaceFilter.ToLower().Split(' ');
+            var nugetIdFilter = ProjectNuGetPackageIdFilter.ToLower();
 
             FilteredProjects.Filter = project =>
             {
                 var projectName = project.Name.ToLower();
                 var projectPath = project.Path.ToLower();
                 var projectNamespace = project.Namespace.ToLower();
+                var projectNuGetId = project.NuGetPackageId != null ? project.NuGetPackageId.ToLower() : string.Empty;
 
                 return 
                     (nameTerms.All(t => projectName.Contains(t) || project.Solutions.Any(solution => {
@@ -255,6 +270,8 @@ namespace ProjectDependencyBrowser.ViewModels
                     }))) &&
                     (pathTerms.All(t => projectPath.Contains(t))) &&
                     (namespaceTerms.All(t => projectNamespace.Contains(t))) &&
+                    (string.IsNullOrEmpty(nugetIdFilter) || projectNuGetId == nugetIdFilter) &&
+
                     ApplyShowOnlyProjectsWithNuGetPackagesFilter(project) &&
                     ApplyShowOnlyProjectsWithoutSolutionFilter(project) &&
                     ApplyShowOnlyProjectsWithMultipleSolutionsFilter(project) &&

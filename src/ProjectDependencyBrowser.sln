@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyToolkit", "..\..\MyToolki
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyToolkit.Extended.Wpf45", "..\..\MyToolkit\src\MyToolkit.Extended.Wpf\MyToolkit.Extended.Wpf45.csproj", "{0D8F527D-868F-4DE3-8559-EA3597D9D079}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyToolkit.Build", "..\..\MyToolkit\src\MyToolkit.Build\MyToolkit.Build.csproj", "{D4A90F68-417F-4E5D-9F25-D184D8BE94D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,14 @@ Global
 		{0D8F527D-868F-4DE3-8559-EA3597D9D079}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0D8F527D-868F-4DE3-8559-EA3597D9D079}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{0D8F527D-868F-4DE3-8559-EA3597D9D079}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D4A90F68-417F-4E5D-9F25-D184D8BE94D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4A90F68-417F-4E5D-9F25-D184D8BE94D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4A90F68-417F-4E5D-9F25-D184D8BE94D4}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D4A90F68-417F-4E5D-9F25-D184D8BE94D4}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D4A90F68-417F-4E5D-9F25-D184D8BE94D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4A90F68-417F-4E5D-9F25-D184D8BE94D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4A90F68-417F-4E5D-9F25-D184D8BE94D4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D4A90F68-417F-4E5D-9F25-D184D8BE94D4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
