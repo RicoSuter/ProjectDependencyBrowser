@@ -301,7 +301,7 @@
                         <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithMultipleSolutions, Mode=TwoWay}" 
                                   Content="Only Projects with multiple Solutions" Margin="0,0,0,8" />
                         <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithNuGetPackages, Mode=TwoWay}" 
-                                  Content="Only Projects with installed NuGet Packages" Margin="0,0,0,0" />
+                                  Content="Only Projects with any referenced NuGet Packages" Margin="0,0,0,0" />
                     </StackPanel>
 
                     <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="5" 
@@ -313,7 +313,7 @@
 
                     <StackPanel Grid.Row="1" Margin="0,0,4,0" Grid.Column="0">
                         <CheckBox IsChecked="{Binding Filter.IsSolutionFilterEnabled, Mode=TwoWay}" 
-                                  Content="Contained in Solution" FontWeight="Bold" />
+                                  Content="Contained in Solution: " FontWeight="Bold" />
                         <ComboBox ItemsSource="{Binding AllSolutions}" 
                                   ItemTemplate="{StaticResource SolutionTemplate}"
                                   Visibility="{Binding Filter.IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
@@ -322,7 +322,7 @@
 
                     <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="1">
                         <CheckBox IsChecked="{Binding Filter.IsProjectReferenceFilterEnabled, Mode=TwoWay}" 
-                                  Content="Referenced by Project" FontWeight="Bold" />
+                                  Content="Used by Project: " FontWeight="Bold" />
                         <ComboBox ItemsSource="{Binding UsedProjectReferences}" 
                                   ItemTemplate="{StaticResource ProjectReferenceTemplate}"
                                   Visibility="{Binding Filter.IsProjectReferenceFilterEnabled, Converter={StaticResource VisibilityConverter}}"
@@ -331,7 +331,7 @@
 
                     <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="2">
                         <CheckBox IsChecked="{Binding Filter.IsNuGetPackageNameFilterEnabled, Mode=TwoWay}" 
-                                  Content="Installed NuGet Package Name" FontWeight="Bold" Foreground="DarkBlue" />
+                                  Content="References NuGet Package: " FontWeight="Bold" Foreground="DarkBlue" />
                         <ComboBox ItemsSource="{Binding UsedNuGetPackageNames}" 
                                   ItemTemplate="{StaticResource NuGetPackageNameTemplate}"
                                   Visibility="{Binding Filter.IsNuGetPackageNameFilterEnabled, Converter={StaticResource VisibilityConverter}}"
@@ -340,7 +340,7 @@
 
                     <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="3">
                         <CheckBox IsChecked="{Binding Filter.IsNuGetPackageFilterEnabled, Mode=TwoWay}" 
-                                  Content="Installed NuGet Package Version" FontWeight="Bold" Foreground="DarkBlue" />
+                                  Content="References NuGet Package Version: " FontWeight="Bold" Foreground="DarkBlue" />
                         <ComboBox ItemsSource="{Binding UsedNuGetPackages}" 
                                   ItemTemplate="{StaticResource NuGetPackageTemplate}"
                                   Visibility="{Binding Filter.IsNuGetPackageFilterEnabled, Converter={StaticResource VisibilityConverter}}"
