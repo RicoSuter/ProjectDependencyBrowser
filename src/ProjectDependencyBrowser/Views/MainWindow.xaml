@@ -21,13 +21,40 @@
         <converters1:ProjectTypesConverter x:Key="ProjectTypesConverter" />
         <converters1:AssemblyReferenceColorConverter x:Key="AssemblyReferenceColorConverter" />
 
-        <DataTemplate x:Key="ProjectReferenceTemplate">
+        <DataTemplate x:Key="ProjectTemplate">
             <StackPanel d:DataContext="{d:DesignInstance Type=build:VsProject}" 
                         Margin="0,4,0,4" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Show projects with this project reference" 
-                                  Command="{Binding SetProjectFilterCommand, Source={StaticResource ViewModel}}" 
+                        <MenuItem Header="Select this project" 
+                                  Command="{Binding SelectProjectCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Show projects which reference this project" 
+                                  Command="{Binding SetProjectReferenceFilterCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Open project directory in Explorer" 
+                                  Command="{Binding OpenProjectDirectoryCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
+
+                <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                <TextBlock Text="{Binding NuGetPackageId}" Foreground="DarkBlue" FontWeight="Bold"
+                           Visibility="{Binding NuGetPackageId, Converter={StaticResource VisibilityConverter}}" />
+                <TextBlock Text="{Binding FileName}" />
+            </StackPanel>
+        </DataTemplate>
+        
+        <DataTemplate x:Key="ProjectReferenceTemplate">
+            <StackPanel d:DataContext="{d:DesignInstance Type=build:VsProjectReference}" 
+                        Margin="0,4,0,4" Background="Transparent">
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Select this project" 
+                                  Command="{Binding SelectProjectCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Show projects which reference this project" 
+                                  Command="{Binding SetProjectReferenceFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
                         <MenuItem Header="Open project directory in Explorer" 
                                   Command="{Binding OpenProjectDirectoryCommand, Source={StaticResource ViewModel}}" 
@@ -68,13 +95,13 @@
                         <MenuItem Header="Copy NuGet package ID" 
                                   Command="{Binding CopyNuGetIdCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
-                        
+
                         <Separator />
 
-                        <MenuItem Header="Show projects with this NuGet package name" 
+                        <MenuItem Header="Show projects which reference this NuGet package name" 
                                   Command="{Binding SetNuGetPackageNameFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
-                        <MenuItem Header="Show projects with this NuGet package version" 
+                        <MenuItem Header="Show projects which reference this NuGet package version" 
                                   Command="{Binding SetNuGetPackageFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
                     </ContextMenu>
@@ -176,7 +203,7 @@
                         <TextBlock Text="Root Directory: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding RootDirectory, Mode=TwoWay}" />
                     </StackPanel>
-                                        
+
                     <Button Content="Select Directory..." Click="OnSelectDirectory" 
                             Grid.Column="1" Grid.Row="0"
                             Padding="8,4,8,4" Margin="8,4,0,0" />
@@ -236,7 +263,7 @@
                         <TextBox Text="{Binding Filter.ProjectNamespaceFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  Margin="0,0,0,8" AcceptsReturn="False" />
                     </StackPanel>
-                    
+
                     <StackPanel Grid.Row="0" Grid.Column="3" Margin="4,0,4,0">
                         <TextBlock Text="Project NuGet Package ID: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
                         <TextBox Text="{Binding Filter.ProjectNuGetPackageIdFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -362,7 +389,7 @@
                          ItemsSource="{Binding FilteredProjects}" 
                          SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
                          ScrollViewer.HorizontalScrollBarVisibility="Auto" 
-                         ItemTemplate="{StaticResource ProjectReferenceTemplate}" />
+                         ItemTemplate="{StaticResource ProjectTemplate}" />
             </Grid>
 
             <GridSplitter Grid.Column="1" Width="8" ResizeBehavior="PreviousAndNext" />
@@ -376,7 +403,10 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel>
-                    <TextBlock Text="Project" FontWeight="Bold" Margin="0,0,0,4" />
+                    <TextBlock Margin="0,0,0,4">
+                        <Run Text="Project: " FontWeight="Bold" />
+                        <Run Text="{Binding SelectedProject.Name, Mode=OneWay}"/>
+                    </TextBlock>
                 </StackPanel>
 
                 <TabControl Grid.Row="1">
@@ -521,6 +551,48 @@
                                                     ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
                         </Grid>
                     </TabItem>
+                    
+                    <!-- Tab: Usages -->
+                    <TabItem Header="Usages">
+                        <Grid Margin="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30*" MinWidth="300" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="30*" MinWidth="300" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Bold" Margin="4,0,0,4">
+                                Projects which reference this Project
+                                (<Run Text="{Binding ElementName=ProjectUsagesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
+                                <Run Text="{Binding SelectedProjectUsagesAsProject.Count, Mode=OneWay}" />)
+                            </TextBlock>
+                            <controls:FilterListBox Grid.Row="1" Grid.Column="0" x:Name="ProjectUsagesList"
+                                                    Margin="4,0,4,0"
+                                                    HorizontalContentAlignment="Stretch" 
+                                                    FilterPath="Name"
+                                                    ItemTemplate="{StaticResource ProjectTemplate}"
+                                                    ItemsSource="{Binding SelectedProjectUsagesAsProject}" />
+
+                            <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" />
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="Bold" Margin="4,0,0,4">
+                                Projects which consume this NuGet Package
+                                (<Run Text="{Binding ElementName=NuGetUsagesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
+                                <Run Text="{Binding SelectedProjectUsagesAsNuGet.Count, Mode=OneWay}" />)
+                            </TextBlock>
+                            <controls:FilterListBox Grid.Row="1" Grid.Column="2" x:Name="NuGetUsagesList"
+                                                    Margin="4,0,4,0"
+                                                    HorizontalContentAlignment="Stretch" 
+                                                    FilterPath="Name"
+                                                    ItemTemplate="{StaticResource ProjectTemplate}"
+                                                    ItemsSource="{Binding SelectedProjectUsagesAsNuGet}" />
+                        </Grid>
+                    </TabItem>
+                    
                     <!-- Tab: Analyze Results -->
                     <TabItem Header="{Binding}">
                         <TabItem.HeaderTemplate>

@@ -84,7 +84,8 @@ namespace ProjectDependencyBrowser.ViewModels
             ShowProjectDetailsCommand = new RelayCommand<VsProject>(ShowProjectDetails);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
-            SetProjectFilterCommand = new AsyncRelayCommand<VsObject>(SetProjectFilterAsync);
+            SelectProjectCommand = new RelayCommand<VsObject>(SelectProjectOrProjectReference);
+            SetProjectReferenceFilterCommand = new AsyncRelayCommand<VsObject>(SetProjectReferenceFilterAsync);
             SetSolutionFilterCommand = new RelayCommand<VsSolution>(SetSolutionFilter);
             SetNuGetPackageNameFilterCommand = new RelayCommand<NuGetPackageReference>(SetNuGetPackageNameFilter);
             SetNuGetPackageFilterCommand = new RelayCommand<NuGetPackageReference>(SetNuGetPackageFilter);
@@ -113,9 +114,12 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Gets the command to analyze a project's dependencies. </summary>
         public ICommand ShowProjectDetailsCommand { get; private set; }
+        
+        /// <summary>Gets the command to set the project filter. </summary>
+        public ICommand SelectProjectCommand { get; private set; }
 
         /// <summary>Gets the command to set the project filter. </summary>
-        public ICommand SetProjectFilterCommand { get; private set; }
+        public ICommand SetProjectReferenceFilterCommand { get; private set; }
 
         /// <summary>Gets the command to set the solution filter. </summary>
         public ICommand SetSolutionFilterCommand { get; private set; }
@@ -159,6 +163,8 @@ namespace ProjectDependencyBrowser.ViewModels
                 if (Set(ref _selectedProject, value))
                 {
                     RaisePropertyChanged(() => SelectedProjectSolutions);
+                    RaisePropertyChanged(() => SelectedProjectUsagesAsProject);
+                    RaisePropertyChanged(() => SelectedProjectUsagesAsNuGet);
                     AnalyzeProjectAsync();
                 }
             }
@@ -175,6 +181,32 @@ namespace ProjectDependencyBrowser.ViewModels
                 return SelectedProject
                     .Solutions
                     .OrderBy(s => s.Name)
+                    .ToList();
+            }
+        }
+
+        public List<VsProject> SelectedProjectUsagesAsProject
+        {
+            get
+            {
+                if (SelectedProject == null)
+                    return new List<VsProject>();
+
+                return AllProjects
+                    .Where(p => p.ProjectReferences.Any(r => r.IsSameProject(SelectedProject)))
+                    .ToList();
+            }
+        }
+
+        public List<VsProject> SelectedProjectUsagesAsNuGet
+        {
+            get
+            {
+                if (SelectedProject == null || SelectedProject.NuGetPackageId == null)
+                    return new List<VsProject>();
+
+                return AllProjects
+                    .Where(p => p.NuGetReferences.Any(r => r.Name == SelectedProject.NuGetPackageId))
                     .ToList();
             }
         }
@@ -391,12 +423,20 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.Clear();
         }
 
+        private void SelectProjectOrProjectReference(VsObject project)
+        {
+            if (project is VsProject)
+                SelectProject((VsProject)project);
+            else
+                SelectProjectReference((VsProjectReference)project);
+        }
+
         /// <summary>Removes all filters, shows all projects and selects the given project. </summary>
         /// <param name="project">The project to select. </param>
         public void SelectProject(VsProject project)
         {
             ClearFilter();
-            SelectedProject = FilteredProjects.FirstOrDefault(p => p.IsSameProject(project));
+            Messenger.Default.Send(new ShowProjectMessage(FilteredProjects.FirstOrDefault(p => p.IsSameProject(project))));
         }
 
         /// <summary>Removes all filters, shows all projects and selects the given project. </summary>
@@ -404,7 +444,7 @@ namespace ProjectDependencyBrowser.ViewModels
         public void SelectProjectReference(VsProjectReference projectReference)
         {
             ClearFilter();
-            SelectedProject = FilteredProjects.FirstOrDefault(p => p.IsSameProject(projectReference));
+            Messenger.Default.Send(new ShowProjectMessage(FilteredProjects.FirstOrDefault(p => p.IsSameProject(projectReference))));
         }
 
         /// <summary>Tries to open the solution. </summary>
@@ -440,7 +480,7 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.NuGetPackageFilter = UsedNuGetPackages.SingleOrDefault(p => p.Name == package.Name && p.Version == package.Version);
             Filter.IsNuGetPackageFilterEnabled = true;
         }
-
+        
         private void SetSolutionFilter(VsSolution solution)
         {
             ClearFilter();
@@ -456,13 +496,14 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.ProjectNuGetPackageIdFilter = packageReference.Name;
         }
 
-        private async Task SetProjectFilterAsync(VsObject project)
+        private async Task SetProjectReferenceFilterAsync(VsObject project)
         {
             ClearFilter();
 
             var selectedProjectReference = project is VsProject ? 
                 UsedProjectReferences.FirstOrDefault(p => p.IsSameProject((VsProject)project)) : 
                 UsedProjectReferences.FirstOrDefault(p => p.IsSameProject((VsProjectReference)project));
+
             if (selectedProjectReference != null)
             {
                 Filter.ProjectReferenceFilter = selectedProjectReference;

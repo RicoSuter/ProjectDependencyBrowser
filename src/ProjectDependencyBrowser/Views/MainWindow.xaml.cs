@@ -19,11 +19,13 @@ using System.Windows.Threading;
 using GlobalHotKey;
 using MyToolkit.Build;
 using MyToolkit.Controls;
+using MyToolkit.Messaging;
 using MyToolkit.Model;
 using MyToolkit.Mvvm;
 using MyToolkit.Serialization;
 using MyToolkit.Storage;
 using MyToolkit.Utilities;
+using ProjectDependencyBrowser.Messages;
 using ProjectDependencyBrowser.ViewModels;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using ListBox = System.Windows.Controls.ListBox;
@@ -67,6 +69,8 @@ namespace ProjectDependencyBrowser.Views
                     AssemblyReferencesList.Filter = string.Empty;
                 }
             };
+
+            Messenger.Default.Register<ShowProjectMessage>(ShowProject);
 
             CheckForApplicationUpdate();
             LoadWindowState();
@@ -236,6 +240,13 @@ namespace ProjectDependencyBrowser.Views
             ApplicationSettings.SetSetting("WindowState", WindowState);
 
             Model.CallOnUnloaded();
+        }
+
+        private void ShowProject(ShowProjectMessage message)
+        {
+            Model.SelectedProject = message.Project;
+            if (Model.SelectedProject != null)
+                ProjectList.ScrollIntoView(Model.SelectedProject);
         }
     }
 }

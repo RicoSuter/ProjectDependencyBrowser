@@ -92,6 +92,7 @@
     <Compile Include="Converters\AssemblyReferenceColorConverter.cs" />
     <Compile Include="Converters\ProjectTypesConverter.cs" />
     <Compile Include="Messages\ShowProjectDetails.cs" />
+    <Compile Include="Messages\ShowProjectMessage.cs" />
     <Compile Include="ViewModels\MainWindowModel.cs" />
     <Compile Include="ViewModels\NuGetPackageVersionGroup.cs" />
     <Compile Include="ViewModels\ProjectDetailsDialogModel.cs" />
