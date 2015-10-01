@@ -246,7 +246,10 @@ namespace ProjectDependencyBrowser.Views
         {
             Model.SelectedProject = message.Project;
             if (Model.SelectedProject != null)
+            {
                 ProjectList.ScrollIntoView(Model.SelectedProject);
+                ProjectTabs.SelectedIndex = 0; 
+            }
         }
     }
 }

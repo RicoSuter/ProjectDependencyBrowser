@@ -409,7 +409,7 @@
                     </TextBlock>
                 </StackPanel>
 
-                <TabControl Grid.Row="1">
+                <TabControl Grid.Row="1" x:Name="ProjectTabs">
                     <!-- Tab: Overview -->
                     <TabItem Header="Overview">
                         <Grid Margin="8">
@@ -488,8 +488,19 @@
                             </Grid>
                         </Grid>
                     </TabItem>
+                    
                     <!-- Tab: References -->
-                    <TabItem Header="References">
+                    <TabItem Header="{Binding}">
+                        <TabItem.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    References (<Run Text="{Binding SelectedProject.ProjectReferences.Count, Mode=OneWay}" /> /
+                                    <Run Text="{Binding SelectedProject.AssemblyReferences.Count, Mode=OneWay}" /> / 
+                                    <Run Text="{Binding SelectedProject.NuGetReferences.Count, Mode=OneWay}" />)
+                                </TextBlock>
+                            </DataTemplate>
+                        </TabItem.HeaderTemplate>
+                        
                         <Grid Margin="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="30*" MinWidth="160" />
@@ -553,7 +564,15 @@
                     </TabItem>
                     
                     <!-- Tab: Usages -->
-                    <TabItem Header="Usages">
+                    <TabItem Header="{Binding}">
+                        <TabItem.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    Usages (<Run Text="{Binding SelectedProjectUsagesAsProject.Count, Source={StaticResource ViewModel}, Mode=OneWay}" /> /
+                                    <Run Text="{Binding SelectedProjectUsagesAsNuGet.Count, Source={StaticResource ViewModel}, Mode=OneWay}" />)
+                                </TextBlock>
+                            </DataTemplate>
+                        </TabItem.HeaderTemplate>
                         <Grid Margin="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="30*" MinWidth="300" />
