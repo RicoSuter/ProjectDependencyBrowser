@@ -84,7 +84,8 @@ namespace ProjectDependencyBrowser.ViewModels
             ShowProjectDetailsCommand = new RelayCommand<VsProject>(ShowProjectDetails);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
-            SelectProjectCommand = new RelayCommand<VsObject>(SelectProjectOrProjectReference);
+            CopyNameCommand = new RelayCommand<object>(CopyName);
+            SelectObjectCommand = new RelayCommand<object>(SelectObject);
             SetProjectReferenceFilterCommand = new AsyncRelayCommand<VsObject>(SetProjectReferenceFilterAsync);
             SetSolutionFilterCommand = new RelayCommand<VsSolution>(SetSolutionFilter);
             SetNuGetPackageNameFilterCommand = new RelayCommand<NuGetPackageReference>(SetNuGetPackageNameFilter);
@@ -116,7 +117,7 @@ namespace ProjectDependencyBrowser.ViewModels
         public ICommand ShowProjectDetailsCommand { get; private set; }
         
         /// <summary>Gets the command to set the project filter. </summary>
-        public ICommand SelectProjectCommand { get; private set; }
+        public ICommand SelectObjectCommand { get; private set; }
 
         /// <summary>Gets the command to set the project filter. </summary>
         public ICommand SetProjectReferenceFilterCommand { get; private set; }
@@ -133,6 +134,7 @@ namespace ProjectDependencyBrowser.ViewModels
         /// <summary>Gets the command to set the NuGet package ID filter. </summary>
         public ICommand SetNuGetPackageIdFilterCommand { get; private set; }
 
+        public ICommand CopyNameCommand { get; private set; }
 
         /// <summary>Gets a list of all loaded projects. </summary>
         public MtObservableCollection<VsProject> AllProjects { get; private set; }
@@ -423,13 +425,31 @@ namespace ProjectDependencyBrowser.ViewModels
             Filter.Clear();
         }
 
-        private void SelectProjectOrProjectReference(VsObject project)
+        private void SelectObject(object obj)
         {
-            if (project is VsProject)
-                SelectProject((VsProject)project);
-            else
-                SelectProjectReference((VsProjectReference)project);
+            if (obj is VsProject)
+                SelectProject((VsProject)obj);
+            else if (obj is VsProjectReference)
+                SelectProjectReference((VsProjectReference)obj);
+            else if (obj is NuGetPackageReference)
+            {
+                var nuGetReference = (NuGetPackageReference) obj;
+                var nuGetProject = AllProjects.FirstOrDefault(p => p.NuGetPackageId == nuGetReference.Name);
+                if (nuGetProject != null)
+                    SelectProject(nuGetProject);
+                else
+                    Messenger.Default.Send(new TextMessage("The Project with this NuGet Package ID could not be found.", "Not found"));
+            }
         }
+
+        private void CopyName(object obj)
+        {
+            if (obj is VsObject)
+                Clipboard.SetText(((VsObject)obj).Name);
+            else if (obj is VsReferenceBase)
+                Clipboard.SetText(((VsReferenceBase)obj).Name);
+        }
+
 
         /// <summary>Removes all filters, shows all projects and selects the given project. </summary>
         /// <param name="project">The project to select. </param>

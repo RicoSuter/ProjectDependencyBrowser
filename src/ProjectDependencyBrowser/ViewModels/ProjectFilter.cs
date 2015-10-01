@@ -271,7 +271,7 @@ namespace ProjectDependencyBrowser.ViewModels
                     }))) &&
                     (pathTerms.All(t => projectPath.Contains(t))) &&
                     (namespaceTerms.All(t => projectNamespace.Contains(t))) &&
-                    (string.IsNullOrEmpty(nugetIdFilter) || projectNuGetId == nugetIdFilter) &&
+                    (string.IsNullOrEmpty(nugetIdFilter) || projectNuGetId.Contains(nugetIdFilter)) &&
 
                     ApplyShowOnlyProjectsWithNuGetPackagesFilter(project) &&
                     ApplyShowOnlyProjectsWithoutSolutionFilter(project) &&

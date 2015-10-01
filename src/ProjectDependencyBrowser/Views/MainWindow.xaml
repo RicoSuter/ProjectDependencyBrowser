@@ -27,7 +27,10 @@
                 <StackPanel.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Select this project" 
-                                  Command="{Binding SelectProjectCommand, Source={StaticResource ViewModel}}" 
+                                  Command="{Binding SelectObjectCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Copy project name" 
+                                  Command="{Binding CopyNameCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
                         <MenuItem Header="Show projects which reference this project" 
                                   Command="{Binding SetProjectReferenceFilterCommand, Source={StaticResource ViewModel}}" 
@@ -51,7 +54,13 @@
                 <StackPanel.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Select this project" 
-                                  Command="{Binding SelectProjectCommand, Source={StaticResource ViewModel}}" 
+                                  Command="{Binding SelectObjectCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        
+                        <Separator />
+                        
+                        <MenuItem Header="Copy project name" 
+                                  Command="{Binding CopyNameCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
                         <MenuItem Header="Show projects which reference this project" 
                                   Command="{Binding SetProjectReferenceFilterCommand, Source={StaticResource ViewModel}}" 
@@ -86,14 +95,20 @@
 
                 <StackPanel.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Show project with this NuGet package ID" 
+                        <MenuItem Header="Select project with this NuGet package ID" 
+                                  Command="{Binding SelectObjectCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+
+                        <Separator />
+
+                        <MenuItem Header="Copy NuGet Package ID" 
+                                  Command="{Binding CopyNameCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Set NuGet Package ID as filter" 
                                   Command="{Binding SetNuGetPackageIdFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
                         <MenuItem Header="Show package on NuGet.org website" 
                                   Command="{Binding OpenNuGetWebsiteCommand, Source={StaticResource ViewModel}}" 
-                                  CommandParameter="{Binding}" />
-                        <MenuItem Header="Copy NuGet package ID" 
-                                  Command="{Binding CopyNuGetIdCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
 
                         <Separator />
@@ -143,6 +158,9 @@
                         <MenuItem Header="Show all projects in this solution" 
                                   Command="{Binding SetSolutionFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
+                        <MenuItem Header="Copy solution name" 
+                                  Command="{Binding CopyNameCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
                         <MenuItem Header="Open solution in Visual Studio" 
                                   Command="{Binding TryOpenSolutionCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
@@ -159,6 +177,9 @@
                     <ContextMenu>
                         <MenuItem Header="Show all projects in this solution" 
                                   Command="{Binding SetSolutionFilterCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Copy solution name" 
+                                  Command="{Binding CopyNameCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
                         <MenuItem Header="Open solution in Visual Studio" 
                                   Command="{Binding TryOpenSolutionCommand, Source={StaticResource ViewModel}}" 
@@ -284,7 +305,7 @@
                     </StackPanel>
 
                     <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="5" 
-                            Command="{Binding ClearFilterCommand}" Padding="8" Margin="8,0,0,4">
+                            Command="{Binding ClearFilterCommand}" Padding="16,8,16,8" Margin="8,0,0,4">
                         <TextBlock>
                             Clear<LineBreak />Filters
                         </TextBlock>
