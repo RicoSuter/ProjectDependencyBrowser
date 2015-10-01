@@ -565,13 +565,13 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Bold" Margin="4,0,0,4">
+                            <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Bold" Margin="0,0,0,4">
                                 Projects which reference this Project
                                 (<Run Text="{Binding ElementName=ProjectUsagesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
                                 <Run Text="{Binding SelectedProjectUsagesAsProject.Count, Mode=OneWay}" />)
                             </TextBlock>
                             <controls:FilterListBox Grid.Row="1" Grid.Column="0" x:Name="ProjectUsagesList"
-                                                    Margin="4,0,4,0"
+                                                    Margin="0,0,4,0"
                                                     HorizontalContentAlignment="Stretch" 
                                                     FilterPath="Name"
                                                     ItemTemplate="{StaticResource ProjectTemplate}"
@@ -579,13 +579,13 @@
 
                             <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" />
                             
-                            <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="Bold" Margin="4,0,0,4">
+                            <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="Bold" Margin="4,0,0,0">
                                 Projects which consume this NuGet Package
                                 (<Run Text="{Binding ElementName=NuGetUsagesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
                                 <Run Text="{Binding SelectedProjectUsagesAsNuGet.Count, Mode=OneWay}" />)
                             </TextBlock>
                             <controls:FilterListBox Grid.Row="1" Grid.Column="2" x:Name="NuGetUsagesList"
-                                                    Margin="4,0,4,0"
+                                                    Margin="4,0,0,0"
                                                     HorizontalContentAlignment="Stretch" 
                                                     FilterPath="Name"
                                                     ItemTemplate="{StaticResource ProjectTemplate}"
