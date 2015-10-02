@@ -70,6 +70,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private async Task AnalyzeAsync()
         {
+            return;
             await RunTaskAsync(async () =>
             {
                 var analyzer = new NuGetPackageDependencyAnalyzer();
@@ -111,8 +112,12 @@ namespace ProjectDependencyBrowser.ViewModels
 
                     if (await package.IsNuGetOrgPackageAsync())
                     {
-                        var dependencies = await package.GetDependenciesAsync();
-                        await AddNuGetPackagesToGraphAsync(package, graph, dependencies, packagesInGraph);
+                        var project = AllProjects.SingleOrDefault(p => p.NuGetPackageId == package.Name);
+                        if (project != null)
+                            await AddNuGetPackagesToGraphAsync(package, graph, project.NuGetReferences, packagesInGraph);
+
+                        //var dependencies = await package.GetDependenciesAsync();
+                        //await AddNuGetPackagesToGraphAsync(package, graph, dependencies, packagesInGraph);
                     }
                     else
                     {

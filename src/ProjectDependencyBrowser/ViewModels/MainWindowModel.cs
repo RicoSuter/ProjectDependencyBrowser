@@ -455,16 +455,14 @@ namespace ProjectDependencyBrowser.ViewModels
         /// <param name="project">The project to select. </param>
         public void SelectProject(VsProject project)
         {
-            ClearFilter();
-            Messenger.Default.Send(new ShowProjectMessage(FilteredProjects.FirstOrDefault(p => p.IsSameProject(project))));
+            Messenger.Default.Send(new ShowProjectMessage(AllProjects.FirstOrDefault(p => p.IsSameProject(project))));
         }
 
         /// <summary>Removes all filters, shows all projects and selects the given project. </summary>
         /// <param name="projectReference">The project reference to select. </param>
         public void SelectProjectReference(VsProjectReference projectReference)
         {
-            ClearFilter();
-            Messenger.Default.Send(new ShowProjectMessage(FilteredProjects.FirstOrDefault(p => p.IsSameProject(projectReference))));
+            Messenger.Default.Send(new ShowProjectMessage(AllProjects.FirstOrDefault(p => p.IsSameProject(projectReference))));
         }
 
         /// <summary>Tries to open the solution. </summary>

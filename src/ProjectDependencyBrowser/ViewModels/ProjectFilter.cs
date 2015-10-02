@@ -9,6 +9,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using MyToolkit.Build;
 using MyToolkit.Collections;
 using MyToolkit.Model;
@@ -57,7 +59,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _projectNameFilter, value))
-                    Update();
+                    UpdateWithDelay();
             }
         }
 
@@ -68,7 +70,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _projectPathFilter, value))
-                    Update();
+                    UpdateWithDelay();
             }
         }
 
@@ -79,7 +81,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _projectNamespaceFilter, value))
-                    Update();
+                    UpdateWithDelay();
             }
         }
 
@@ -90,7 +92,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _projectNuGetPackageIdFilter, value))
-                    Update();
+                    UpdateWithDelay();
             }
         }
 
@@ -101,7 +103,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _isNuGetPackageFilterEnabled, value))
-                    Update();
+                    UpdateImmediately();
             }
         }
 
@@ -112,7 +114,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _isNuGetPackageNameFilterEnabled, value))
-                    Update();
+                    UpdateImmediately();
             }
         }
 
@@ -123,7 +125,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _isProjectReferenceFilterEnabled, value))
-                    Update();
+                    UpdateImmediately();
             }
         }
 
@@ -134,7 +136,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _isSolutionFilterEnabled, value))
-                    Update();
+                    UpdateImmediately();
             }
         }
 
@@ -145,7 +147,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _showOnlyProjectsWithoutSolution, value))
-                    Update();
+                    UpdateImmediately();
             }
         }
 
@@ -156,7 +158,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _showOnlyProjectsWithMultipleSolutions, value))
-                    Update();
+                    UpdateImmediately();
             }
         }
 
@@ -167,7 +169,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _showOnlyProjectsWithNuGetPackages, value))
-                    Update();
+                    UpdateImmediately();
             }
         }
 
@@ -178,7 +180,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _nuGetPackageFilter, value))
-                    Update();
+                    UpdateWithDelay();
             }
         }
 
@@ -189,7 +191,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _nuGetPackageNameFilter, value))
-                    Update();
+                    UpdateWithDelay();
             }
         }
         
@@ -201,7 +203,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _projectReferenceFilter, value))
-                    Update();
+                    UpdateWithDelay();
             }
         }
 
@@ -212,7 +214,7 @@ namespace ProjectDependencyBrowser.ViewModels
             set
             {
                 if (Set(ref _solutionFilter, value))
-                    Update();
+                    UpdateWithDelay();
             }
         }
 
@@ -248,9 +250,34 @@ namespace ProjectDependencyBrowser.ViewModels
             ProjectNamespaceFilter = string.Empty;
             ProjectPathFilter = string.Empty;
             ProjectNuGetPackageIdFilter = string.Empty;
+
+            UpdateImmediately();
         }
 
-        private void Update()
+        private CancellationTokenSource _cancellation = null;
+
+        private async void UpdateWithDelay()
+        {
+            if (_cancellation != null)
+            {
+                _cancellation.Cancel();
+                _cancellation = null; 
+            }
+
+            try
+            {
+                using (_cancellation = new CancellationTokenSource())
+                    await Task.Delay(150, _cancellation.Token);
+                _cancellation = null;
+
+                UpdateImmediately();
+            }
+            catch
+            {
+            }
+        }
+
+        private void UpdateImmediately()
         {
             var nameTerms = ProjectNameFilter.ToLower().Split(' ');
             var pathTerms = ProjectPathFilter.ToLower().Split(' ');

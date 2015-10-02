@@ -244,6 +244,7 @@ namespace ProjectDependencyBrowser.Views
 
         private void ShowProject(ShowProjectMessage message)
         {
+            Model.ClearFilter();
             Model.SelectedProject = message.Project;
             if (Model.SelectedProject != null)
             {
