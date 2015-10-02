@@ -15,6 +15,24 @@
             <ComponentGroupRef Id="SourceComponentGroup" />
             <ComponentRef Id="ApplicationComponent" />
         </Feature>
+
+        <UI>
+            <UIRef Id="WixUI_InstallDir" />
+            <UIRef Id="WixUI_ErrorProgressText" />
+
+            <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="PrepareDlg" Order="3">1</Publish>
+            <Publish Dialog="PrepareDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="3">1</Publish>
+            <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction"
+                     Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+        </UI>
+
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Project Dependency Browser" />
+
+        <Property Id="WixShellExecTarget" Value="[#filA5EBBF9F38D88E859FC16465CE338E77]" />
+        <CustomAction Id="LaunchApplication"
+                      BinaryKey="WixCA"
+                      DllEntry="WixShellExec"
+                      Impersonate="yes" />
     </Product>
     <Fragment>
         <Directory Id="TARGETDIR" Name="SourceDir">
@@ -30,7 +48,7 @@
         <DirectoryRef Id="INSTALLFOLDER">
             <Directory Id="RootDirectory" Name="Project Dependency Browser" />
         </DirectoryRef>
-        
+
         <Icon Id="ApplicationIcon" SourceFile="$(var.SourcePath)\ApplicationIcon.ico" />
 
         <InstallExecuteSequence>
