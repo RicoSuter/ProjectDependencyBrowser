@@ -280,7 +280,7 @@ namespace ProjectDependencyBrowser.ViewModels
         private void UpdateImmediately()
         {
             var nameTerms = ProjectNameFilter.ToLower().Split(' ');
-            var pathTerms = ProjectPathFilter.ToLower().Split(' ');
+            var pathTerms = ProjectPathFilter.Replace('/', '\\').ToLower().Split(' ');
             var namespaceTerms = ProjectNamespaceFilter.ToLower().Split(' ');
             var nugetIdFilter = ProjectNuGetPackageIdFilter.ToLower();
 
