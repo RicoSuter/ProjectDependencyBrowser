@@ -50,7 +50,8 @@ namespace ProjectDependencyBrowser.ViewModels
         {
             new NuGetAssemblyReferenceAnalyzer(), 
             new NuGetPackageTitleIsIdOfAnotherNuGetPackageAnalyzer(),
-            new NuGetPackageIdIsUsedMultipleTimesAnalyzer()
+            new NuGetPackageIdIsUsedMultipleTimesAnalyzer(),
+            new NuGetPackageIdDoesNotMatchTitleAnalyzer()
         }; 
 
         /// <summary>Initializes a new instance of the <see cref="MainWindowModel"/> class. </summary>
