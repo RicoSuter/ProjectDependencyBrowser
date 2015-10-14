@@ -13,6 +13,7 @@ using MyToolkit.Build;
 
 namespace ProjectDependencyBrowser.Analyzers
 {
+    /// <summary>Checks whether the assembly references coming from NuGet packages are correct.</summary>
     public class NuGetAssemblyReferenceAnalyzer : IProjectAnalyzer
     {
         public async Task<IEnumerable<AnalyzeResult>> AnalyzeAsync(

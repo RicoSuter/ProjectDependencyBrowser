@@ -48,7 +48,9 @@ namespace ProjectDependencyBrowser.ViewModels
         
         private readonly IEnumerable<IProjectAnalyzer> _projectAnalyzers = new List<IProjectAnalyzer>
         {
-            new NuGetAssemblyReferenceAnalyzer()
+            new NuGetAssemblyReferenceAnalyzer(), 
+            new NuGetPackageTitleIsIdOfAnotherNuGetPackageAnalyzer(),
+            new NuGetPackageIdIsUsedMultipleTimesAnalyzer()
         }; 
 
         /// <summary>Initializes a new instance of the <see cref="MainWindowModel"/> class. </summary>
