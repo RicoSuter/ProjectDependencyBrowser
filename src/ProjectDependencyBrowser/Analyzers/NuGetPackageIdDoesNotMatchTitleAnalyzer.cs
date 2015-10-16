@@ -24,14 +24,14 @@ namespace ProjectDependencyBrowser.Analyzers
         {
             var results = new List<AnalyzeResult>();
             if (project.NuGetPackageTitle != null &&
-                project.NuGetPackageId.Contains(".") &&
-                project.NuGetPackageId.Contains(" ") == false && 
+                project.NuGetPackageTitle.Contains(".") &&
+                project.NuGetPackageTitle.Contains(" ") == false && 
                 project.NuGetPackageId != project.NuGetPackageTitle)
             {
                 var result = new AnalyzeResult(
                     "NuGet Package ID does not match the ID-styled title",
-                    "The project's NuGet Package ID '" + project.NuGetPackageTitle +
-                    "' does not match the ID-styled (contains dots and no spaces) title '" + project.NuGetPackageId + "'.");
+                    "The project's NuGet Package ID '" + project.NuGetPackageId +
+                    "' does not match the ID-styled (contains dots and no spaces) title '" + project.NuGetPackageTitle + "'.");
 
                 results.Add(result);
             }
