@@ -14,7 +14,8 @@ Features:
 - It takes 3 minutes to install and setup the application
 
 #### [Download latest Project Dependency Browser MSI Installer](http://rsuter.com/Projects/ProjectDependencyBrowser/updates.php)
-## [Download latest Build Artifacts](https://ci.appveyor.com/project/rsuter/projectdependencybrowser/build/artifacts)
+
+[Download latest Build Artifacts](https://ci.appveyor.com/project/rsuter/projectdependencybrowser/build/artifacts)
 
 Project Dependency Browser is developed by [Rico Suter](http://rsuter.com) using the [MyToolkit](http://mytoolkit.io) library. 
 
