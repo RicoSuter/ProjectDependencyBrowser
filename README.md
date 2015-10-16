@@ -13,7 +13,7 @@ Features:
 - Can be used as solution launcher: Just start it, select project using arrow keys and press enter
 - It takes 3 minutes to install and setup the application
 
-#### [Download latest Project Dependency Browser MSI installer](http://rsuter.com/Projects/ProjectDependencyBrowser/updates.php)
+#### [Download latest Project Dependency Browser MSI installer](http://rsuter.com/Projects/ProjectDependencyBrowser/installer.php)
 
 [Download latest Build Artifacts](https://ci.appveyor.com/project/rsuter/projectdependencybrowser/build/artifacts)
 
