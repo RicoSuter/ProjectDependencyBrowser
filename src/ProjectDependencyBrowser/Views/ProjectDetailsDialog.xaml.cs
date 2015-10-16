@@ -6,10 +6,12 @@
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
+extern alias build;
+
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
-using MyToolkit.Build;
+using build::MyToolkit.Build;
 using MyToolkit.Mvvm;
 using ProjectDependencyBrowser.ViewModels;
 

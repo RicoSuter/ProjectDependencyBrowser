@@ -6,6 +6,7 @@
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
+extern alias build;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,8 +16,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using build::MyToolkit.Build;
 using Microsoft.Build.Evaluation;
-using MyToolkit.Build;
 using MyToolkit.Collections;
 using MyToolkit.Command;
 using MyToolkit.Messaging;

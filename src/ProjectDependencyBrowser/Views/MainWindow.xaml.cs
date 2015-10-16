@@ -6,6 +6,8 @@
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
+extern alias build;
+
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -17,7 +19,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GlobalHotKey;
-using MyToolkit.Build;
+using build::MyToolkit.Build;
 using MyToolkit.Controls;
 using MyToolkit.Messaging;
 using MyToolkit.Model;

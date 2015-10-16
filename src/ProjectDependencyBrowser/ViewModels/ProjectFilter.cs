@@ -6,12 +6,14 @@
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
+extern alias build;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MyToolkit.Build;
+using build::MyToolkit.Build;
 using MyToolkit.Collections;
 using MyToolkit.Model;
 

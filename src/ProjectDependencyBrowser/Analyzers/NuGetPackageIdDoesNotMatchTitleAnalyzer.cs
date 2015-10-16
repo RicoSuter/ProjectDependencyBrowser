@@ -6,9 +6,11 @@
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
+extern alias build;
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MyToolkit.Build;
+using build::MyToolkit.Build;
 
 namespace ProjectDependencyBrowser.Analyzers
 {

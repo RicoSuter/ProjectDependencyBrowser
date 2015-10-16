@@ -1,8 +1,10 @@
-﻿using System;
+﻿extern alias build;
+
+using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using MyToolkit.Build;
+using build::MyToolkit.Build;
 
 namespace ProjectDependencyBrowser.Converters
 {

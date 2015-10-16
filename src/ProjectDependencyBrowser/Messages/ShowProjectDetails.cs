@@ -1,9 +1,11 @@
-﻿using System;
+﻿extern alias build;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MyToolkit.Build;
+using build::MyToolkit.Build;
 
 namespace ProjectDependencyBrowser.Messages
 {

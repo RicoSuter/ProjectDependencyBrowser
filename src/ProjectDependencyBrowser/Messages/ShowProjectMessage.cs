@@ -1,4 +1,5 @@
-﻿using MyToolkit.Build;
+﻿extern alias build;
+using build::MyToolkit.Build;
 
 namespace ProjectDependencyBrowser.Messages
 {

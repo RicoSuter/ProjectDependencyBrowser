@@ -6,6 +6,8 @@
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
+extern alias build;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using GraphSharp;
-using MyToolkit.Build;
+using build::MyToolkit.Build;
 using MyToolkit.Build.Exceptions;
 using MyToolkit.Messaging;
 using MyToolkit.Mvvm;
