@@ -520,8 +520,8 @@
                             <DataTemplate>
                                 <TextBlock>
                                     References (<Run Text="{Binding SelectedProject.ProjectReferences.Count, Mode=OneWay}" /> /
-                                    <Run Text="{Binding SelectedProject.AssemblyReferences.Count, Mode=OneWay}" /> / 
-                                    <Run Text="{Binding SelectedProject.NuGetReferences.Count, Mode=OneWay}" />)
+                                    <Run Text="{Binding SelectedProject.NuGetReferences.Count, Mode=OneWay}" /> / 
+                                    <Run Text="{Binding SelectedProject.AssemblyReferences.Count, Mode=OneWay}" />)
                                 </TextBlock>
                             </DataTemplate>
                         </TabItem.HeaderTemplate>
