@@ -248,11 +248,19 @@ namespace ProjectDependencyBrowser.Views
         {
             Model.ClearFilter();
             Model.SelectedProject = message.Project;
+
             if (Model.SelectedProject != null)
             {
                 ProjectList.ScrollIntoView(Model.SelectedProject);
                 ProjectTabs.SelectedIndex = 0; 
             }
+        }
+
+        private void OnSelectItemFromFilteredListBox(object sender, MouseButtonEventArgs args)
+        {
+            var item = ((FilterListBox) sender).SelectedItem;
+            if (item != null)
+                Model.SelectObjectCommand.Execute(item);
         }
     }
 }

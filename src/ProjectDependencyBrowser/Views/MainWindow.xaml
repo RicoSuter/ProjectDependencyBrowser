@@ -415,7 +415,7 @@
 
             <GridSplitter Grid.Column="1" Width="8" ResizeBehavior="PreviousAndNext" />
 
-            <!-- Selected project -->
+            <!-- Selected project -->           
             <Grid Grid.Column="2" Visibility="{Binding SelectedProject, Converter={StaticResource VisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -567,6 +567,7 @@
                                                     Margin="4,0,4,0"
                                                     HorizontalContentAlignment="Stretch" 
                                                     FilterPath="Name"
+                                                    MouseDoubleClick="OnSelectItemFromFilteredListBox"
                                                     ItemTemplate="{StaticResource NuGetPackageTemplate}"
                                                     ItemsSource="{Binding SelectedProject.NuGetReferences}" />
 
@@ -615,7 +616,8 @@
                                 <Run Text="{Binding SelectedProjectUsagesAsProject.Count, Mode=OneWay}" />)
                             </TextBlock>
                             <controls:FilterListBox Grid.Row="1" Grid.Column="0" x:Name="ProjectUsagesList"
-                                                    Margin="0,0,4,0"
+                                                    Margin="0,0,4,0" 
+                                                    MouseDoubleClick="OnSelectItemFromFilteredListBox"
                                                     HorizontalContentAlignment="Stretch" 
                                                     FilterPath="Name"
                                                     ItemTemplate="{StaticResource ProjectTemplate}"
@@ -630,6 +632,7 @@
                             </TextBlock>
                             <controls:FilterListBox Grid.Row="1" Grid.Column="2" x:Name="NuGetUsagesList"
                                                     Margin="4,0,0,0"
+                                                    MouseDoubleClick="OnSelectItemFromFilteredListBox"
                                                     HorizontalContentAlignment="Stretch" 
                                                     FilterPath="Name"
                                                     ItemTemplate="{StaticResource ProjectTemplate}"
@@ -642,7 +645,8 @@
                         <TabItem.HeaderTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock Visibility="{Binding AnalyzeResults, Converter={StaticResource VisibilityConverter}}">
+                                    <TextBlock FontWeight="Bold" 
+                                               Visibility="{Binding AnalyzeResults, Converter={StaticResource VisibilityConverter}}">
                                         Analyze Results (<Run Text="{Binding AnalyzeResults.Count, Mode=OneWay}" />)
                                     </TextBlock>
                                     <TextBlock Text="Analyze Results" Visibility="{Binding AnalyzeResults, Converter={StaticResource NotConverter}}" />
@@ -683,6 +687,12 @@
                                 CommandParameter="{Binding SelectedProject}" />
                 </StackPanel>
             </Grid>
+            
+            <Button Grid.Column="2" Command="{Binding ShowPreviousProjectCommand}"
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Top" 
+                    Content="Show Previous Project" 
+                    Padding="8,4,8,4"/>
         </Grid>
     </Grid>
 </Window>

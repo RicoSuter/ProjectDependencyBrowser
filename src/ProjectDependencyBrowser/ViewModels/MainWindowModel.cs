@@ -46,7 +46,8 @@ namespace ProjectDependencyBrowser.ViewModels
         private IList<AnalyzeResult> _analyzeResults;
         private readonly Dictionary<VsProject, IList<AnalyzeResult>> _allAnalyzeResults = 
             new Dictionary<VsProject, IList<AnalyzeResult>>();
-        
+        private readonly Stack<VsProject> _previouslySelectedProjects = new Stack<VsProject>(); 
+
         private readonly IEnumerable<IProjectAnalyzer> _projectAnalyzers = new List<IProjectAnalyzer>
         {
             new NuGetAssemblyReferenceAnalyzer(), 
@@ -81,6 +82,7 @@ namespace ProjectDependencyBrowser.ViewModels
                     SelectedProject = FilteredProjects.FirstOrDefault();
             };
 
+            ShowPreviousProjectCommand = new RelayCommand(ShowPreviousProject, () => _previouslySelectedProjects.Count > 0);
             OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackageReference>(OpenNuGetWebsite);
             CopyNuGetIdCommand = new RelayCommand<NuGetPackageReference>(CopyNuGetId);
             OpenProjectDirectoryCommand = new RelayCommand<VsProject>(OpenProjectDirectory);
@@ -100,6 +102,8 @@ namespace ProjectDependencyBrowser.ViewModels
 
             Filter = new ProjectFilter(FilteredProjects);
         }
+
+        public RelayCommand ShowPreviousProjectCommand { get; set; }
 
         /// <summary>Gets the command to clear the filter. </summary>
         public ICommand ClearFilterCommand { get; set; }
@@ -166,8 +170,13 @@ namespace ProjectDependencyBrowser.ViewModels
             get { return _selectedProject; }
             set
             {
+                var previousProject = _selectedProject; 
                 if (Set(ref _selectedProject, value))
                 {
+                    if (previousProject != null)
+                        _previouslySelectedProjects.Push(previousProject);
+                    ShowPreviousProjectCommand.RaiseCanExecuteChanged();
+
                     RaisePropertyChanged(() => SelectedProjectSolutions);
                     RaisePropertyChanged(() => SelectedProjectUsagesAsProject);
                     RaisePropertyChanged(() => SelectedProjectUsagesAsNuGet);
@@ -377,6 +386,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private void ClearLoadedProjects()
         {
+            _previouslySelectedProjects.Clear();
             _allAnalyzeResults.Clear();
 
             if (_projectCollection != null)
@@ -389,6 +399,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
             IsLoaded = false;
 
+            ShowPreviousProjectCommand.RaiseCanExecuteChanged();
             AllSolutions.Clear();
             AllProjects.Clear();
         }
@@ -442,7 +453,18 @@ namespace ProjectDependencyBrowser.ViewModels
                 if (nuGetProject != null)
                     SelectProject(nuGetProject);
                 else
-                    Messenger.Default.Send(new TextMessage("The Project with this NuGet Package ID could not be found.", "Not found"));
+                {
+                    var msg = new TextMessage("The Project with this NuGet Package ID could not be found in your collection.\n\n" + 
+                        "Do you want to show the Package on NuGet.org?", "Show on on NuGet.org?", MessageButton.YesNo);
+
+                    msg.SuccessCallback = result =>
+                    {
+                        if (result == MessageResult.Yes)
+                            OpenNuGetWebsite(nuGetReference);
+                    };
+
+                    Messenger.Default.Send(msg);
+                }
             }
         }
 
@@ -582,6 +604,17 @@ namespace ProjectDependencyBrowser.ViewModels
 
             if (selectedProject != null && _allAnalyzeResults.ContainsKey(SelectedProject))
                 AnalyzeResults = _allAnalyzeResults[SelectedProject];
+        }
+
+        private void ShowPreviousProject()
+        {
+            if (_previouslySelectedProjects.Count > 0)
+            {
+                var project = _previouslySelectedProjects.Pop();
+                SelectProject(project);
+                _previouslySelectedProjects.Pop(); // avoid adding current project to the stack
+                ShowPreviousProjectCommand.RaiseCanExecuteChanged();
+            }
         }
 
         public void ShowProjectDetails(VsProject project)
