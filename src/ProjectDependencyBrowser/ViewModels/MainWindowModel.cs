@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -174,12 +175,12 @@ namespace ProjectDependencyBrowser.ViewModels
                 if (Set(ref _selectedProject, value))
                 {
                     if (previousProject != null)
-                        _previouslySelectedProjects.Push(previousProject);
-                    ShowPreviousProjectCommand.RaiseCanExecuteChanged();
+                        AddPreviousProject(previousProject);
 
                     RaisePropertyChanged(() => SelectedProjectSolutions);
                     RaisePropertyChanged(() => SelectedProjectUsagesAsProject);
                     RaisePropertyChanged(() => SelectedProjectUsagesAsNuGet);
+
                     AnalyzeProjectAsync();
                 }
             }
@@ -386,7 +387,8 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private void ClearLoadedProjects()
         {
-            _previouslySelectedProjects.Clear();
+            ClearPreviousProjects();
+
             _allAnalyzeResults.Clear();
 
             if (_projectCollection != null)
@@ -579,31 +581,38 @@ namespace ProjectDependencyBrowser.ViewModels
         {
             Clipboard.SetText(package.Name);
         }
-        
+
         private async Task AnalyzeProjectAsync()
         {
-            var selectedProject = SelectedProject;
-
             AnalyzeResults = null;
-            await RunTaskAsync(async () =>
-            {
-                if (selectedProject != null && !_allAnalyzeResults.ContainsKey(selectedProject))
-                {
-                    _allAnalyzeResults[selectedProject] = null;
 
+            var selectedProject = SelectedProject;
+            if (selectedProject != null)
+            {
+                if (_allAnalyzeResults.ContainsKey(selectedProject))
+                    AnalyzeResults = _allAnalyzeResults[selectedProject];
+                else
+                {
                     var allResults = new List<AnalyzeResult>();
-                    foreach (var analyzer in _projectAnalyzers)
+                    await Task.Run(async () =>
                     {
-                        var results = await Task.Run(async () => await analyzer.AnalyzeAsync(SelectedProject, AllProjects, AllSolutions));
-                        allResults.AddRange(results);
-                    }
+                        foreach (var analyzer in _projectAnalyzers)
+                        {
+                            var results = await analyzer.AnalyzeAsync(selectedProject, AllProjects, AllSolutions);
+                            allResults.AddRange(results);
+                        }
+                    });
 
                     _allAnalyzeResults[selectedProject] = allResults;
+                    if (SelectedProject == selectedProject)
+                        AnalyzeResults = allResults;
                 }
-            });
+            }
+        }
 
-            if (selectedProject != null && _allAnalyzeResults.ContainsKey(SelectedProject))
-                AnalyzeResults = _allAnalyzeResults[SelectedProject];
+        public void ShowProjectDetails(VsProject project)
+        {
+            Messenger.Default.Send(new ShowProjectDetails(SelectedProject));
         }
 
         private void ShowPreviousProject()
@@ -617,9 +626,16 @@ namespace ProjectDependencyBrowser.ViewModels
             }
         }
 
-        public void ShowProjectDetails(VsProject project)
+        private void ClearPreviousProjects()
         {
-            Messenger.Default.Send(new ShowProjectDetails(SelectedProject));
+            _previouslySelectedProjects.Clear();
+            ShowPreviousProjectCommand.RaiseCanExecuteChanged();
+        }
+
+        private void AddPreviousProject(VsProject previousProject)
+        {
+            _previouslySelectedProjects.Push(previousProject);
+            ShowPreviousProjectCommand.RaiseCanExecuteChanged();
         }
     }
 }

@@ -72,6 +72,16 @@ namespace ProjectDependencyBrowser.Views
                 }
             };
 
+            KeyUp += (sender, args) =>
+            {
+                var selectedTextBox = FocusManager.GetFocusedElement(this) as System.Windows.Controls.TextBox;
+                var backKeyPressed = args.Key == Key.Back &&  (selectedTextBox == null || selectedTextBox.Style == App.Current.FindResource("SelectableTextBlock"));
+                if (backKeyPressed || (args.Key == Key.BrowserBack) || (args.Key == Key.System && args.SystemKey == Key.Left))
+                {
+                    Model.ShowPreviousProjectCommand.TryExecute();
+                }
+            };
+
             Messenger.Default.Register<ShowProjectMessage>(ShowProject);
 
             CheckForApplicationUpdate();
