@@ -239,7 +239,7 @@ namespace ProjectDependencyBrowser.Views
             Top = ApplicationSettings.GetSetting("WindowTop", Top);
             WindowState = ApplicationSettings.GetSetting("WindowState", WindowState);
 
-            if (Left == Double.NaN)
+            if (Left == double.NaN)
                 WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
 

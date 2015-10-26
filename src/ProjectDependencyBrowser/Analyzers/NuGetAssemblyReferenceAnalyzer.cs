@@ -32,7 +32,7 @@ namespace ProjectDependencyBrowser.Analyzers
                 {
                     var result = new AnalyzeResult(
                         "Assembly reference has no NuGet dependency in packages.config",
-                        "The assembly references a DLL in the NuGet packages directory but the " +
+                        "The project references a DLL in the NuGet packages directory but the " +
                         "packages.config does not contain a NuGet dependency with the given name. \n" +
                         "    Assembly: " + assembly.Name + "\n" +
                         "    HintPath: " + assembly.HintPath);
@@ -48,7 +48,7 @@ namespace ProjectDependencyBrowser.Analyzers
                     {
                         var result = new AnalyzeResult(
                             "Assembly reference version does not match corresponding NuGet version",
-                            "The assembly references a DLL in the NuGet packages directory but the " +
+                            "The project references a DLL in the NuGet packages directory but the " +
                             "packages.config does not contain a NuGet dependency with the referenced version. \n" +
                             "    NuGet Package: " + missmatchingNuGetReference.Name + "\n" +
                             "        Version: " + missmatchingNuGetReference.Version + "\n" +
