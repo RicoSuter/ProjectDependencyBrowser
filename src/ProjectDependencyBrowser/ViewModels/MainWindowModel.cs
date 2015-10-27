@@ -51,6 +51,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private readonly IEnumerable<IProjectAnalyzer> _projectAnalyzers = new List<IProjectAnalyzer>
         {
+            new ProjectReferenceFrameworkVersionAnalyzer(), 
             new NuGetAssemblyReferenceAnalyzer(), 
             new NuGetPackageTitleIsIdOfAnotherNuGetPackageAnalyzer(),
             new NuGetPackageIdIsUsedMultipleTimesAnalyzer(),
@@ -598,8 +599,15 @@ namespace ProjectDependencyBrowser.ViewModels
                     {
                         foreach (var analyzer in _projectAnalyzers)
                         {
-                            var results = await analyzer.AnalyzeAsync(selectedProject, AllProjects, AllSolutions);
-                            allResults.AddRange(results);
+                            try
+                            {
+                                var results = await analyzer.AnalyzeAsync(selectedProject, AllProjects, AllSolutions);
+                                allResults.AddRange(results);
+                            }
+                            catch (Exception ex)
+                            {
+                                allResults.Add(new AnalyzeResult("Exception in Analyzer: " + analyzer.GetType().Name, ex.Message));
+                            }
                         }
                     });
 

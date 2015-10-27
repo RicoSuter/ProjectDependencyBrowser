@@ -110,12 +110,6 @@ namespace MyToolkit.Build
             get { return Project.GetPropertyValue("RootNamespace"); }
         }
 
-        /// <summary>Gets or sets the target framework version. </summary>
-        public string FrameworkVersion
-        {
-            get { return Project.GetPropertyValue("TargetFrameworkVersion"); }
-        }
-
         /// <summary>Gets or sets the used tools version. </summary>
         public string ToolsVersion
         {

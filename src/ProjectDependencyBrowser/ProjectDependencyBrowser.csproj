@@ -113,6 +113,7 @@
     <Compile Include="Analyzers\NuGetPackageIdDoesNotMatchTitleAnalyzer.cs" />
     <Compile Include="Analyzers\NuGetPackageIdIsUsedMultipleTimesAnalyzer.cs" />
     <Compile Include="Analyzers\NuGetPackageTitleIsIdOfAnotherNuGetPackageAnalyzer.cs" />
+    <Compile Include="Analyzers\ProjectReferenceFrameworkVersionAnalyzer.cs" />
     <Compile Include="Analyzers\Test\NuGetPackageDependencyAnalyzer.cs" />
     <Compile Include="Converters\AssemblyReferenceColorConverter.cs" />
     <Compile Include="Converters\ProjectTypesConverter.cs" />
