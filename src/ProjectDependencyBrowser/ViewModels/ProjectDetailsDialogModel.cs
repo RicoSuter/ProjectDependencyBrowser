@@ -72,7 +72,6 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private async Task AnalyzeAsync()
         {
-            return;
             await RunTaskAsync(async () =>
             {
                 var analyzer = new NuGetPackageDependencyAnalyzer();
@@ -112,20 +111,13 @@ namespace ProjectDependencyBrowser.ViewModels
                     AddPackageToGraph(graph, package, packagesInGraph);
                     AddEdge(parent, package, graph);
 
-                    if (await package.IsNuGetOrgPackageAsync())
-                    {
-                        var project = AllProjects.SingleOrDefault(p => p.NuGetPackageId == package.Name);
-                        if (project != null)
-                            await AddNuGetPackagesToGraphAsync(package, graph, project.NuGetReferences, packagesInGraph);
-
-                        //var dependencies = await package.GetDependenciesAsync();
-                        //await AddNuGetPackagesToGraphAsync(package, graph, dependencies, packagesInGraph);
-                    }
+                    var referencedProject = AllProjects.FirstOrDefault(p => p.NuGetPackageId == package.Name);
+                    if (referencedProject != null)
+                        await AddNuGetPackagesToGraphAsync(package, graph, referencedProject.NuGetReferences, packagesInGraph);
                     else
                     {
-                        var referencedProject = AllProjects.FirstOrDefault(p => p.Name == package.Name);
-                        if (referencedProject != null)
-                            await AddNuGetPackagesToGraphAsync(package, graph, referencedProject.NuGetReferences, packagesInGraph);
+                        //var externalDependencies = await package.GetDependenciesAsync();
+                        //await AddNuGetPackagesToGraphAsync(package, graph, externalDependencies, packagesInGraph);
                     }
                 }
                 else

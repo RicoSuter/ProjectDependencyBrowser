@@ -27,11 +27,11 @@ namespace ProjectDependencyBrowser.Analyzers
 
             await LoadProjectDependenciesAsync(project, allProjects, dependencies, new List<VsProject>(), rootPackagesOfDiamondDependencies);
 
-            if (rootPackagesOfDiamondDependencies.Count > 0)
-            {
-                results.Add(new AnalyzeResult("Diamond dependencies detected", "Root packages: \n   " +
-                    string.Join("\n   ", rootPackagesOfDiamondDependencies.Select(p => p.Name))));
-            }
+            //if (rootPackagesOfDiamondDependencies.Count > 0)
+            //{
+            //    results.Add(new AnalyzeResult("Diamond dependencies detected", "Root packages: \n   " +
+            //        string.Join("\n   ", rootPackagesOfDiamondDependencies.Select(p => p.Name))));
+            //}
 
             return await Task.Run(() =>
             {
@@ -41,7 +41,7 @@ namespace ProjectDependencyBrowser.Analyzers
                     if (group.Any(p => p.Item2.Version != group.First().Item2.Version))
                     {
                         var involvedPackages = string.Join("\n   ", group.Select(p => string.Format("{0}: {1}", p.Item1.Name, p.Item2.Version)));
-                        var text = string.Format("NuGet package '{0}' is used in various versions: \n   {1}", group.Key, involvedPackages);
+                        var text = string.Format("Different versions of the NuGet package '{0}' are used: \n   {1}", group.Key, involvedPackages);
 
                         var majorOrMinorAreDifferent = AreMajorOrMinorVersionDifferent(group);
                         if (majorOrMinorAreDifferent)
@@ -84,13 +84,13 @@ namespace ProjectDependencyBrowser.Analyzers
             {
                 dependencies.Add(new Tuple<VsProject, VsReferenceBase>(project, package));
 
-                var referencedProject = allProjects.FirstOrDefault(p => p.Name == package.Name);
+                var referencedProject = allProjects.FirstOrDefault(p => p.NuGetPackageId == package.Name);
                 if (referencedProject != null)
                     await LoadProjectDependenciesAsync(referencedProject, allProjects, dependencies, scannedProjects, rootPackagesOfDiamondDependencies);
                 else
                 {
-                    var externalDependencies = await package.GetAllDependenciesAsync();
-                    dependencies.AddRange(externalDependencies.Select(p => new Tuple<VsProject, VsReferenceBase>(project, p)));
+                    //var externalDependencies = await package.GetAllDependenciesAsync();
+                    //dependencies.AddRange(externalDependencies.Select(p => new Tuple<VsProject, VsReferenceBase>(project, p)));
                 }
             }
         }

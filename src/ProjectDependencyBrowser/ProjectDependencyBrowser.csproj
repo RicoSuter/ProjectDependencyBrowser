@@ -109,6 +109,7 @@
     </ApplicationDefinition>
     <Compile Include="Analyzers\AnalyzeResult.cs" />
     <Compile Include="Analyzers\IProjectAnalyzer.cs" />
+    <Compile Include="Analyzers\MainBrainNuGetBuildScopeAnalyzer.cs" />
     <Compile Include="Analyzers\NuGetAssemblyReferenceAnalyzer.cs" />
     <Compile Include="Analyzers\NuGetPackageIdDoesNotMatchTitleAnalyzer.cs" />
     <Compile Include="Analyzers\NuGetPackageIdIsUsedMultipleTimesAnalyzer.cs" />

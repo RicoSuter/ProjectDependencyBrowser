@@ -22,7 +22,7 @@ namespace ProjectDependencyBrowser.Analyzers
             VsProject project, IList<VsProject> allProjects, IList<VsSolution> allSolutions)
         {
             var results = new List<AnalyzeResult>();
-            
+
             foreach (var assembly in project.AssemblyReferences.Where(a => a.IsNuGetReference))
             {
                 var isAnyNuGetVersionMissing = project.NuGetReferences

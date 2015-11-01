@@ -51,6 +51,7 @@ namespace ProjectDependencyBrowser.ViewModels
 
         private readonly IEnumerable<IProjectAnalyzer> _projectAnalyzers = new List<IProjectAnalyzer>
         {
+            new MainBrainNuGetBuildScopeAnalyzer(), 
             new ProjectReferenceFrameworkVersionAnalyzer(), 
             new NuGetAssemblyReferenceAnalyzer(), 
             new NuGetPackageTitleIsIdOfAnotherNuGetPackageAnalyzer(),
