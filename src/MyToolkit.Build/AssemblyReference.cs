@@ -79,7 +79,7 @@ namespace MyToolkit.Build
             HintPath = projectItem.Metadata.Any(m => m.Name == "HintPath") ? projectItem.Metadata.Single(m => m.Name == "HintPath").EvaluatedValue : null;
             if (HintPath != null)
             {
-                var packagesPath = project.NuGetPackagesPath;
+                var packagesPath = project.RelativeNuGetPackagesPath;
                 if (HintPath.StartsWith(packagesPath))
                 {
                     var startIndex = packagesPath.Length;

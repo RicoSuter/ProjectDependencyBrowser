@@ -127,7 +127,7 @@ namespace MyToolkit.Build
         {
             get { return Project.GetPropertyValue("TargetFrameworkVersion"); }
         }
-        
+
         /// <summary>Gets the output path.</summary>
         public string OutputPath
         {
@@ -157,7 +157,7 @@ namespace MyToolkit.Build
         {
             get { return ProjectTypeGuids.Select(ProjectTypeGuidMapper.ResolveGuid).ToArray(); }
         }
-        
+
         /// <summary>Gets the solutions of the project (filled by <see cref="VsSolution.LoadProjects()"/>).</summary>
         public IList<VsSolution> Solutions { get; internal set; }
 
@@ -248,7 +248,7 @@ namespace MyToolkit.Build
         }
 
         /// <summary>Gets the NuGet packages directory path relative to the project file.</summary>
-        public string NuGetPackagesPath
+        public string RelativeNuGetPackagesPath
         {
             get
             {
@@ -257,7 +257,13 @@ namespace MyToolkit.Build
                 return _nuGetPackagesPath;
             }
         }
-        
+
+        /// <summary>Gets the absolute NuGet packages directory.</summary>
+        public string NuGetPackagesPath
+        {
+            get { return System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), RelativeNuGetPackagesPath); }
+        }
+
         private string FindNuGetPackagesPath(string directory, string prefix, string fallbackDirectory)
         {
             var configFile = System.IO.Path.Combine(directory, "nuget.config");
@@ -320,10 +326,10 @@ namespace MyToolkit.Build
 
         private void LoadNuSpecFile(string filePath)
         {
-            NuSpecFilePath = Directory.GetFiles(System.IO.Path.GetDirectoryName(filePath), "*.nuspec", SearchOption.AllDirectories).FirstOrDefault();
-
-            if (NuSpecFilePath != null)
+            var nuSpecFilePath = Directory.GetFiles(System.IO.Path.GetDirectoryName(filePath), "*.nuspec", SearchOption.AllDirectories).FirstOrDefault();
+            if (nuSpecFilePath != null && !nuSpecFilePath.StartsWith(NuGetPackagesPath))
             {
+                NuSpecFilePath = nuSpecFilePath;
                 using (var stream = File.Open(NuSpecFilePath, FileMode.Open))
                 {
                     var reader = new NuspecReader(stream);
@@ -333,7 +339,7 @@ namespace MyToolkit.Build
                         packageId = Name;
 
                     NuGetPackageId = packageId;
-                    NuGetPackageTitle = Name; 
+                    NuGetPackageTitle = Name;
 
                     var metadata = reader.GetMetadata().ToArray();
                     if (metadata.Any(p => p.Key == "title"))

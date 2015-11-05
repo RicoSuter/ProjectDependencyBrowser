@@ -83,35 +83,38 @@ namespace MyToolkit.Build
                     return _cache[cacheKey];
             }
 
-            await IsNuGetOrgPackageAsync();
-
-            return await Task.Run(() =>
+            if (await IsNuGetOrgPackageAsync())
             {
-                try
+                return await Task.Run(() =>
                 {
-                    lock (_lock)
+                    try
                     {
-                        var dependencies = _nuGetDependencies.Root
-                            .Value.Split('|')
-                            .Where(p => !string.IsNullOrEmpty(p))
-                            .Select(p =>
-                            {
-                                var arr = p.Split(':');
-                                return new NuGetPackageReference(arr[0], arr[1]);
-                            })
-                            .DistinctBy(p => p.Name + ":" + p.Version)
-                            .ToList();
+                        lock (_lock)
+                        {
+                            var dependencies = _nuGetDependencies.Root
+                                .Value.Split('|')
+                                .Where(p => !string.IsNullOrEmpty(p))
+                                .Select(p =>
+                                {
+                                    var arr = p.Split(':');
+                                    return new NuGetPackageReference(arr[0], arr[1]);
+                                })
+                                .DistinctBy(p => p.Name + ":" + p.Version)
+                                .ToList();
 
-                        _cache[cacheKey] = dependencies.ToList();
-                        return dependencies;
+                            _cache[cacheKey] = dependencies.ToList();
+                            return dependencies;
+                        }
                     }
-                }
-                catch (WebException exception)
-                {
-                    var message = string.Format("The NuGet package '{0}' {1}' could not be found on nuget.org", Name, Version);
-                    throw new NuGetPackageNotFoundException(message, exception);
-                }                
-            });
+                    catch (WebException exception)
+                    {
+                        var message = string.Format("The NuGet package '{0}' {1}' could not be found on nuget.org", Name, Version);
+                        throw new NuGetPackageNotFoundException(message, exception);
+                    }
+                });
+            }
+            else
+                return new List<NuGetPackageReference>();
         }
 
         /// <summary>Recursively loads all package dependencies from NuGet.org. </summary>

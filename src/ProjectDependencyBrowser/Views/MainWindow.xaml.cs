@@ -45,9 +45,9 @@ namespace ProjectDependencyBrowser.Views
             
             ViewModelHelper.RegisterViewModel(Model, this);
 
-#if !DEBUG
-            ProjectDetailsButton.Visibility = Visibility.Collapsed;
-#endif
+//#if !DEBUG
+//            ProjectDetailsButton.Visibility = Visibility.Collapsed;
+//#endif
 
             Closed += delegate { Model.CallOnUnloaded(); };
             Activated += delegate { FocusProjectNameFilter(); };
