@@ -372,11 +372,11 @@
                     <TextBlock Margin="0,0,0,8">
                         Version: <Run Text="{Binding ApplicationVersion, Mode=OneWay}" />
                         <LineBreak />
-                        License: <Hyperlink NavigateUri="https://projectdependencybrowser.codeplex.com/license" Click="OnOpenHyperlink">Ms-PL</Hyperlink>
+                        License: <Hyperlink NavigateUri="https://github.com/rsuter/ProjectDependencyBrowser/blob/master/LICENSE.md" Click="OnOpenHyperlink">Ms-PL</Hyperlink>
                     </TextBlock>
                     <TextBlock Text="Components" FontWeight="Bold" Margin="0,4,0,4" />
                     <TextBlock Margin="0,0,0,4">
-                        - <Hyperlink NavigateUri="http://mytoolkit.codeplex.com" Click="OnOpenHyperlink">MyToolkit</Hyperlink>: 
+                        - <Hyperlink NavigateUri="http://mytoolkit.io" Click="OnOpenHyperlink">MyToolkit</Hyperlink>: 
                           .NET library with MVVM classes, controls and more components.
                     </TextBlock>
                 </StackPanel>

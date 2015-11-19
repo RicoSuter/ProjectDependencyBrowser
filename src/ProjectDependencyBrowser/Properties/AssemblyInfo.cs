@@ -15,7 +15,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Rico Suter")]
 [assembly: AssemblyProduct("ProjectDependencyBrowser")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyCopyright("Copyright © 2015")]
 [assembly: AssemblyTrademark("Rico Suter")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
