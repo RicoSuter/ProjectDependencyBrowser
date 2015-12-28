@@ -229,10 +229,14 @@
                             Grid.Column="1" Grid.Row="0"
                             Padding="8,4,8,4" Margin="8,4,0,0" />
 
-                    <StackPanel Grid.Column="2" Grid.Row="0" Margin="8,4,0,0" 
+                    <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Margin="8,4,0,0" 
                                 ToolTip="Only projects whose file paths contain the specified segments (space separated) are loaded.">
-                        <TextBlock Text="Project Path Filter: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <TextBox Text="{Binding ProjectPathFilter, Mode=TwoWay}" />
+                        
+                        <TextBlock Text="Included Project Path Filter: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding IncludedProjectPathFilter, Mode=TwoWay}" Margin="0,0,0,8" />
+                        
+                        <TextBlock Text="Excluded Project Path Filter: " FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding ExcludedProjectPathFilter, Mode=TwoWay}" />
                     </StackPanel>
 
                     <Button Content="Load Projects &amp; Solutions" Command="{Binding LoadProjectsCommand}" 

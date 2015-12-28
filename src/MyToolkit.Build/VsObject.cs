@@ -67,9 +67,10 @@ namespace MyToolkit.Build
             return System.IO.Path.GetFullPath(path).ToLower();
         }
 
-        internal static Task<List<T>> LoadAllFromDirectoryAsync<T>(string path, string pathFilter, bool ignoreExceptions, ProjectCollection projectCollection, string extension, Func<string, ProjectCollection, T> creator, Dictionary<string, Exception> errors)
+        internal static Task<List<T>> LoadAllFromDirectoryAsync<T>(string path, string includedPathFilter, string excludedPathFilter, bool ignoreExceptions, ProjectCollection projectCollection, string extension, Func<string, ProjectCollection, T> creator, Dictionary<string, Exception> errors)
         {
-            var pathFilterTerms = pathFilter.ToLower().Split(' ');
+            var includedPathFilterTerms = includedPathFilter.ToLowerInvariant().Split(' ').Where(t => !string.IsNullOrEmpty(t)).ToArray();
+            var excludedPathFilterTerms = excludedPathFilter.ToLowerInvariant().Split(' ').Where(t => !string.IsNullOrEmpty(t)).ToArray();
 
             return Task.Run(async () =>
             {
@@ -78,8 +79,10 @@ namespace MyToolkit.Build
 
                 try
                 {
-                    var files = Directory.GetFiles(path, "*" + extension, SearchOption.AllDirectories);
-                    foreach (var file in files.Distinct().Where(s => pathFilterTerms.All(s.ToLower().Contains)))
+                    var files = GetFiles(path, "*" + extension);
+                    foreach (var file in files.Distinct().Where(s => 
+                        includedPathFilterTerms.All(t => s.ToLowerInvariant().Contains(t)) && 
+                        excludedPathFilterTerms.All(t => !s.ToLowerInvariant().Contains(t))))
                     {
                         var ext = System.IO.Path.GetExtension(file);
                         if (ext != null && ext.ToLower() == extension)
@@ -109,14 +112,44 @@ namespace MyToolkit.Build
                     foreach (var task in tasks.Where(t => t.Result != null))
                         projects.Add(task.Result);
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
                     if (!ignoreExceptions)
                         throw;
+
+                    if (errors != null)
+                        errors[path] = exception;
                 }
 
                 return projects;
             });
+        }
+
+        private static List<string> GetFiles(string path, string pattern)
+        {
+            var files = new List<string>();
+
+            if (path.EndsWith("$Recycle.Bin"))
+                return files;
+
+            if (path.ToLowerInvariant().Contains("\\temp\\"))
+                return files;
+
+            if (path == Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles))
+                return files;
+
+            if (path == Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86))
+                return files;
+
+            try
+            {
+                files.AddRange(Directory.GetFiles(path, pattern, SearchOption.TopDirectoryOnly));
+                foreach (var directory in Directory.GetDirectories(path))
+                    files.AddRange(GetFiles(directory, pattern));
+            }
+            catch (UnauthorizedAccessException) { }
+
+            return files;
         }
     }
 }

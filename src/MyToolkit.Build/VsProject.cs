@@ -173,14 +173,20 @@ namespace MyToolkit.Build
 
         /// <summary>Recursively loads all Visual Studio projects from the given directory.</summary>
         /// <param name="path">The directory path.</param>
-        /// <param name="pathFilter">The path filter.</param>
+        /// <param name="includedPathFilter">The included path filter.</param>
+        /// <param name="excludedPathFilter">The excluded path filter.</param>
         /// <param name="ignoreExceptions">Specifies whether to ignore exceptions (projects with exceptions are not returned).</param>
         /// <param name="projectCollection">The project collection.</param>
         /// <param name="errors">The loading errors (out param).</param>
         /// <returns>The projects.</returns>
-        public static Task<List<VsProject>> LoadAllFromDirectoryAsync(string path, string pathFilter, bool ignoreExceptions, ProjectCollection projectCollection, Dictionary<string, Exception> errors = null)
+        public static Task<List<VsProject>> LoadAllFromDirectoryAsync(string path, string includedPathFilter, string excludedPathFilter, bool ignoreExceptions, ProjectCollection projectCollection, Dictionary<string, Exception> errors = null)
         {
-            return LoadAllFromDirectoryAsync(path.Replace('/', '\\'), pathFilter.Replace('/', '\\'), ignoreExceptions, projectCollection, ".csproj", Load, errors);
+            return LoadAllFromDirectoryAsync(
+                path.Replace('/', '\\'), 
+                includedPathFilter.Replace('/', '\\'), 
+                excludedPathFilter.Replace('/', '\\'), 
+                ignoreExceptions, 
+                projectCollection, ".csproj", Load, errors);
         }
 
         /// <summary>Loads the project's referenced assemblies, projects and NuGet packages. </summary>
@@ -269,7 +275,7 @@ namespace MyToolkit.Build
             var configFile = System.IO.Path.Combine(directory, "nuget.config");
             if (File.Exists(configFile))
             {
-                using (var stream = File.Open(configFile, FileMode.Open))
+                using (var stream = File.Open(configFile, FileMode.Open, FileAccess.Read))
                 {
                     var document = new XPathDocument(stream);
                     var navigator = document.CreateNavigator();

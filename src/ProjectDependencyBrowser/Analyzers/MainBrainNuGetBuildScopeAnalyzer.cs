@@ -1,4 +1,5 @@
 extern alias build;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace ProjectDependencyBrowser.Analyzers
         {
             var results = new List<AnalyzeResult>();
 
-            var headIndex = project.Path.ToLower().IndexOf("\\head\\");
+            var headIndex = project.Path.ToLower().IndexOf("\\head\\", StringComparison.InvariantCulture);
             if (headIndex != -1)
             {
                 var buildScope = project.Path.Substring(0, headIndex + 6);
@@ -21,10 +22,9 @@ namespace ProjectDependencyBrowser.Analyzers
                 {
                     foreach (var nuGetReference in project.NuGetReferences)
                     {
-                        var nuGetProject = allProjects.SingleOrDefault(p => p.NuGetPackageId == nuGetReference.Name);
-                        if (nuGetProject != null)
+                        foreach (var nuGetProject in allProjects.Where(p => p.NuGetPackageId == nuGetReference.Name))
                         {
-                            var nuGetHeadIndex = nuGetProject.Path.ToLower().IndexOf("\\head\\");
+                            var nuGetHeadIndex = nuGetProject.Path.ToLowerInvariant().IndexOf("\\head\\", StringComparison.InvariantCulture);
                             if (nuGetHeadIndex != -1)
                             {
                                 var nuGetBuildScope = nuGetProject.Path.Substring(0, nuGetHeadIndex + 6);

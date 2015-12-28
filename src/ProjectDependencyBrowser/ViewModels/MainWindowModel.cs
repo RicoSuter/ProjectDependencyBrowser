@@ -34,7 +34,8 @@ namespace ProjectDependencyBrowser.ViewModels
     public class MainWindowModel : ViewModelBase
     {
         private string _rootDirectory;
-        private string _projectPathFilter;
+        private string _includedProjectPathFilter;
+        private string _excludedProjectPathFilter;
         private VsProject _selectedProject;
 
         private bool _isLoaded;
@@ -236,11 +237,18 @@ namespace ProjectDependencyBrowser.ViewModels
             set { Set(ref _rootDirectory, value); }
         }
 
-        /// <summary>Gets or sets the project path filter.</summary>
-        public string ProjectPathFilter
+        /// <summary>Gets or sets the included project path filter.</summary>
+        public string IncludedProjectPathFilter
         {
-            get { return _projectPathFilter; }
-            set { Set(ref _projectPathFilter, value); }
+            get { return _includedProjectPathFilter; }
+            set { Set(ref _includedProjectPathFilter, value); }
+        }
+
+        /// <summary>Gets or sets the excluded project path filter.</summary>
+        public string ExcludedProjectPathFilter
+        {
+            get { return _excludedProjectPathFilter; }
+            set { Set(ref _excludedProjectPathFilter, value); }
         }
 
         /// <summary>Gets the application version with build time. </summary>
@@ -316,7 +324,10 @@ namespace ProjectDependencyBrowser.ViewModels
         protected async override void OnLoaded()
         {
             RootDirectory = ApplicationSettings.GetSetting("RootDirectory", "");
-            ProjectPathFilter = ApplicationSettings.GetSetting("RootProjectPathFilter", "");
+
+            IncludedProjectPathFilter = ApplicationSettings.GetSetting("RootProjectPathFilter", "");
+            ExcludedProjectPathFilter = ApplicationSettings.GetSetting("ExcludedProjectPathFilter", "");
+
             AutomaticallyScanDirectory = ApplicationSettings.GetSetting("AutomaticallyScanDirectory", false);
             IgnoreExceptions = ApplicationSettings.GetSetting("IgnoreExceptions", true);
             MinimizeWindowAfterSolutionLaunch = ApplicationSettings.GetSetting("MinimizeWindowAfterSolutionLaunch", true);
@@ -335,8 +346,10 @@ namespace ProjectDependencyBrowser.ViewModels
         /// If the view model is already cleaned up the method is not called again by the Cleanup method. </summary>
         protected override void OnUnloaded()
         {
+            ApplicationSettings.SetSetting("RootProjectPathFilter", IncludedProjectPathFilter);
+            ApplicationSettings.SetSetting("ExcludedProjectPathFilter", ExcludedProjectPathFilter);
+
             ApplicationSettings.SetSetting("RootDirectory", RootDirectory);
-            ApplicationSettings.SetSetting("RootProjectPathFilter", ProjectPathFilter);
             ApplicationSettings.SetSetting("AutomaticallyScanDirectory", AutomaticallyScanDirectory);
             ApplicationSettings.SetSetting("IgnoreExceptions", IgnoreExceptions);
             ApplicationSettings.SetSetting("MinimizeWindowAfterSolutionLaunch", MinimizeWindowAfterSolutionLaunch);
@@ -355,8 +368,8 @@ namespace ProjectDependencyBrowser.ViewModels
             var errors = new Dictionary<string, Exception>();
             var tuple = await RunTaskAsync(async () =>
             {
-                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory, ProjectPathFilter, IgnoreExceptions, _projectCollection, errors);
-                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory, ProjectPathFilter, IgnoreExceptions, _projectCollection, errors);
+                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory, IncludedProjectPathFilter, ExcludedProjectPathFilter, IgnoreExceptions, _projectCollection, errors);
+                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory, IncludedProjectPathFilter, ExcludedProjectPathFilter, IgnoreExceptions, _projectCollection, errors);
 
                 await Task.WhenAll(projectsTask, solutionsTask);
                 await Task.Run(() =>
