@@ -147,6 +147,7 @@ namespace MyToolkit.Build
                 foreach (var directory in Directory.GetDirectories(path))
                     files.AddRange(GetFiles(directory, pattern));
             }
+            catch (PathTooLongException) { }
             catch (UnauthorizedAccessException) { }
 
             return files;
