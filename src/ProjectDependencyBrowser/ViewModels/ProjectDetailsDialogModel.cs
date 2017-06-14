@@ -17,6 +17,7 @@ using System.Windows.Media;
 using GraphSharp;
 using build::MyToolkit.Build;
 using MyToolkit.Build.Exceptions;
+using MyToolkit.Dialogs;
 using MyToolkit.Messaging;
 using MyToolkit.Mvvm;
 using ProjectDependencyBrowser.Analyzers;
@@ -67,7 +68,7 @@ namespace ProjectDependencyBrowser.ViewModels
         /// <param name="exception">The exception. </param>
         public override void HandleException(Exception exception)
         {
-            Messenger.Default.SendAsync(new TextMessage("Exception: " + exception.Message));
+            ExceptionBox.Show("Error", exception);
         }
 
         private async Task AnalyzeAsync()

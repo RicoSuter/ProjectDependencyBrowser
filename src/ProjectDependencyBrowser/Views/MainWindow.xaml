@@ -35,6 +35,9 @@
                         <MenuItem Header="Show projects which reference this project" 
                                   Command="{Binding SetProjectReferenceFilterCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
+                        <MenuItem Header="Edit project" 
+                                  Command="{Binding EditProjectCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
                         <MenuItem Header="Open project directory in Explorer" 
                                   Command="{Binding OpenProjectDirectoryCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
@@ -64,6 +67,9 @@
                                   CommandParameter="{Binding}" />
                         <MenuItem Header="Show projects which reference this project" 
                                   Command="{Binding SetProjectReferenceFilterCommand, Source={StaticResource ViewModel}}" 
+                                  CommandParameter="{Binding}" />
+                        <MenuItem Header="Edit project" 
+                                  Command="{Binding EditProjectCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
                         <MenuItem Header="Open project directory in Explorer" 
                                   Command="{Binding OpenProjectDirectoryCommand, Source={StaticResource ViewModel}}" 
@@ -677,6 +683,10 @@
                 </TabControl>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,8,0,0" Grid.Row="2">
+                    <Button Content="Edit Project" Margin="0,0,8,0"
+                            Command="{Binding EditProjectCommand}"
+                            CommandParameter="{Binding SelectedProject}" 
+                            Padding="8,4,8,4" />
                     <Button Content="Open Project Directory" Margin="0,0,8,0"
                                 Command="{Binding OpenProjectDirectoryCommand}"
                                 CommandParameter="{Binding SelectedProject}" 

@@ -21,6 +21,7 @@ using build::MyToolkit.Build;
 using Microsoft.Build.Evaluation;
 using MyToolkit.Collections;
 using MyToolkit.Command;
+using MyToolkit.Dialogs;
 using MyToolkit.Messaging;
 using MyToolkit.Mvvm;
 using MyToolkit.Storage;
@@ -89,7 +90,8 @@ namespace ProjectDependencyBrowser.ViewModels
             ShowPreviousProjectCommand = new RelayCommand(ShowPreviousProject, () => _previouslySelectedProjects.Count > 0);
             OpenNuGetWebsiteCommand = new RelayCommand<NuGetPackageReference>(OpenNuGetWebsite);
             CopyNuGetIdCommand = new RelayCommand<NuGetPackageReference>(CopyNuGetId);
-            OpenProjectDirectoryCommand = new RelayCommand<VsProject>(OpenProjectDirectory);
+            OpenProjectDirectoryCommand = new RelayCommand<VsObject>(OpenProjectDirectory);
+            EditProjectCommand = new RelayCommand<VsObject>(EditProject);
             CopyProjectDirectoryPathCommand = new RelayCommand<VsProject>(CopyProjectDirectoryPath);
             ShowProjectDetailsCommand = new RelayCommand<VsProject>(ShowProjectDetails);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
@@ -122,6 +124,8 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Gets the command to open a project directory. </summary>
         public ICommand OpenProjectDirectoryCommand { get; private set; }
+
+        public ICommand EditProjectCommand { get; }
 
         public ICommand CopyProjectDirectoryPathCommand { get; private set; }
 
@@ -302,7 +306,7 @@ namespace ProjectDependencyBrowser.ViewModels
         /// <param name="exception">The exception. </param>
         public override void HandleException(Exception exception)
         {
-            Messenger.Default.SendAsync(new TextMessage("Exception: " + exception.Message));
+            ExceptionBox.Show("Error", exception);
         }
 
         /// <summary>Gets or sets the analyze results. </summary>
@@ -574,11 +578,30 @@ namespace ProjectDependencyBrowser.ViewModels
                 await Messenger.Default.SendAsync(new TextMessage("The project is not referenced in any project. ", "Project not referenced"));
         }
 
-        private void OpenProjectDirectory(VsProject project)
+        private void OpenProjectDirectory(VsObject obj)
         {
-            var directory = Path.GetDirectoryName(project.Path);
-            if (directory != null)
-                Process.Start(directory);
+            try
+            {
+                var directory = Path.GetDirectoryName(obj.Path);
+                if (directory != null)
+                    Process.Start(directory);
+            }
+            catch (Exception e)
+            {
+                ExceptionBox.Show("Error", e);
+            }
+        }
+
+        private void EditProject(VsObject obj)
+        {
+            try
+            {
+                Process.Start("notepad.exe", obj.Path);
+            }
+            catch (Exception e)
+            {
+                ExceptionBox.Show("Error", e);
+            }
         }
 
         private void CopyProjectDirectoryPath(VsProject project)

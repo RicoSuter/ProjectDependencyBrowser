@@ -8,6 +8,7 @@
 
 using System.Linq;
 using Microsoft.Build.Evaluation;
+using MyToolkit.Utilities;
 
 namespace MyToolkit.Build
 {
@@ -40,7 +41,7 @@ namespace MyToolkit.Build
             else
             {
                 var segments = projectItem.EvaluatedInclude.Split('/', '\\');
-                name = segments.Last();
+                name = segments.Last().TrimEnd(".csproj").TrimEnd(".vsproj");
             }
 
             return new VsProjectReference(path, name);
