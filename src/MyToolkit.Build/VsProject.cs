@@ -379,6 +379,12 @@ namespace MyToolkit.Build
                 }
             }
 
+            foreach (var item in Project.Items.Where(i => i.ItemType == "PackageReference"))
+            {
+                var version = item.Metadata.SingleOrDefault(m => m.Name == "Version");
+                references.Add(new NuGetPackageReference(item.EvaluatedInclude, version?.EvaluatedValue ?? "?"));
+            }
+
             _nuGetReferences = references.OrderBy(r => r.Name).ToList();
         }
     }

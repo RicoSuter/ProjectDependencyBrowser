@@ -21,7 +21,7 @@ namespace MyToolkit.Build
         /// <param name="name">The reference name. </param>
         private VsProjectReference(string path, string name) : base(path)
         {
-            _name = name; 
+            _name = name;
         }
 
         /// <summary>Loads a <see cref="VsProjectReference"/> from a <see cref="ProjectItem"/>. </summary>
@@ -33,7 +33,15 @@ namespace MyToolkit.Build
             var path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(project.Path), projectItem.EvaluatedInclude);
             path = System.IO.Path.GetFullPath(path);
 
-            var name = projectItem.Metadata.Single(m => m.Name == "Name").EvaluatedValue;
+            string name;
+            var metadata = projectItem.Metadata.SingleOrDefault(m => m.Name == "Name");
+            if (metadata != null)
+                name = metadata.EvaluatedValue;
+            else
+            {
+                var segments = projectItem.EvaluatedInclude.Split('/', '\\');
+                name = segments.Last();
+            }
 
             return new VsProjectReference(path, name);
         }

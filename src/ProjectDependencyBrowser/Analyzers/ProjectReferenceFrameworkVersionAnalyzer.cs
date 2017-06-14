@@ -20,18 +20,21 @@ namespace ProjectDependencyBrowser.Analyzers
 
             // TODO: Add same analyzer for assembly references (see http://stackoverflow.com/questions/2310701/determine-framework-clr-version-of-assembly
 
-            var projectVersion = new Version(project.TargetFrameworkVersion.TrimStart('v'));
-            foreach (var rp in project.ProjectReferences)
+            if (!string.IsNullOrEmpty(project.TargetFrameworkVersion))
             {
-                var referencedProject = allProjects.SingleOrDefault(p => p.IsSameProject(rp));
-                if (referencedProject != null)
+                var projectVersion = new Version(project.TargetFrameworkVersion.TrimStart('v'));
+                foreach (var rp in project.ProjectReferences)
                 {
-                    var referencedVersion = new Version(referencedProject.TargetFrameworkVersion.TrimStart('v'));
-                    if (referencedVersion > projectVersion)
+                    var referencedProject = allProjects.SingleOrDefault(p => p.IsSameProject(rp));
+                    if (referencedProject != null)
                     {
-                        results.Add(new AnalyzeResult(".NET Framework version of the referenced project is not compatible",
-                            "The .NET Framework version of the referenced project '" + referencedProject.Name + "' (" + referencedProject.TargetFrameworkVersion + ") " +
-                            "is not compatible with the .NET Framework version of the referencing project (" + project.TargetFrameworkVersion + ")."));
+                        var referencedVersion = new Version(referencedProject.TargetFrameworkVersion.TrimStart('v'));
+                        if (referencedVersion > projectVersion)
+                        {
+                            results.Add(new AnalyzeResult(".NET Framework version of the referenced project is not compatible",
+                                "The .NET Framework version of the referenced project '" + referencedProject.Name + "' (" + referencedProject.TargetFrameworkVersion + ") " +
+                                "is not compatible with the .NET Framework version of the referencing project (" + project.TargetFrameworkVersion + ")."));
+                        }
                     }
                 }
             }

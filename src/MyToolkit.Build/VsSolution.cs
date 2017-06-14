@@ -10,21 +10,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
-using MyToolkit.Utilities;
 
 namespace MyToolkit.Build
 {
     /// <summary>Describes a Visual Studio solution. </summary>
     public class VsSolution : VsObject
     {
-        private static Type _solutionParserType = null;
         private readonly string _name;
-        private readonly object _solutionParser;
         private List<VsProject> _projects;
         private readonly ProjectCollection _projectCollection;
+        private readonly SolutionFile _solution;
 
         /// <summary>Initializes a new instance of the <see cref="VsSolution" /> class.</summary>
         /// <param name="path">The solution path.</param>
@@ -34,13 +32,7 @@ namespace MyToolkit.Build
         {
             _projectCollection = projectCollection; 
             _name = System.IO.Path.GetFileNameWithoutExtension(path);
-
-            _solutionParser = SolutionParserType.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).First().Invoke(null);
-            using (var streamReader = new StreamReader(path))
-            {
-                _solutionParser.SetPropertyValue("SolutionReader", streamReader);
-                _solutionParser.InvokeMethod("ParseSolution");
-            }
+            _solution = SolutionFile.Parse(path);
         }
 
         /// <summary>Loads a solution from a given file path.</summary>
@@ -83,12 +75,12 @@ namespace MyToolkit.Build
         public void LoadProjects(bool ignoreExceptions, Dictionary<string, VsProject> projectCache, Dictionary<string, Exception> errors = null)
         {
             var projects = new List<VsProject>();
-            var array = (Array)_solutionParser.GetPropertyValue("Projects");
+            var array = _solution.ProjectsInOrder;
             foreach (var projectObject in array)
             {
                 try
                 {
-                    var relativePath = projectObject.GetPropertyValue("RelativePath").ToString();
+                    var relativePath = projectObject.RelativePath;
                     var projectPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), relativePath));
                     try
                     {
@@ -140,17 +132,6 @@ namespace MyToolkit.Build
                 excludedPathFilter.Replace('/', '\\'), 
                 ignoreExceptions, 
                 projectCollection, ".sln", Load, errors);
-        }
-
-        private static Type SolutionParserType
-        {
-            get
-            {
-                if (_solutionParserType == null)
-                    _solutionParserType = Type.GetType("Microsoft.Build.Construction.SolutionParser, Microsoft.Build, " +
-                                                       "Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", true);
-                return _solutionParserType;
-            }
         }
     }
 }
