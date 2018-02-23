@@ -20,7 +20,7 @@ namespace ProjectDependencyBrowser.Analyzers
 
             // TODO: Add same analyzer for assembly references (see http://stackoverflow.com/questions/2310701/determine-framework-clr-version-of-assembly
 
-            if (!string.IsNullOrEmpty(project.TargetFrameworkVersion))
+            if (!string.IsNullOrEmpty(project.TargetFrameworkVersion) && project.TargetFrameworkVersion.StartsWith("v"))
             {
                 var projectVersion = new Version(project.TargetFrameworkVersion.TrimStart('v'));
                 foreach (var rp in project.ProjectReferences)

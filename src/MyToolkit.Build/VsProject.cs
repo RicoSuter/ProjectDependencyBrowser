@@ -125,7 +125,11 @@ namespace MyToolkit.Build
         /// <summary>Gets the .NET target framework version.</summary>
         public string TargetFrameworkVersion
         {
-            get { return Project.GetPropertyValue("TargetFrameworkVersion"); }
+            get
+            {
+                var targetFramework = Project.GetPropertyValue("TargetFramework");
+                return !string.IsNullOrEmpty(targetFramework) ? targetFramework : Project.GetPropertyValue("TargetFrameworkVersion");
+            }
         }
 
         /// <summary>Gets the output path.</summary>
@@ -333,7 +337,7 @@ namespace MyToolkit.Build
         private void LoadNuSpecFile(string filePath)
         {
             var nuSpecFilePath = Directory.GetFiles(System.IO.Path.GetDirectoryName(filePath), "*.nuspec", SearchOption.AllDirectories).FirstOrDefault();
-            if (nuSpecFilePath != null && !nuSpecFilePath.StartsWith(NuGetPackagesPath))
+            if (nuSpecFilePath != null && !nuSpecFilePath.StartsWith(NuGetPackagesPath) && !nuSpecFilePath.Contains("node_modules"))
             {
                 NuSpecFilePath = nuSpecFilePath;
                 using (var stream = File.Open(NuSpecFilePath, FileMode.Open))
