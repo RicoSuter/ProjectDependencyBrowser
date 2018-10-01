@@ -107,6 +107,8 @@ namespace ProjectDependencyBrowser.Views
                     }
                 }
             };
+
+            Model.GroupSolutions = true;
         }
 
         /// <summary>Gets the view model. </summary>
