@@ -152,6 +152,7 @@
     <Compile Include="Analyzers\Test\NuGetPackageDependencyAnalyzer.cs" />
     <Compile Include="Converters\AssemblyReferenceColorConverter.cs" />
     <Compile Include="Converters\ProjectTypesConverter.cs" />
+    <Compile Include="Converters\ShowProjectNameConverter.cs" />
     <Compile Include="Messages\ShowProjectDetails.cs" />
     <Compile Include="Messages\ShowProjectMessage.cs" />
     <Compile Include="ViewModels\MainWindowModel.cs" />

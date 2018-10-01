@@ -44,7 +44,7 @@
                     </ContextMenu>
                 </StackPanel.ContextMenu>
 
-                <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                <TextBlock Text="{Binding Name}" Visibility="{Binding Converter={StaticResource ShowProjectNameConverter}}" FontWeight="Bold" />
                 <TextBlock Text="{Binding NuGetPackageId}" Foreground="DarkBlue" FontWeight="Bold"
                            Visibility="{Binding NuGetPackageId, Converter={StaticResource VisibilityConverter}}" />
                 <TextBlock Text="{Binding FileName}" />
