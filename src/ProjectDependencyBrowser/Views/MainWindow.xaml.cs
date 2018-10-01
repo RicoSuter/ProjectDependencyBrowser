@@ -32,6 +32,8 @@ using ProjectDependencyBrowser.ViewModels;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using ListBox = System.Windows.Controls.ListBox;
 using MessageBox = System.Windows.MessageBox;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace ProjectDependencyBrowser.Views
 {
@@ -42,17 +44,17 @@ namespace ProjectDependencyBrowser.Views
         public MainWindow()
         {
             InitializeComponent();
-            
+
             ViewModelHelper.RegisterViewModel(Model, this);
 
-//#if !DEBUG
-//            ProjectDetailsButton.Visibility = Visibility.Collapsed;
-//#endif
+            //#if !DEBUG
+            //            ProjectDetailsButton.Visibility = Visibility.Collapsed;
+            //#endif
 
             Closed += delegate { Model.CallOnUnloaded(); };
             Activated += delegate { FocusProjectNameFilter(); };
             Loaded += delegate { RegisterHotKey(); };
-            
+
             Model.PropertyChanged += async (sender, args) =>
             {
                 if (args.IsProperty<MainWindowModel>(i => i.IsLoaded))
@@ -75,7 +77,7 @@ namespace ProjectDependencyBrowser.Views
             KeyUp += (sender, args) =>
             {
                 var selectedTextBox = FocusManager.GetFocusedElement(this) as System.Windows.Controls.TextBox;
-                var backKeyPressed = args.Key == Key.Back &&  (selectedTextBox == null || selectedTextBox.Style == App.Current.FindResource("SelectableTextBlock"));
+                var backKeyPressed = args.Key == Key.Back && (selectedTextBox == null || selectedTextBox.Style == App.Current.FindResource("SelectableTextBlock"));
                 if (backKeyPressed || (args.Key == Key.BrowserBack) || (args.Key == Key.System && args.SystemKey == Key.Left))
                 {
                     Model.ShowPreviousProjectCommand.TryExecute();
@@ -86,6 +88,25 @@ namespace ProjectDependencyBrowser.Views
 
             CheckForApplicationUpdate();
             LoadWindowState();
+
+            var view = CollectionViewSource.GetDefaultView(Model.FilteredProjects);
+            ProjectList.ItemsSource = view;
+
+            Model.PropertyChanged += (o, e) =>
+            {
+                if (e.PropertyName == "GroupSolutions")
+                {
+                    view.GroupDescriptions.Clear();
+                    view.SortDescriptions.Clear();
+
+                    if (Model.GroupSolutions)
+                    {
+                        view.GroupDescriptions.Add(new PropertyGroupDescription("SolutionName"));
+                        view.SortDescriptions.Add(new SortDescription("SolutionName", ListSortDirection.Ascending));
+                        view.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                    }
+                }
+            };
         }
 
         /// <summary>Gets the view model. </summary>
@@ -133,8 +154,8 @@ namespace ProjectDependencyBrowser.Views
         private async void CheckForApplicationUpdate()
         {
             var updater = new ApplicationUpdater(
-                "ProjectDependencyBrowser.msi", 
-                GetType().Assembly, 
+                "ProjectDependencyBrowser.msi",
+                GetType().Assembly,
                 "http://rsuter.com/Projects/ProjectDependencyBrowser/updates.xml");
 
             await updater.CheckForUpdate(this);
@@ -190,7 +211,7 @@ namespace ProjectDependencyBrowser.Views
 
         private void OnSolutionDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            var solution = (VsSolution)((ListBox) sender).SelectedItem;
+            var solution = (VsSolution)((ListBox)sender).SelectedItem;
             if (solution != null)
                 Model.TryOpenSolution(solution);
         }
@@ -262,13 +283,13 @@ namespace ProjectDependencyBrowser.Views
             if (Model.SelectedProject != null)
             {
                 ProjectList.ScrollIntoView(Model.SelectedProject);
-                ProjectTabs.SelectedIndex = 0; 
+                ProjectTabs.SelectedIndex = 0;
             }
         }
 
         private void OnSelectItemFromFilteredListBox(object sender, MouseButtonEventArgs args)
         {
-            var item = ((FilterListBox) sender).SelectedItem;
+            var item = ((FilterListBox)sender).SelectedItem;
             if (item != null)
                 Model.SelectObjectCommand.Execute(item);
         }

@@ -165,6 +165,8 @@ namespace MyToolkit.Build
         /// <summary>Gets the solutions of the project (filled by <see cref="VsSolution.LoadProjects()"/>).</summary>
         public IList<VsSolution> Solutions { get; internal set; }
 
+        /// <summary>Gets the primary solution name.</summary>
+        public string SolutionName => Solutions.Any() ? Solutions.First().FileName : "- No Solution";
 
         /// <summary>Checks whether the two project file paths are the same files. </summary>
         /// <param name="projectPath1">The first project file path. </param>

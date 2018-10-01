@@ -40,6 +40,7 @@ namespace ProjectDependencyBrowser.ViewModels
         private VsProject _selectedProject;
 
         private bool _isLoaded;
+        private bool _groupSolutions;
         private bool _ignoreExceptions;
         private bool _automaticallyScanDirectory;
         private bool _minimizeWindowAfterSolutionLaunch;
@@ -294,6 +295,13 @@ namespace ProjectDependencyBrowser.ViewModels
         {
             get { return _isLoaded; }
             private set { Set(ref _isLoaded, value); }
+        }
+
+        /// <summary>Gets or sets a value indicating whether to group by solution. </summary>
+        public bool GroupSolutions
+        {
+            get { return _groupSolutions; }
+            set { Set(ref _groupSolutions, value); }
         }
 
         /// <summary>Gets the command to load the projects from the root directory. </summary>
