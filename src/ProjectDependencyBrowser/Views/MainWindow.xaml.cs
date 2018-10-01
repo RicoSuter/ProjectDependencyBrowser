@@ -42,17 +42,18 @@ namespace ProjectDependencyBrowser.Views
         public MainWindow()
         {
             InitializeComponent();
-            
+
             ViewModelHelper.RegisterViewModel(Model, this);
 
-//#if !DEBUG
-//            ProjectDetailsButton.Visibility = Visibility.Collapsed;
-//#endif
+            //#if !DEBUG
+            //            ProjectDetailsButton.Visibility = Visibility.Collapsed;
+            //#endif
 
             Closed += delegate { Model.CallOnUnloaded(); };
             Activated += delegate { FocusProjectNameFilter(); };
             Loaded += delegate { RegisterHotKey(); };
-            
+            SizeChanged += OnSizeChanged;
+
             Model.PropertyChanged += async (sender, args) =>
             {
                 if (args.IsProperty<MainWindowModel>(i => i.IsLoaded))
@@ -75,7 +76,7 @@ namespace ProjectDependencyBrowser.Views
             KeyUp += (sender, args) =>
             {
                 var selectedTextBox = FocusManager.GetFocusedElement(this) as System.Windows.Controls.TextBox;
-                var backKeyPressed = args.Key == Key.Back &&  (selectedTextBox == null || selectedTextBox.Style == App.Current.FindResource("SelectableTextBlock"));
+                var backKeyPressed = args.Key == Key.Back && (selectedTextBox == null || selectedTextBox.Style == App.Current.FindResource("SelectableTextBlock"));
                 if (backKeyPressed || (args.Key == Key.BrowserBack) || (args.Key == Key.System && args.SystemKey == Key.Left))
                 {
                     Model.ShowPreviousProjectCommand.TryExecute();
@@ -133,8 +134,8 @@ namespace ProjectDependencyBrowser.Views
         private async void CheckForApplicationUpdate()
         {
             var updater = new ApplicationUpdater(
-                "ProjectDependencyBrowser.msi", 
-                GetType().Assembly, 
+                "ProjectDependencyBrowser.msi",
+                GetType().Assembly,
                 "http://rsuter.com/Projects/ProjectDependencyBrowser/updates.xml");
 
             await updater.CheckForUpdate(this);
@@ -190,7 +191,7 @@ namespace ProjectDependencyBrowser.Views
 
         private void OnSolutionDoubleClicked(object sender, MouseButtonEventArgs e)
         {
-            var solution = (VsSolution)((ListBox) sender).SelectedItem;
+            var solution = (VsSolution)((ListBox)sender).SelectedItem;
             if (solution != null)
                 Model.TryOpenSolution(solution);
         }
@@ -262,15 +263,38 @@ namespace ProjectDependencyBrowser.Views
             if (Model.SelectedProject != null)
             {
                 ProjectList.ScrollIntoView(Model.SelectedProject);
-                ProjectTabs.SelectedIndex = 0; 
+                ProjectTabs.SelectedIndex = 0;
             }
         }
 
         private void OnSelectItemFromFilteredListBox(object sender, MouseButtonEventArgs args)
         {
-            var item = ((FilterListBox) sender).SelectedItem;
+            var item = ((FilterListBox)sender).SelectedItem;
             if (item != null)
                 Model.SelectObjectCommand.Execute(item);
+        }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs args)
+        {
+            BorderThickness = WindowState == WindowState.Maximized ? new Thickness(8) : new Thickness(0);
+        }
+
+        private void OnClose(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void OnMinimize(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void OnMaximize(object sender, RoutedEventArgs e)
+        {
+            if (WindowState != WindowState.Maximized)
+                WindowState = WindowState.Maximized;
+            else
+                WindowState = WindowState.Normal;
         }
     }
 }
