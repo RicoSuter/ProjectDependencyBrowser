@@ -155,6 +155,8 @@
     <Compile Include="Converters\ShowProjectNameConverter.cs" />
     <Compile Include="Messages\ShowProjectDetails.cs" />
     <Compile Include="Messages\ShowProjectMessage.cs" />
+    <Compile Include="Themes\LeftMarginMultiplierConverter.cs" />
+    <Compile Include="Themes\TreeViewItemExtensions.cs" />
     <Compile Include="ViewModels\MainWindowModel.cs" />
     <Compile Include="ViewModels\NuGetPackageVersionGroup.cs" />
     <Compile Include="ViewModels\ProjectDetailsDialogModel.cs" />
@@ -162,6 +164,10 @@
     <Compile Include="Views\ProjectDetailsDialog.xaml.cs">
       <DependentUpon>ProjectDetailsDialog.xaml</DependentUpon>
     </Compile>
+    <Page Include="Themes\Styles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

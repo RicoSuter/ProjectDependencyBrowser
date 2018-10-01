@@ -1,4 +1,5 @@
 ﻿<Window x:Class="ProjectDependencyBrowser.Views.MainWindow"
+        Style="{StaticResource {x:Type Window}}"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:MyToolkit.Converters;assembly=MyToolkit.Extended"
@@ -13,6 +14,14 @@
         Title="Project Dependency Browser" Background="#EEEEEE"
         Height="700" Width="1200" MinHeight="700" MinWidth="1200">
 
+    <WindowChrome.WindowChrome>
+        <WindowChrome ResizeBorderThickness="6"
+                      CaptionHeight="36"
+                      CornerRadius="4"
+                      GlassFrameThickness="4">
+        </WindowChrome>
+    </WindowChrome.WindowChrome>
+
     <Window.Resources>
         <viewModels:MainWindowModel x:Key="ViewModel" />
 
@@ -20,6 +29,7 @@
         <converters:NotConverter x:Key="NotConverter" />
         <converters1:ProjectTypesConverter x:Key="ProjectTypesConverter" />
         <converters1:AssemblyReferenceColorConverter x:Key="AssemblyReferenceColorConverter" />
+        <converters1:ShowProjectNameConverter x:Key="ShowProjectNameConverter" />
 
         <DataTemplate x:Key="ProjectTemplate">
             <StackPanel d:DataContext="{d:DesignInstance Type=build:VsProject}" 
@@ -45,12 +55,16 @@
                 </StackPanel.ContextMenu>
 
                 <TextBlock Text="{Binding Name}" Visibility="{Binding Converter={StaticResource ShowProjectNameConverter}}" FontWeight="Bold" />
-                <TextBlock Text="{Binding NuGetPackageId}" Foreground="DarkBlue" FontWeight="Bold"
-                           Visibility="{Binding NuGetPackageId, Converter={StaticResource VisibilityConverter}}" />
+                <TextBlock Text="{Binding NuGetPackageId}" FontWeight="Bold"
+                           Visibility="{Binding NuGetPackageId, Converter={StaticResource VisibilityConverter}}" >
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
+                    </TextBlock.Foreground>
+                </TextBlock>
                 <TextBlock Text="{Binding FileName}" />
             </StackPanel>
         </DataTemplate>
-        
+
         <DataTemplate x:Key="ProjectReferenceTemplate">
             <StackPanel d:DataContext="{d:DesignInstance Type=build:VsProjectReference}" 
                         Margin="0,4,0,4" Background="Transparent">
@@ -59,9 +73,9 @@
                         <MenuItem Header="Select this project" 
                                   Command="{Binding SelectObjectCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
-                        
+
                         <Separator />
-                        
+
                         <MenuItem Header="Copy project name" 
                                   Command="{Binding CopyNameCommand, Source={StaticResource ViewModel}}" 
                                   CommandParameter="{Binding}" />
@@ -199,516 +213,548 @@
         </DataTemplate>
     </Window.Resources>
 
-    <Grid DataContext="{StaticResource ViewModel}" Margin="8"
-          IsEnabled="{Binding IsLoading, Converter={StaticResource NotConverter}}">
-
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-
-        <!-- Tabs -->
-        <TabControl Margin="-8,0,-8,8" Height="160" x:Name="Tabs">
-            <!-- Scan directory -->
-            <TabItem Header="Configuration">
-                <Grid Margin="8" VerticalAlignment="Top">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Margin="0,4,0,0" 
-                                ToolTip="Specifies the path where the project and solution files are loaded.">
-                        <TextBlock Text="Root Directory: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <TextBox Text="{Binding RootDirectory, Mode=TwoWay}" />
-                    </StackPanel>
-
-                    <Button Content="Select Directory..." Click="OnSelectDirectory" 
-                            Grid.Column="1" Grid.Row="0"
-                            Padding="8,4,8,4" Margin="8,4,0,0" />
-
-                    <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Margin="8,4,0,0" 
-                                ToolTip="Only projects whose file paths contain the specified segments (space separated) are loaded.">
-                        
-                        <TextBlock Text="Included Project Path Filter: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <TextBox Text="{Binding IncludedProjectPathFilter, Mode=TwoWay}" Margin="0,0,0,8" />
-                        
-                        <TextBlock Text="Excluded Project Path Filter: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <TextBox Text="{Binding ExcludedProjectPathFilter, Mode=TwoWay}" />
-                    </StackPanel>
-
-                    <Button Content="Load Projects &amp; Solutions" Command="{Binding LoadProjectsCommand}" 
-                            Grid.Column="3" Grid.Row="0" Grid.RowSpan="2"
-                            Padding="16,4,16,4" Margin="8,4,0,0" />
-
-                    <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Margin="0,12,0,0" Orientation="Horizontal">
-                        <StackPanel Margin="0,0,16,0">
-                            <CheckBox IsChecked="{Binding IgnoreExceptions, Mode=TwoWay}" 
-                                      Content="Ignore Exceptions when scanning" Margin="0,0,0,8" />
-                            <CheckBox IsChecked="{Binding MinimizeWindowAfterSolutionLaunch, Mode=TwoWay}" 
-                                      Content="Minimize Window after launching a Solution" Margin="0,0,0,8" />
-                            <CheckBox IsChecked="{Binding AutomaticallyScanDirectory, Mode=TwoWay}" 
-                                      Content="Automatically scan Directory at Startup" />
-                        </StackPanel>
-                        <StackPanel>
-                            <CheckBox IsChecked="{Binding EnableShowApplicationHotKey, Mode=TwoWay}" 
-                                      Content="Enable Hotkey (Ctrl-Win-V) to show Application (needs Restart)" Margin="0,0,0,8" />
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
-            </TabItem>
-
-            <!-- Filters -->
-            <TabItem Header="Project Filter" IsEnabled="{Binding IsLoaded}">
-                <Grid Margin="8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,4,0">
-                        <TextBlock Text="Project or Solution Name: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <TextBox Text="{Binding Filter.ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 x:Name="ProjectNameFilter" GotFocus="OnProjectNameFilterGotFocus" Margin="0,0,0,8"
-                                 KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="4,0,4,0">
-                        <TextBlock Text="Project Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <TextBox Text="{Binding Filter.ProjectNamespaceFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Margin="0,0,0,8" AcceptsReturn="False" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="0" Grid.Column="3" Margin="4,0,4,0">
-                        <TextBlock Text="Project NuGet Package ID: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
-                        <TextBox Text="{Binding Filter.ProjectNuGetPackageIdFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Margin="0,0,0,8" AcceptsReturn="False" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Margin="4,0,0,0">
-                        <TextBlock Text="Project Path: " FontWeight="Bold" Margin="0,0,0,4" />
-                        <TextBox Text="{Binding Filter.ProjectPathFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 Margin="0,0,0,12" AcceptsReturn="False" />
-
-                        <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithoutSolution, Mode=TwoWay}" 
-                                  Content="Only Projects without Solution" Margin="0,0,0,8" />
-                        <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithMultipleSolutions, Mode=TwoWay}" 
-                                  Content="Only Projects with multiple Solutions" Margin="0,0,0,8" />
-                        <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithNuGetPackages, Mode=TwoWay}" 
-                                  Content="Only Projects with any referenced NuGet Packages" Margin="0,0,0,0" />
-                    </StackPanel>
-
-                    <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="5" 
-                            Command="{Binding ClearFilterCommand}" Padding="16,8,16,8" Margin="8,0,0,4">
-                        <TextBlock>
-                            Clear<LineBreak />Filters
-                        </TextBlock>
-                    </Button>
-
-                    <StackPanel Grid.Row="1" Margin="0,0,4,0" Grid.Column="0">
-                        <CheckBox IsChecked="{Binding Filter.IsSolutionFilterEnabled, Mode=TwoWay}" 
-                                  Content="Contained in Solution: " FontWeight="Bold" />
-                        <ComboBox ItemsSource="{Binding AllSolutions}" 
-                                  ItemTemplate="{StaticResource SolutionTemplate}"
-                                  Visibility="{Binding Filter.IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
-                                  SelectedItem="{Binding Filter.SolutionFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="1">
-                        <CheckBox IsChecked="{Binding Filter.IsProjectReferenceFilterEnabled, Mode=TwoWay}" 
-                                  Content="Used by Project: " FontWeight="Bold" />
-                        <ComboBox ItemsSource="{Binding UsedProjectReferences}" 
-                                  ItemTemplate="{StaticResource ProjectReferenceTemplate}"
-                                  Visibility="{Binding Filter.IsProjectReferenceFilterEnabled, Converter={StaticResource VisibilityConverter}}"
-                                  SelectedItem="{Binding Filter.ProjectReferenceFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="2">
-                        <CheckBox IsChecked="{Binding Filter.IsNuGetPackageNameFilterEnabled, Mode=TwoWay}" 
-                                  Content="References NuGet Package: " FontWeight="Bold" Foreground="DarkBlue" />
-                        <ComboBox ItemsSource="{Binding UsedNuGetPackageNames}" 
-                                  ItemTemplate="{StaticResource NuGetPackageNameTemplate}"
-                                  Visibility="{Binding Filter.IsNuGetPackageNameFilterEnabled, Converter={StaticResource VisibilityConverter}}"
-                                  SelectedItem="{Binding Filter.NuGetPackageNameFilter, Mode=TwoWay}" Margin="0,8,0,0" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="3">
-                        <CheckBox IsChecked="{Binding Filter.IsNuGetPackageFilterEnabled, Mode=TwoWay}" 
-                                  Content="References NuGet Package Version: " FontWeight="Bold" Foreground="DarkBlue" />
-                        <ComboBox ItemsSource="{Binding UsedNuGetPackages}" 
-                                  ItemTemplate="{StaticResource NuGetPackageTemplate}"
-                                  Visibility="{Binding Filter.IsNuGetPackageFilterEnabled, Converter={StaticResource VisibilityConverter}}"
-                                  SelectedItem="{Binding Filter.NuGetPackageFilter, Mode=TwoWay}" Margin="0,8,0,0" />
-                    </StackPanel>
-                </Grid>
-            </TabItem>
-
-            <!-- Logs -->
-            <TabItem Header="Logs">
-                <ListBox ItemsSource="{Binding Logs}" Margin="8" 
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock TextWrapping="Wrap" Text="{Binding}" Margin="0,2,0,2" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </TabItem>
-
-            <!-- About -->
-            <TabItem Header="About">
-                <StackPanel Margin="8">
-                    <TextBlock Margin="0,0,0,8" FontSize="14">
-                        <Hyperlink NavigateUri="http://projectdependencybrowser.org" Click="OnOpenHyperlink">Project Dependency Browser</Hyperlink>
-                        has been developed by 
-                        <Hyperlink NavigateUri="http://www.rsuter.com" Click="OnOpenHyperlink">Rico Suter</Hyperlink>.
-                    </TextBlock>
-                    <TextBlock Margin="0,0,0,8">
-                        Version: <Run Text="{Binding ApplicationVersion, Mode=OneWay}" />
-                        <LineBreak />
-                        License: <Hyperlink NavigateUri="https://github.com/rsuter/ProjectDependencyBrowser/blob/master/LICENSE.md" Click="OnOpenHyperlink">Ms-PL</Hyperlink>
-                    </TextBlock>
-                    <TextBlock Text="Components" FontWeight="Bold" Margin="0,4,0,4" />
-                    <TextBlock Margin="0,0,0,4">
-                        - <Hyperlink NavigateUri="http://mytoolkit.io" Click="OnOpenHyperlink">MyToolkit</Hyperlink>: 
-                          .NET library with MVVM classes, controls and more components.
-                    </TextBlock>
-                </StackPanel>
-            </TabItem>
-        </TabControl>
-
-        <!-- Projects -->
-        <TextBlock Text="No projects have been loaded. " Grid.Row="2"
-                   Visibility="{Binding IsLoaded, Converter={StaticResource NotConverter}}" />
-        <Grid Grid.Row="2" Visibility="{Binding IsLoaded, Converter={StaticResource VisibilityConverter}}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="350" MinWidth="250" MaxWidth="550" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
+        
+        <Border Height="36" Background="#555555">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
-                <TextBlock FontWeight="Bold" Margin="0,0,0,4">
-                    Projects 
-                    (<Run Text="{Binding FilteredProjects.Count, Mode=OneWay}" /> / 
-                     <Run Text="{Binding AllProjects.Count, Mode=OneWay}" />)
-                </TextBlock>
-
-                <ListBox Grid.Row="1" x:Name="ProjectList" KeyDown="OnKeyDown"
-                         SelectionMode="Single" HorizontalContentAlignment="Stretch"
-                         ItemsSource="{Binding FilteredProjects}" 
-                         SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
-                         ScrollViewer.HorizontalScrollBarVisibility="Auto" 
-                         ItemTemplate="{StaticResource ProjectTemplate}" />
-            </Grid>
-
-            <GridSplitter Grid.Column="1" Width="8" ResizeBehavior="PreviousAndNext" />
-
-            <!-- Selected project -->           
-            <Grid Grid.Column="2" Visibility="{Binding SelectedProject, Converter={StaticResource VisibilityConverter}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <StackPanel>
-                    <TextBlock Margin="0,0,0,4">
-                        <Run Text="Project: " FontWeight="Bold" />
-                        <Run Text="{Binding SelectedProject.Name, Mode=OneWay}"/>
-                    </TextBlock>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,6,0" VerticalAlignment="Center">
+                    <Button Content="─" Width="24" Height="24" Click="OnMinimize" WindowChrome.IsHitTestVisibleInChrome="True"></Button>
+                    <Button Content="□" Width="24" Height="24" Click="OnMaximize" WindowChrome.IsHitTestVisibleInChrome="True"></Button>
+                    <Button Content="X" Width="24" Height="24" Click="OnClose" WindowChrome.IsHitTestVisibleInChrome="True"></Button>
                 </StackPanel>
+                <TextBlock Text="Project Dependency Browser" 
+                           HorizontalAlignment="Left" 
+                           Margin="12,0,0,0"
+                           VerticalAlignment="Center" 
+                           FontSize="14" />
+            </Grid>
+        </Border>
 
-                <TabControl Grid.Row="1" x:Name="ProjectTabs">
-                    <!-- Tab: Overview -->
-                    <TabItem Header="Overview">
-                        <Grid Margin="8">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
+        <Grid DataContext="{StaticResource ViewModel}" Grid.Row="1"
+              IsEnabled="{Binding IsLoading, Converter={StaticResource NotConverter}}" 
+              Background="#333333">
 
-                            <StackPanel Grid.Row="0">
-                                <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
-                                <TextBox Text="{Binding SelectedProject.Name, Mode=OneWay}" 
-                                         Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+            <Grid.LayoutTransform>
+                <ScaleTransform CenterX="0" CenterY="0"
+                                ScaleX="1.1" ScaleY="1.1" /> 
+            </Grid.LayoutTransform>
 
-                                <TextBlock Text="Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
-                                <TextBox Text="{Binding SelectedProject.Namespace, Mode=OneWay}" 
-                                         Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-                                <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
-                                <TextBox Text="{Binding SelectedProject.Path, Mode=OneWay}" 
-                                         Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+            <!-- Tabs -->
+            <TabControl Margin="-8,8,-8,8" Height="160" x:Name="Tabs" Grid.Row="1">
+                <!-- Scan directory -->
+                <TabItem Header="Configuration">
+                    <Grid Margin="8" VerticalAlignment="Top">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                                <StackPanel Visibility="{Binding SelectedProject.NuGetPackageId, Converter={StaticResource VisibilityConverter}}">
-                                    <TextBlock Text="NuGet Package ID: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
-                                    <TextBox Text="{Binding SelectedProject.NuGetPackageId, Mode=OneWay}" Foreground="DarkBlue"
-                                             Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                                    <TextBlock Text="NuGet Package Title: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
-                                    <TextBox Text="{Binding SelectedProject.NuGetPackageTitle, Mode=OneWay}" Foreground="DarkBlue"
-                                             Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+                        <StackPanel Margin="0,4,0,0" 
+                                    ToolTip="Specifies the path where the project and solution files are loaded.">
+                            <TextBlock Text="Root Directory: " FontWeight="Bold" Margin="0,0,0,4" />
+                            <TextBox Text="{Binding RootDirectory, Mode=TwoWay}" />
+                        </StackPanel>
 
-                                    <StackPanel Visibility="{Binding SelectedProject.NuSpecFilePath, Converter={StaticResource VisibilityConverter}}">
-                                        <TextBlock Text="NuSpec Path: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
-                                        <TextBox Text="{Binding SelectedProject.NuSpecFilePath, Mode=OneWay}" Foreground="DarkBlue"
-                                                 Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
-                                    </StackPanel>
-                                </StackPanel>
+                        <Button Content="Select Directory..." Click="OnSelectDirectory" 
+                                Grid.Column="1" Grid.Row="0"
+                                Padding="8,4,8,4" Margin="8,4,0,0" />
 
-                                <DockPanel>
-                                    <StackPanel Margin="0,0,32,0"
-                                                Visibility="{Binding SelectedProject.OutputType, Converter={StaticResource VisibilityConverter}}">
-                                        <TextBlock Text="Output Type: " FontWeight="Bold" Margin="0,0,0,4" />
-                                        <TextBox Text="{Binding SelectedProject.OutputType, Mode=OneWay}" 
-                                                 Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
-                                    </StackPanel>
+                        <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Margin="8,4,0,0" 
+                                    ToolTip="Only projects whose file paths contain the specified segments (space separated) are loaded.">
 
-                                    <StackPanel Margin="0,0,32,0"
-                                                Visibility="{Binding SelectedProject.OutputPath, Converter={StaticResource VisibilityConverter}}">
-                                        <TextBlock Text="Output Path: " FontWeight="Bold" Margin="0,0,0,4" />
-                                        <TextBox Text="{Binding SelectedProject.OutputPath, Mode=OneWay}" 
-                                                 Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
-                                    </StackPanel>
+                            <TextBlock Text="Included Project Path Filter: " FontWeight="Bold" Margin="0,0,0,4" />
+                            <TextBox Text="{Binding IncludedProjectPathFilter, Mode=TwoWay}" Margin="0,0,0,8" />
 
-                                    <StackPanel Margin="0,0,32,0"
-                                                Visibility="{Binding SelectedProject.TargetFrameworkVersion, Converter={StaticResource VisibilityConverter}}">
-                                        <TextBlock Text=".NET Version: " FontWeight="Bold" Margin="0,0,0,4" />
-                                        <TextBox Text="{Binding SelectedProject.TargetFrameworkVersion, Mode=OneWay}" 
-                                                 Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
-                                    </StackPanel>
+                            <TextBlock Text="Excluded Project Path Filter: " FontWeight="Bold" Margin="0,0,0,4" />
+                            <TextBox Text="{Binding ExcludedProjectPathFilter, Mode=TwoWay}" />
+                        </StackPanel>
 
-                                    <StackPanel Margin="0,0,32,0"
-                                                Visibility="{Binding SelectedProject.ProjectTypes, Converter={StaticResource VisibilityConverter}}">
-                                        <TextBlock Text="Project Types: " FontWeight="Bold" Margin="0,0,0,4" />
-                                        <TextBox Text="{Binding SelectedProject.ProjectTypes, Converter={StaticResource ProjectTypesConverter}, Mode=OneWay}" 
-                                                 Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
-                                    </StackPanel>
-                                </DockPanel>
+                        <Button Content="Load Projects &amp; Solutions" Command="{Binding LoadProjectsCommand}" 
+                                Grid.Column="3" Grid.Row="0" Grid.RowSpan="2"
+                                Padding="16,4,16,4" Margin="8,4,0,0" />
+
+                        <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Margin="0,12,0,0" Orientation="Horizontal">
+                            <StackPanel Margin="0,0,16,0">
+                                <CheckBox IsChecked="{Binding IgnoreExceptions, Mode=TwoWay}" 
+                                          Content="Ignore Exceptions when scanning" Margin="0,0,0,8" />
+                                <CheckBox IsChecked="{Binding MinimizeWindowAfterSolutionLaunch, Mode=TwoWay}" 
+                                          Content="Minimize Window after launching a Solution" Margin="0,0,0,8" />
+                                <CheckBox IsChecked="{Binding AutomaticallyScanDirectory, Mode=TwoWay}" 
+                                          Content="Automatically scan Directory at Startup" />
                             </StackPanel>
+                            <StackPanel>
+                                <CheckBox IsChecked="{Binding EnableShowApplicationHotKey, Mode=TwoWay}" 
+                                          Content="Enable Hotkey (Ctrl-Win-V) to show Application (needs Restart)" Margin="0,0,0,8" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
 
-                            <Grid Grid.Row="1">
+                <!-- Filters -->
+                <TabItem Header="Project Filter" IsEnabled="{Binding IsLoaded}">
+                    <Grid Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,4,0">
+                            <TextBlock Text="Project or Solution Name: " FontWeight="Bold" Margin="0,0,0,4" />
+                            <TextBox Text="{Binding Filter.ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     x:Name="ProjectNameFilter" GotFocus="OnProjectNameFilterGotFocus" Margin="0,0,0,8"
+                                     KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="4,0,4,0">
+                            <TextBlock Text="Project Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
+                            <TextBox Text="{Binding Filter.ProjectNamespaceFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="0,0,0,8" AcceptsReturn="False" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="3" Margin="4,0,4,0">
+                            <TextBlock Text="Project NuGet Package ID: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
+                            <TextBox Text="{Binding Filter.ProjectNuGetPackageIdFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="0,0,0,8" AcceptsReturn="False" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Margin="4,0,0,0">
+                            <TextBlock Text="Project Path: " FontWeight="Bold" Margin="0,0,0,4" />
+                            <TextBox Text="{Binding Filter.ProjectPathFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     Margin="0,0,0,12" AcceptsReturn="False" />
+
+                            <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithoutSolution, Mode=TwoWay}" 
+                                      Content="Only Projects without Solution" Margin="0,0,0,8" />
+                            <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithMultipleSolutions, Mode=TwoWay}" 
+                                      Content="Only Projects with multiple Solutions" Margin="0,0,0,8" />
+                            <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithNuGetPackages, Mode=TwoWay}" 
+                                      Content="Only Projects with any referenced NuGet Packages" Margin="0,0,0,0" />
+                        </StackPanel>
+
+                        <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="5" 
+                                Command="{Binding ClearFilterCommand}" Padding="16,8,16,8" Margin="8,0,0,4">
+                            <TextBlock>
+                                Clear<LineBreak />Filters
+                            </TextBlock>
+                        </Button>
+
+                        <StackPanel Grid.Row="1" Margin="0,0,4,0" Grid.Column="0">
+                            <CheckBox IsChecked="{Binding Filter.IsSolutionFilterEnabled, Mode=TwoWay}" 
+                                      Content="Contained in Solution: " FontWeight="Bold" />
+                            <ComboBox ItemsSource="{Binding AllSolutions}" 
+                                      ItemTemplate="{StaticResource SolutionTemplate}"
+                                      Visibility="{Binding Filter.IsSolutionFilterEnabled, Converter={StaticResource VisibilityConverter}}"
+                                      SelectedItem="{Binding Filter.SolutionFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="1">
+                            <CheckBox IsChecked="{Binding Filter.IsProjectReferenceFilterEnabled, Mode=TwoWay}" 
+                                      Content="Used by Project: " FontWeight="Bold" />
+                            <ComboBox ItemsSource="{Binding UsedProjectReferences}" 
+                                      ItemTemplate="{StaticResource ProjectReferenceTemplate}"
+                                      Visibility="{Binding Filter.IsProjectReferenceFilterEnabled, Converter={StaticResource VisibilityConverter}}"
+                                      SelectedItem="{Binding Filter.ProjectReferenceFilter, Mode=TwoWay, TargetNullValue=null}" Margin="0,8,0,0" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="2">
+                            <CheckBox IsChecked="{Binding Filter.IsNuGetPackageNameFilterEnabled, Mode=TwoWay}" 
+                                      Content="References NuGet Package: " FontWeight="Bold" Foreground="DarkBlue" />
+                            <ComboBox ItemsSource="{Binding UsedNuGetPackageNames}" 
+                                      ItemTemplate="{StaticResource NuGetPackageNameTemplate}"
+                                      Visibility="{Binding Filter.IsNuGetPackageNameFilterEnabled, Converter={StaticResource VisibilityConverter}}"
+                                      SelectedItem="{Binding Filter.NuGetPackageNameFilter, Mode=TwoWay}" Margin="0,8,0,0" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Margin="4,0,4,0" Grid.Column="3">
+                            <CheckBox IsChecked="{Binding Filter.IsNuGetPackageFilterEnabled, Mode=TwoWay}" 
+                                      Content="References NuGet Package Version: " FontWeight="Bold" Foreground="DarkBlue" />
+                            <ComboBox ItemsSource="{Binding UsedNuGetPackages}" 
+                                      ItemTemplate="{StaticResource NuGetPackageTemplate}"
+                                      Visibility="{Binding Filter.IsNuGetPackageFilterEnabled, Converter={StaticResource VisibilityConverter}}"
+                                      SelectedItem="{Binding Filter.NuGetPackageFilter, Mode=TwoWay}" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
+                <!-- Logs -->
+                <TabItem Header="Logs">
+                    <ListBox ItemsSource="{Binding Logs}" Margin="8" 
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding}" Margin="0,2,0,2" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </TabItem>
+
+                <!-- About -->
+                <TabItem Header="About">
+                    <StackPanel Margin="8">
+                        <TextBlock Margin="0,0,0,8" FontSize="14">
+                            <Hyperlink NavigateUri="http://projectdependencybrowser.org" Click="OnOpenHyperlink">Project Dependency Browser</Hyperlink>
+                            has been developed by 
+                            <Hyperlink NavigateUri="http://www.rsuter.com" Click="OnOpenHyperlink">Rico Suter</Hyperlink>.
+                        </TextBlock>
+                        <TextBlock Margin="0,0,0,8">
+                            Version: <Run Text="{Binding ApplicationVersion, Mode=OneWay}" />
+                            <LineBreak />
+                            License: <Hyperlink NavigateUri="https://github.com/rsuter/ProjectDependencyBrowser/blob/master/LICENSE.md" Click="OnOpenHyperlink">Ms-PL</Hyperlink>
+                        </TextBlock>
+                        <TextBlock Text="Components" FontWeight="Bold" Margin="0,4,0,4" />
+                        <TextBlock Margin="0,0,0,4">
+                            - <Hyperlink NavigateUri="http://mytoolkit.io" Click="OnOpenHyperlink">MyToolkit</Hyperlink>: 
+                              .NET library with MVVM classes, controls and more components.
+                        </TextBlock>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+
+            <!-- Projects -->
+            <TextBlock Text="No projects have been loaded. " Grid.Row="2"
+                       Margin="8"
+                       Visibility="{Binding IsLoaded, Converter={StaticResource NotConverter}}" />
+            <Grid Grid.Row="2" 
+                  Margin="8"
+                  Visibility="{Binding IsLoaded, Converter={StaticResource VisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="350" MinWidth="250" MaxWidth="550" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock FontWeight="Bold" Margin="0,0,0,4">
+                        Projects 
+                        (<Run Text="{Binding FilteredProjects.Count, Mode=OneWay}" /> / 
+                         <Run Text="{Binding AllProjects.Count, Mode=OneWay}" />)
+                    </TextBlock>
+
+                    <ListBox Grid.Row="1" x:Name="ProjectList" KeyDown="OnKeyDown"
+                             SelectionMode="Single" HorizontalContentAlignment="Stretch"
+                             ItemsSource="{Binding FilteredProjects}" 
+                             SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+                             ItemTemplate="{StaticResource ProjectTemplate}" />
+                </Grid>
+
+                <GridSplitter Grid.Column="1" Width="8" ResizeBehavior="PreviousAndNext" Background="Transparent" BorderBrush="Transparent" />
+
+                <!-- Selected project -->
+                <Grid Grid.Column="2" Visibility="{Binding SelectedProject, Converter={StaticResource VisibilityConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,4">
+                            <Run Text="Project: " FontWeight="Bold" />
+                            <Run Text="{Binding SelectedProject.Name, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <TabControl Grid.Row="1" x:Name="ProjectTabs">
+                        <!-- Tab: Overview -->
+                        <TabItem Header="Overview">
+                            <Grid Margin="8">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" 
-                                           Text="Solutions: " FontWeight="Bold" Margin="0,8,0,4" />
-                                <ListBox Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" 
-                                         MouseDoubleClick="OnSolutionDoubleClicked"
-                                         KeyUp="OnSolutionKeyUp" HorizontalContentAlignment="Stretch"
-                                         ItemTemplate="{StaticResource SolutionListTemplate}"
-                                         ItemsSource="{Binding SelectedProjectSolutions}" />
+                                <StackPanel Grid.Row="0">
+                                    <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
+                                    <TextBox Text="{Binding SelectedProject.Name, Mode=OneWay}" 
+                                             Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+
+                                    <TextBlock Text="Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
+                                    <TextBox Text="{Binding SelectedProject.Namespace, Mode=OneWay}" 
+                                             Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+
+                                    <TextBlock Text="Path: " FontWeight="Bold" Margin="0,0,0,4" />
+                                    <TextBox Text="{Binding SelectedProject.Path, Mode=OneWay}" 
+                                             Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+
+                                    <StackPanel Visibility="{Binding SelectedProject.NuGetPackageId, Converter={StaticResource VisibilityConverter}}">
+                                        <TextBlock Text="NuGet Package ID: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
+                                        <TextBox Text="{Binding SelectedProject.NuGetPackageId, Mode=OneWay}" Foreground="DarkBlue"
+                                                 Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+
+                                        <TextBlock Text="NuGet Package Title: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
+                                        <TextBox Text="{Binding SelectedProject.NuGetPackageTitle, Mode=OneWay}" Foreground="DarkBlue"
+                                                 Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+
+                                        <StackPanel Visibility="{Binding SelectedProject.NuSpecFilePath, Converter={StaticResource VisibilityConverter}}">
+                                            <TextBlock Text="NuSpec Path: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
+                                            <TextBox Text="{Binding SelectedProject.NuSpecFilePath, Mode=OneWay}" Foreground="DarkBlue"
+                                                     Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <DockPanel>
+                                        <StackPanel Margin="0,0,32,0"
+                                                    Visibility="{Binding SelectedProject.OutputType, Converter={StaticResource VisibilityConverter}}">
+                                            <TextBlock Text="Output Type: " FontWeight="Bold" Margin="0,0,0,4" />
+                                            <TextBox Text="{Binding SelectedProject.OutputType, Mode=OneWay}" 
+                                                     Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+                                        </StackPanel>
+
+                                        <StackPanel Margin="0,0,32,0"
+                                                    Visibility="{Binding SelectedProject.OutputPath, Converter={StaticResource VisibilityConverter}}">
+                                            <TextBlock Text="Output Path: " FontWeight="Bold" Margin="0,0,0,4" />
+                                            <TextBox Text="{Binding SelectedProject.OutputPath, Mode=OneWay}" 
+                                                     Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+                                        </StackPanel>
+
+                                        <StackPanel Margin="0,0,32,0"
+                                                    Visibility="{Binding SelectedProject.TargetFrameworkVersion, Converter={StaticResource VisibilityConverter}}">
+                                            <TextBlock Text=".NET Version: " FontWeight="Bold" Margin="0,0,0,4" />
+                                            <TextBox Text="{Binding SelectedProject.TargetFrameworkVersion, Mode=OneWay}" 
+                                                     Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+                                        </StackPanel>
+
+                                        <StackPanel Margin="0,0,32,0"
+                                                    Visibility="{Binding SelectedProject.ProjectTypes, Converter={StaticResource VisibilityConverter}}">
+                                            <TextBlock Text="Project Types: " FontWeight="Bold" Margin="0,0,0,4" />
+                                            <TextBox Text="{Binding SelectedProject.ProjectTypes, Converter={StaticResource ProjectTypesConverter}, Mode=OneWay}" 
+                                                     Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </StackPanel>
+
+                                <Grid Grid.Row="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" 
+                                               Text="Solutions: " FontWeight="Bold" Margin="0,8,0,4" />
+                                    <ListBox Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" 
+                                             MouseDoubleClick="OnSolutionDoubleClicked"
+                                             KeyUp="OnSolutionKeyUp" HorizontalContentAlignment="Stretch"
+                                             ItemTemplate="{StaticResource SolutionListTemplate}"
+                                             ItemsSource="{Binding SelectedProjectSolutions}" />
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </TabItem>
-                    
-                    <!-- Tab: References -->
-                    <TabItem Header="{Binding}">
-                        <TabItem.HeaderTemplate>
-                            <DataTemplate>
-                                <TextBlock>
-                                    References (<Run Text="{Binding SelectedProject.ProjectReferences.Count, Mode=OneWay}" /> /
-                                    <Run Text="{Binding SelectedProject.NuGetReferences.Count, Mode=OneWay}" /> / 
+                        </TabItem>
+
+                        <!-- Tab: References -->
+                        <TabItem Header="{Binding}">
+                            <TabItem.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        References (<Run Text="{Binding SelectedProject.ProjectReferences.Count, Mode=OneWay}" /> /
+                                        <Run Text="{Binding SelectedProject.NuGetReferences.Count, Mode=OneWay}" /> / 
+                                        <Run Text="{Binding SelectedProject.AssemblyReferences.Count, Mode=OneWay}" />)
+                                    </TextBlock>
+                                </DataTemplate>
+                            </TabItem.HeaderTemplate>
+
+                            <Grid Margin="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30*" MinWidth="160" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="30*" MinWidth="160" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="40*" MinWidth="160" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Project references -->
+                                <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Bold" Margin="0,0,0,4">
+                                    Project References 
+                                    (<Run Text="{Binding ElementName=ProjectReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
+                                    <Run Text="{Binding SelectedProject.ProjectReferences.Count, Mode=OneWay}" />)
+                                </TextBlock>
+                                <controls:FilterListBox x:Name="ProjectReferencesList" 
+                                                        Grid.Row="1" Grid.Column="0" 
+                                                        Margin="0,0,4,0"
+                                                        MouseDoubleClick="OnProjectDoubleClicked"
+                                                        KeyUp="OnProjectKeyUp" FilterPath="Name"
+                                                        HorizontalContentAlignment="Stretch"
+                                                        ItemTemplate="{StaticResource ProjectReferenceTemplate}"
+                                                        ItemsSource="{Binding SelectedProject.ProjectReferences}" />
+
+                                <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="4" 
+                                              ResizeBehavior="PreviousAndNext" Background="Transparent" BorderBrush="Transparent" />
+
+                                <!-- NuGet packages -->
+                                <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="Bold" Margin="4,0,0,4">
+                                    NuGet Packages 
+                                    (<Run Text="{Binding ElementName=NuGetReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
+                                    <Run Text="{Binding SelectedProject.NuGetReferences.Count, Mode=OneWay}" />)
+                                </TextBlock>
+                                <controls:FilterListBox x:Name="NuGetReferencesList" 
+                                                        Grid.Row="1" Grid.Column="2" 
+                                                        Margin="4,0,4,0"
+                                                        HorizontalContentAlignment="Stretch" 
+                                                        FilterPath="Name"
+                                                        MouseDoubleClick="OnSelectItemFromFilteredListBox"
+                                                        ItemTemplate="{StaticResource NuGetPackageTemplate}"
+                                                        ItemsSource="{Binding SelectedProject.NuGetReferences}" />
+
+                                <GridSplitter Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" Background="Transparent" BorderBrush="Transparent" />
+
+                                <!-- Assembly references -->
+                                <TextBlock Grid.Row="0" Grid.Column="4" FontWeight="Bold" Margin="4,0,0,0">
+                                    Assembly References
+                                    (<Run Text="{Binding ElementName=AssemblyReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
                                     <Run Text="{Binding SelectedProject.AssemblyReferences.Count, Mode=OneWay}" />)
                                 </TextBlock>
-                            </DataTemplate>
-                        </TabItem.HeaderTemplate>
-                        
-                        <Grid Margin="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="30*" MinWidth="160" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="30*" MinWidth="160" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="40*" MinWidth="160" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
+                                <controls:FilterListBox x:Name="AssemblyReferencesList" 
+                                                        Grid.Row="1" Grid.Column="4" 
+                                                        Margin="4,0,0,0"
+                                                        HorizontalContentAlignment="Stretch" 
+                                                        FilterPath="Name"
+                                                        ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
+                                                        ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
+                            </Grid>
+                        </TabItem>
 
-                            <!-- Project references -->
-                            <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Bold" Margin="0,0,0,4">
-                                Project References 
-                                (<Run Text="{Binding ElementName=ProjectReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
-                                <Run Text="{Binding SelectedProject.ProjectReferences.Count, Mode=OneWay}" />)
-                            </TextBlock>
-                            <controls:FilterListBox x:Name="ProjectReferencesList" 
-                                                    Grid.Row="1" Grid.Column="0" 
-                                                    Margin="0,0,4,0"
-                                                    MouseDoubleClick="OnProjectDoubleClicked"
-                                                    KeyUp="OnProjectKeyUp" FilterPath="Name"
-                                                    HorizontalContentAlignment="Stretch"
-                                                    ItemTemplate="{StaticResource ProjectReferenceTemplate}"
-                                                    ItemsSource="{Binding SelectedProject.ProjectReferences}" />
-
-                            <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" />
-
-                            <!-- NuGet packages -->
-                            <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="Bold" Margin="4,0,0,4">
-                                NuGet Packages 
-                                (<Run Text="{Binding ElementName=NuGetReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
-                                <Run Text="{Binding SelectedProject.NuGetReferences.Count, Mode=OneWay}" />)
-                            </TextBlock>
-                            <controls:FilterListBox x:Name="NuGetReferencesList" 
-                                                    Grid.Row="1" Grid.Column="2" 
-                                                    Margin="4,0,4,0"
-                                                    HorizontalContentAlignment="Stretch" 
-                                                    FilterPath="Name"
-                                                    MouseDoubleClick="OnSelectItemFromFilteredListBox"
-                                                    ItemTemplate="{StaticResource NuGetPackageTemplate}"
-                                                    ItemsSource="{Binding SelectedProject.NuGetReferences}" />
-
-                            <GridSplitter Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" />
-
-                            <!-- Assembly references -->
-                            <TextBlock Grid.Row="0" Grid.Column="4" FontWeight="Bold" Margin="4,0,0,0">
-                                Assembly References
-                                (<Run Text="{Binding ElementName=AssemblyReferencesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
-                                <Run Text="{Binding SelectedProject.AssemblyReferences.Count, Mode=OneWay}" />)
-                            </TextBlock>
-                            <controls:FilterListBox x:Name="AssemblyReferencesList" 
-                                                    Grid.Row="1" Grid.Column="4" 
-                                                    Margin="4,0,0,0"
-                                                    HorizontalContentAlignment="Stretch" 
-                                                    FilterPath="Name"
-                                                    ItemTemplate="{StaticResource AssemblyReferenceTemplate}"
-                                                    ItemsSource="{Binding SelectedProject.AssemblyReferences}" />
-                        </Grid>
-                    </TabItem>
-                    
-                    <!-- Tab: Usages -->
-                    <TabItem Header="{Binding}">
-                        <TabItem.HeaderTemplate>
-                            <DataTemplate>
-                                <TextBlock>
-                                    Usages (<Run Text="{Binding SelectedProjectUsagesAsProject.Count, Source={StaticResource ViewModel}, Mode=OneWay}" /> /
-                                    <Run Text="{Binding SelectedProjectUsagesAsNuGet.Count, Source={StaticResource ViewModel}, Mode=OneWay}" />)
-                                </TextBlock>
-                            </DataTemplate>
-                        </TabItem.HeaderTemplate>
-                        <Grid Margin="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="30*" MinWidth="300" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="30*" MinWidth="300" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Bold" Margin="0,0,0,4">
-                                Projects which reference this Project
-                                (<Run Text="{Binding ElementName=ProjectUsagesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
-                                <Run Text="{Binding SelectedProjectUsagesAsProject.Count, Mode=OneWay}" />)
-                            </TextBlock>
-                            <controls:FilterListBox Grid.Row="1" Grid.Column="0" x:Name="ProjectUsagesList"
-                                                    Margin="0,0,4,0" 
-                                                    MouseDoubleClick="OnSelectItemFromFilteredListBox"
-                                                    HorizontalContentAlignment="Stretch" 
-                                                    FilterPath="Name"
-                                                    ItemTemplate="{StaticResource ProjectTemplate}"
-                                                    ItemsSource="{Binding SelectedProjectUsagesAsProject}" />
-
-                            <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" />
-                            
-                            <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="Bold" Margin="4,0,0,0">
-                                Projects which consume this NuGet Package
-                                (<Run Text="{Binding ElementName=NuGetUsagesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
-                                <Run Text="{Binding SelectedProjectUsagesAsNuGet.Count, Mode=OneWay}" />)
-                            </TextBlock>
-                            <controls:FilterListBox Grid.Row="1" Grid.Column="2" x:Name="NuGetUsagesList"
-                                                    Margin="4,0,0,0"
-                                                    MouseDoubleClick="OnSelectItemFromFilteredListBox"
-                                                    HorizontalContentAlignment="Stretch" 
-                                                    FilterPath="Name"
-                                                    ItemTemplate="{StaticResource ProjectTemplate}"
-                                                    ItemsSource="{Binding SelectedProjectUsagesAsNuGet}" />
-                        </Grid>
-                    </TabItem>
-                    
-                    <!-- Tab: Analyze Results -->
-                    <TabItem Header="{Binding}">
-                        <TabItem.HeaderTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <TextBlock FontWeight="Bold" 
-                                               Visibility="{Binding AnalyzeResults, Converter={StaticResource VisibilityConverter}}">
-                                        Analyze Results (<Run Text="{Binding AnalyzeResults.Count, Mode=OneWay}" />)
+                        <!-- Tab: Usages -->
+                        <TabItem Header="{Binding}">
+                            <TabItem.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        Usages (<Run Text="{Binding SelectedProjectUsagesAsProject.Count, Source={StaticResource ViewModel}, Mode=OneWay}" /> /
+                                        <Run Text="{Binding SelectedProjectUsagesAsNuGet.Count, Source={StaticResource ViewModel}, Mode=OneWay}" />)
                                     </TextBlock>
-                                    <TextBlock Text="Analyze Results" Visibility="{Binding AnalyzeResults, Converter={StaticResource NotConverter}}" />
-                                </Grid>
-                            </DataTemplate>
-                        </TabItem.HeaderTemplate>
+                                </DataTemplate>
+                            </TabItem.HeaderTemplate>
+                            <Grid Margin="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30*" MinWidth="300" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="30*" MinWidth="300" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
 
-                        <Grid Margin="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Bold" Margin="0,0,0,4">
+                                    Projects which reference this Project
+                                    (<Run Text="{Binding ElementName=ProjectUsagesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
+                                    <Run Text="{Binding SelectedProjectUsagesAsProject.Count, Mode=OneWay}" />)
+                                </TextBlock>
+                                <controls:FilterListBox Grid.Row="1" Grid.Column="0" x:Name="ProjectUsagesList"
+                                                        Margin="0,0,4,0" 
+                                                        MouseDoubleClick="OnSelectItemFromFilteredListBox"
+                                                        HorizontalContentAlignment="Stretch" 
+                                                        FilterPath="Name"
+                                                        ItemTemplate="{StaticResource ProjectTemplate}"
+                                                        ItemsSource="{Binding SelectedProjectUsagesAsProject}" />
 
-                            <TextBlock Grid.Row="0" Text="Analysis Results: " FontWeight="Bold" Margin="0,0,0,4" />
-                            <ListBox Grid.Row="1" Margin="0,0,4,0" 
-                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                     ItemTemplate="{StaticResource AnalyzeResultTemplate}"
-                                     ItemsSource="{Binding AnalyzeResults}" />
-                        </Grid>
-                    </TabItem>
-                </TabControl>
+                                <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="4" ResizeBehavior="PreviousAndNext" Background="Transparent" BorderBrush="Transparent" />
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,8,0,0" Grid.Row="2">
-                    <Button Content="Edit Project" Margin="0,0,8,0"
-                            Command="{Binding EditProjectCommand}"
-                            CommandParameter="{Binding SelectedProject}" 
-                            Padding="8,4,8,4" />
-                    <Button Content="Open Project Directory" Margin="0,0,8,0"
-                                Command="{Binding OpenProjectDirectoryCommand}"
+                                <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="Bold" Margin="4,0,0,0">
+                                    Projects which consume this NuGet Package
+                                    (<Run Text="{Binding ElementName=NuGetUsagesList, Path=FilteredItems.Count, Mode=OneWay}" /> / 
+                                    <Run Text="{Binding SelectedProjectUsagesAsNuGet.Count, Mode=OneWay}" />)
+                                </TextBlock>
+                                <controls:FilterListBox Grid.Row="1" Grid.Column="2" x:Name="NuGetUsagesList"
+                                                        Margin="4,0,0,0"
+                                                        MouseDoubleClick="OnSelectItemFromFilteredListBox"
+                                                        HorizontalContentAlignment="Stretch" 
+                                                        FilterPath="Name"
+                                                        ItemTemplate="{StaticResource ProjectTemplate}"
+                                                        ItemsSource="{Binding SelectedProjectUsagesAsNuGet}" />
+                            </Grid>
+                        </TabItem>
+
+                        <!-- Tab: Analyze Results -->
+                        <TabItem Header="{Binding}">
+                            <TabItem.HeaderTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <TextBlock FontWeight="Bold" 
+                                                   Visibility="{Binding AnalyzeResults, Converter={StaticResource VisibilityConverter}}">
+                                            Analyze Results (<Run Text="{Binding AnalyzeResults.Count, Mode=OneWay}" />)
+                                        </TextBlock>
+                                        <TextBlock Text="Analyze Results" Visibility="{Binding AnalyzeResults, Converter={StaticResource NotConverter}}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </TabItem.HeaderTemplate>
+
+                            <Grid Margin="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Text="Analysis Results: " FontWeight="Bold" Margin="0,0,0,4" />
+                                <ListBox Grid.Row="1" Margin="0,0,4,0" 
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         ItemTemplate="{StaticResource AnalyzeResultTemplate}"
+                                         ItemsSource="{Binding AnalyzeResults}" />
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,8,0,0" Grid.Row="2">
+                        <Button Content="Edit Project" Margin="0,0,8,0"
+                                Command="{Binding EditProjectCommand}"
                                 CommandParameter="{Binding SelectedProject}" 
                                 Padding="8,4,8,4" />
-                    <Button Content="Copy Project Directory Path" Margin="0,0,8,0"
-                                Command="{Binding CopyProjectDirectoryPathCommand}"
-                                CommandParameter="{Binding SelectedProject}" 
-                                Padding="8,4,8,4" />
-                    <Button Content="Project Details" Padding="8,4,8,4" Margin="0,0,8,0"
-                                x:Name="ProjectDetailsButton"
-                                Command="{Binding ShowProjectDetailsCommand}"
-                                CommandParameter="{Binding SelectedProject}" />
-                </StackPanel>
+                        <Button Content="Open Project Directory" Margin="0,0,8,0"
+                                    Command="{Binding OpenProjectDirectoryCommand}"
+                                    CommandParameter="{Binding SelectedProject}" 
+                                    Padding="8,4,8,4" />
+                        <Button Content="Copy Project Directory Path" Margin="0,0,8,0"
+                                    Command="{Binding CopyProjectDirectoryPathCommand}"
+                                    CommandParameter="{Binding SelectedProject}" 
+                                    Padding="8,4,8,4" />
+                        <Button Content="Project Details" Padding="8,4,8,4" Margin="0,0,8,0"
+                                    x:Name="ProjectDetailsButton"
+                                    Command="{Binding ShowProjectDetailsCommand}"
+                                    CommandParameter="{Binding SelectedProject}" />
+                    </StackPanel>
+                </Grid>
+
+                <Button Grid.Column="2" Command="{Binding ShowPreviousProjectCommand}"
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Top" 
+                        Content="Show Previous Project" 
+                        Padding="8,4,8,4"/>
             </Grid>
-            
-            <Button Grid.Column="2" Command="{Binding ShowPreviousProjectCommand}"
-                    HorizontalAlignment="Right" 
-                    VerticalAlignment="Top" 
-                    Content="Show Previous Project" 
-                    Padding="8,4,8,4"/>
         </Grid>
-    </Grid>
+    </Grid>    
 </Window>
