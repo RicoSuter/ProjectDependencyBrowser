@@ -359,6 +359,14 @@ namespace MyToolkit.Build
                     }
                 }
             }
+            else if (Project.GeneratesPackage() || 
+                Project.HasVersion() ||
+                !string.IsNullOrEmpty(Project.GetProperty("PackageProjectUrl")?.EvaluatedValue) ||
+                !string.IsNullOrEmpty(Project.GetProperty("PackageTags")?.EvaluatedValue))
+            {
+                NuGetPackageId = Project.GetProperty("PackageId")?.EvaluatedValue;
+                NuGetPackageTitle = Project.GetProperty("PackageTitle")?.EvaluatedValue ?? Name;
+            }
         }
 
         private void LoadNuGetReferences()

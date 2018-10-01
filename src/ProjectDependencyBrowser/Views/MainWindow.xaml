@@ -471,9 +471,11 @@
                                     <TextBox Text="{Binding SelectedProject.NuGetPackageTitle, Mode=OneWay}" Foreground="DarkBlue"
                                              Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
 
-                                    <TextBlock Text="NuSpec Path: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
-                                    <TextBox Text="{Binding SelectedProject.NuSpecFilePath, Mode=OneWay}" Foreground="DarkBlue"
-                                             Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+                                    <StackPanel Visibility="{Binding SelectedProject.NuSpecFilePath, Converter={StaticResource VisibilityConverter}}">
+                                        <TextBlock Text="NuSpec Path: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
+                                        <TextBox Text="{Binding SelectedProject.NuSpecFilePath, Mode=OneWay}" Foreground="DarkBlue"
+                                                 Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
+                                    </StackPanel>
                                 </StackPanel>
 
                                 <DockPanel>
