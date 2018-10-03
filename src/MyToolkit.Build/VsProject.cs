@@ -122,6 +122,9 @@ namespace MyToolkit.Build
             get { return Project.GetPropertyValue("ProjectGuid"); }
         }
 
+        /// <summary>Gets a value indicating whether this is an SDK-style project.</summary>
+        public bool IsSdkStyleProject => !string.IsNullOrEmpty(Project.Xml.Sdk);
+
         /// <summary>Gets the .NET target framework version.</summary>
         public string TargetFrameworkVersion
         {

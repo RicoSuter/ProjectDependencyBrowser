@@ -159,6 +159,7 @@
     <Compile Include="ViewModels\NuGetPackageVersionGroup.cs" />
     <Compile Include="ViewModels\ProjectDetailsDialogModel.cs" />
     <Compile Include="Converters\EdgeColorConverter.cs" />
+    <Compile Include="ViewModels\ProjectStyle.cs" />
     <Compile Include="Views\ProjectDetailsDialog.xaml.cs">
       <DependentUpon>ProjectDetailsDialog.xaml</DependentUpon>
     </Compile>

@@ -36,6 +36,7 @@ namespace ProjectDependencyBrowser.ViewModels
         private bool _showOnlyProjectsWithoutSolution;
         private bool _showOnlyProjectsWithMultipleSolutions;
         private bool _showOnlyProjectsWithNuGetPackages;
+        private ProjectStyle _projectStyle;
 
         private NuGetPackageReference _nuGetPackageFilter;
         private NuGetPackageVersionGroup _nuGetPackageNameFilter;
@@ -175,6 +176,20 @@ namespace ProjectDependencyBrowser.ViewModels
             }
         }
 
+        /// <summary>Gets or sets the project style filter. </summary>
+        public ProjectStyle ProjectStyle
+        {
+            get { return _projectStyle; }
+            set
+            {
+                if (Set(ref _projectStyle, value))
+                    UpdateImmediately();
+            }
+        }
+       
+        /// <summary>Gets the project styles.</summary>
+        public ProjectStyle[] ProjectStyles => new ProjectStyle[] { ProjectStyle.All, ProjectStyle.Sdk, ProjectStyle.Legacy };
+
         /// <summary>Gets or sets the NuGet package filter. </summary>
         public NuGetPackageReference NuGetPackageFilter
         {
@@ -307,9 +322,17 @@ namespace ProjectDependencyBrowser.ViewModels
                     ApplyShowOnlyProjectsWithMultipleSolutionsFilter(project) &&
                     ApplyNuGetPackageFilter(project) &&
                     ApplyNuGetPackageNameFilter(project) &&
+                    ApplyProjectStyleFilter(project) &&
                     ApplySolutionFilter(project) &&
                     ApplyProjectReferenceFilter(project);
             };
+        }
+
+        private bool ApplyProjectStyleFilter(VsProject project)
+        {
+            return ProjectStyle == ProjectStyle.All ||
+                (ProjectStyle == ProjectStyle.Sdk && project.IsSdkStyleProject) ||
+                (ProjectStyle == ProjectStyle.Legacy && !project.IsSdkStyleProject);
         }
 
         private bool ApplyShowOnlyProjectsWithNuGetPackagesFilter(VsProject project)

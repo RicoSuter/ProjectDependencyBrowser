@@ -284,23 +284,29 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,4,0">
+                    <StackPanel Grid.Column="0" Margin="0,0,4,0">
                         <TextBlock Text="Project or Solution Name: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding Filter.ProjectNameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  x:Name="ProjectNameFilter" GotFocus="OnProjectNameFilterGotFocus" Margin="0,0,0,8"
                                  KeyDown="OnKeyDown" PreviewKeyDown="OnPreviewKeyDown" AcceptsReturn="False" />
                     </StackPanel>
 
-                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="4,0,4,0">
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="4,0,4,0">
                         <TextBlock Text="Project Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
                         <TextBox Text="{Binding Filter.ProjectNamespaceFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  Margin="0,0,0,8" AcceptsReturn="False" />
                     </StackPanel>
 
-                    <StackPanel Grid.Row="0" Grid.Column="3" Margin="4,0,4,0">
+                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="4,0,4,0">
                         <TextBlock Text="Project NuGet Package ID: " FontWeight="Bold" Margin="0,0,0,4" Foreground="DarkBlue" />
                         <TextBox Text="{Binding Filter.ProjectNuGetPackageIdFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  Margin="0,0,0,8" AcceptsReturn="False" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="0" Grid.Column="3" Margin="0,0,4,0">
+                        <TextBlock Text="Project Style" FontWeight="Bold" Margin="0,0,0,4" />
+                        <ComboBox ItemsSource="{Binding Filter.ProjectStyles}" 
+                                      SelectedItem="{Binding Filter.ProjectStyle, Mode=TwoWay, TargetNullValue=null}" Margin="0,0,0,12" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Margin="4,0,0,0">
@@ -485,7 +491,7 @@
                                 <TextBlock Text="Name: " FontWeight="Bold" Margin="0,0,0,4" />
                                 <TextBox Text="{Binding SelectedProject.Name, Mode=OneWay}" 
                                          Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
-
+                                
                                 <TextBlock Text="Namespace: " FontWeight="Bold" Margin="0,0,0,4" />
                                 <TextBox Text="{Binding SelectedProject.Namespace, Mode=OneWay}" 
                                          Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
@@ -538,6 +544,12 @@
                                         <TextBox Text="{Binding SelectedProject.ProjectTypes, Converter={StaticResource ProjectTypesConverter}, Mode=OneWay}" 
                                                  Margin="0,0,0,8" Style="{StaticResource SelectableTextBlock}" />
                                     </StackPanel>
+
+                                    <TextBlock Background="LightGray" Padding="4,2,4,2" Margin="0,0,0,4" 
+                                               HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                               Visibility="{Binding SelectedProject.IsSdkStyleProject, Converter={StaticResource VisibilityConverter}}">
+                                        SDK-Style Project
+                                    </TextBlock>
                                 </DockPanel>
                             </StackPanel>
 
