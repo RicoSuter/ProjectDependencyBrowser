@@ -95,6 +95,7 @@ namespace ProjectDependencyBrowser.ViewModels
             EditProjectCommand = new RelayCommand<VsObject>(EditProject);
             CopyProjectDirectoryPathCommand = new RelayCommand<VsProject>(CopyProjectDirectoryPath);
             ShowProjectDetailsCommand = new RelayCommand<VsProject>(ShowProjectDetails);
+            StartProjectPowershellCommand = new RelayCommand<VsProject>(StartProjectPowershell);
             TryOpenSolutionCommand = new RelayCommand<VsSolution>(TryOpenSolution);
 
             CopyNameCommand = new RelayCommand<object>(CopyName);
@@ -132,7 +133,10 @@ namespace ProjectDependencyBrowser.ViewModels
 
         /// <summary>Gets the command to analyze a project's dependencies. </summary>
         public ICommand ShowProjectDetailsCommand { get; private set; }
-        
+
+        /// <summary>Gets the command to start Powershell for this project. </summary>
+        public ICommand StartProjectPowershellCommand { get; private set; }
+
         /// <summary>Gets the command to set the project filter. </summary>
         public ICommand SelectObjectCommand { get; private set; }
 
@@ -666,6 +670,22 @@ namespace ProjectDependencyBrowser.ViewModels
         public void ShowProjectDetails(VsProject project)
         {
             Messenger.Default.Send(new ShowProjectDetails(SelectedProject));
+        }
+
+        public void StartProjectPowershell(VsProject project)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    WorkingDirectory = Path.GetDirectoryName(project.Path)
+                });
+            }
+            catch (Exception e)
+            {
+                ExceptionBox.Show("Error", e);
+            }          
         }
 
         private void ShowPreviousProject()

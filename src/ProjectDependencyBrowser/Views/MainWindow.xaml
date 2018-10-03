@@ -304,9 +304,9 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="0" Grid.Column="3" Margin="0,0,4,0">
-                        <TextBlock Text="Project Style" FontWeight="Bold" Margin="0,0,0,4" />
+                        <TextBlock Text="Project Style:" FontWeight="Bold" Margin="0,0,0,4" />
                         <ComboBox ItemsSource="{Binding Filter.ProjectStyles}" 
-                                      SelectedItem="{Binding Filter.ProjectStyle, Mode=TwoWay, TargetNullValue=null}" Margin="0,0,0,12" />
+                                      SelectedItem="{Binding Filter.ProjectStyle, Mode=TwoWay, TargetNullValue=null}" Margin="0,0,0,4" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Margin="4,0,0,0">
@@ -744,6 +744,9 @@
                     <Button Content="Project Details" Padding="8,4,8,4" Margin="0,0,8,0"
                                 x:Name="ProjectDetailsButton"
                                 Command="{Binding ShowProjectDetailsCommand}"
+                                CommandParameter="{Binding SelectedProject}" />
+                    <Button Content="Start Powershell" Padding="8,4,8,4" Margin="0,0,8,0"
+                                Command="{Binding StartProjectPowershellCommand}"
                                 CommandParameter="{Binding SelectedProject}" />
                 </StackPanel>
             </Grid>
