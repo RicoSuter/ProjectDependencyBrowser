@@ -166,7 +166,6 @@ namespace ProjectDependencyBrowser.ViewModels
         /// <summary>Gets a list of the filtered projects. </summary>
         public ObservableCollectionView<VsProject> FilteredProjects { get; private set; }
 
-
         /// <summary>Gets a list of all installed NuGet package versions in the loaded projects. </summary>
         public MtObservableCollection<NuGetPackageReference> UsedNuGetPackages { get; private set; }
 
@@ -384,8 +383,8 @@ namespace ProjectDependencyBrowser.ViewModels
             var errors = new Dictionary<string, Exception>();
             var tuple = await RunTaskAsync(async () =>
             {
-                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory, IncludedProjectPathFilter, ExcludedProjectPathFilter, IgnoreExceptions, _projectCollection, errors);
-                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory, IncludedProjectPathFilter, ExcludedProjectPathFilter, IgnoreExceptions, _projectCollection, errors);
+                var projectsTask = VsProject.LoadAllFromDirectoryAsync(RootDirectory.Split(';'), IncludedProjectPathFilter.Split(';'), ExcludedProjectPathFilter.Split(';'), IgnoreExceptions, _projectCollection, errors);
+                var solutionsTask = VsSolution.LoadAllFromDirectoryAsync(RootDirectory.Split(';'), IncludedProjectPathFilter.Split(';'), ExcludedProjectPathFilter.Split(';'), IgnoreExceptions, _projectCollection, errors);
 
                 await Task.WhenAll(projectsTask, solutionsTask);
                 await Task.Run(() =>

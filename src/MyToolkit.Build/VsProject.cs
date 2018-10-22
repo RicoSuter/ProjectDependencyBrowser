@@ -41,6 +41,14 @@ namespace MyToolkit.Build
             Project = projectCollection.LoadProject(filePath);
             Solutions = new ObservableCollection<VsSolution>();
             LoadNuSpecFile(filePath);
+
+            Name = Project.GetPropertyValue("AssemblyName");
+            Namespace = Project.GetPropertyValue("RootNamespace");
+            ToolsVersion = Project.ToolsVersion;
+            Guid = Project.GetPropertyValue("ProjectGuid");
+            IsSdkStyleProject = !string.IsNullOrEmpty(Project.Xml.Sdk);
+            OutputPath = Project.GetPropertyValue("OutputPath");
+            OutputType = Project.GetPropertyValue("OutputType");
         }
 
         /// <summary>Loads a project from a given file path, if the project has already been loaded before, the same reference is returned.</summary>
@@ -72,6 +80,7 @@ namespace MyToolkit.Build
             {
                 if (_projectReferences == null)
                     LoadProjectReferences();
+
                 return _projectReferences;
             }
         }
@@ -83,6 +92,7 @@ namespace MyToolkit.Build
             {
                 if (_assemblyReferences == null)
                     LoadAssemblyReferences();
+
                 return _assemblyReferences;
             }
         }
@@ -94,36 +104,25 @@ namespace MyToolkit.Build
             {
                 if (_nuGetReferences == null)
                     LoadNuGetReferences();
+
                 return _nuGetReferences;
             }
         }
 
         /// <summary>Gets the assembly name of the project. </summary>
-        public override string Name
-        {
-            get { return Project.GetPropertyValue("AssemblyName"); }
-        }
+        public override string Name { get; }
 
         /// <summary>Gets the root namespace. </summary>
-        public string Namespace
-        {
-            get { return Project.GetPropertyValue("RootNamespace"); }
-        }
+        public string Namespace { get; }
 
         /// <summary>Gets or sets the used tools version. </summary>
-        public string ToolsVersion
-        {
-            get { return Project.ToolsVersion; }
-        }
+        public string ToolsVersion { get; }
 
         /// <summary>Gets or sets the project's GUID. </summary>
-        public string Guid
-        {
-            get { return Project.GetPropertyValue("ProjectGuid"); }
-        }
+        public string Guid { get; }
 
         /// <summary>Gets a value indicating whether this is an SDK-style project.</summary>
-        public bool IsSdkStyleProject => !string.IsNullOrEmpty(Project.Xml.Sdk);
+        public bool IsSdkStyleProject { get; }
 
         /// <summary>Gets the .NET target framework version.</summary>
         public string TargetFrameworkVersion
@@ -136,16 +135,10 @@ namespace MyToolkit.Build
         }
 
         /// <summary>Gets the output path.</summary>
-        public string OutputPath
-        {
-            get { return Project.GetPropertyValue("OutputPath"); }
-        }
+        public string OutputPath { get; }
 
         /// <summary>Gets the output type (Exe, Library, ...).</summary>
-        public string OutputType
-        {
-            get { return Project.GetPropertyValue("OutputType"); }
-        }
+        public string OutputType { get; }
 
         /// <summary>Gets the project type GUIDs. </summary>
         public string[] ProjectTypeGuids
@@ -181,20 +174,20 @@ namespace MyToolkit.Build
         }
 
         /// <summary>Recursively loads all Visual Studio projects from the given directory.</summary>
-        /// <param name="path">The directory path.</param>
+        /// <param name="paths">The directory paths.</param>
         /// <param name="includedPathFilter">The included path filter.</param>
         /// <param name="excludedPathFilter">The excluded path filter.</param>
         /// <param name="ignoreExceptions">Specifies whether to ignore exceptions (projects with exceptions are not returned).</param>
         /// <param name="projectCollection">The project collection.</param>
         /// <param name="errors">The loading errors (out param).</param>
         /// <returns>The projects.</returns>
-        public static Task<List<VsProject>> LoadAllFromDirectoryAsync(string path, string includedPathFilter, string excludedPathFilter, bool ignoreExceptions, ProjectCollection projectCollection, Dictionary<string, Exception> errors = null)
+        public static Task<List<VsProject>> LoadAllFromDirectoryAsync(IEnumerable<string> paths, IEnumerable<string> includedPathFilters, IEnumerable<string> excludedPathFilters, bool ignoreExceptions, ProjectCollection projectCollection, Dictionary<string, Exception> errors = null)
         {
             return LoadAllFromDirectoryAsync(
-                path.Replace('/', '\\'), 
-                includedPathFilter.Replace('/', '\\'), 
-                excludedPathFilter.Replace('/', '\\'), 
-                ignoreExceptions, 
+                paths.Select(p => p.Replace('/', '\\')),
+                includedPathFilters.Select(f => f.Replace('/', '\\')),
+                excludedPathFilters.Select(f => f.Replace('/', '\\')),
+                ignoreExceptions,
                 projectCollection, ".csproj", Load, errors);
         }
 
@@ -364,7 +357,7 @@ namespace MyToolkit.Build
                     }
                 }
             }
-            else if (Project.GeneratesPackage() || 
+            else if (Project.GeneratesPackage() ||
                 Project.HasVersion() ||
                 !string.IsNullOrEmpty(Project.GetProperty("PackageProjectUrl")?.EvaluatedValue) ||
                 !string.IsNullOrEmpty(Project.GetProperty("PackageTags")?.EvaluatedValue))

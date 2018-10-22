@@ -24,6 +24,7 @@ namespace MyToolkit.Build
         {
             Id = GetIdFromPath(path);
             Path = path;
+            FileName = System.IO.Path.GetFileName(Path);
         }
 
         /// <summary>Gets the id of the object. </summary>
@@ -36,10 +37,7 @@ namespace MyToolkit.Build
         public abstract string Name { get; }
 
         /// <summary>Gets the file name of the project. </summary>
-        public string FileName
-        {
-            get { return System.IO.Path.GetFileName(Path); }
-        }
+        public string FileName { get; }
 
         /// <summary>Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>. </summary>
         /// <returns>true if the specified object  is equal to the current object; otherwise, false. </returns>
@@ -67,10 +65,10 @@ namespace MyToolkit.Build
             return System.IO.Path.GetFullPath(path).ToLower();
         }
 
-        internal static Task<List<T>> LoadAllFromDirectoryAsync<T>(string path, string includedPathFilter, string excludedPathFilter, bool ignoreExceptions, ProjectCollection projectCollection, string extension, Func<string, ProjectCollection, T> creator, Dictionary<string, Exception> errors)
+        internal static Task<List<T>> LoadAllFromDirectoryAsync<T>(IEnumerable<string> paths, IEnumerable<string> includedPathFilters, IEnumerable<string> excludedPathFilters, bool ignoreExceptions, ProjectCollection projectCollection, string extension, Func<string, ProjectCollection, T> creator, Dictionary<string, Exception> errors)
         {
-            var includedPathFilterTerms = includedPathFilter.ToLowerInvariant().Split(' ').Where(t => !string.IsNullOrEmpty(t)).ToArray();
-            var excludedPathFilterTerms = excludedPathFilter.ToLowerInvariant().Split(' ').Where(t => !string.IsNullOrEmpty(t)).ToArray();
+            var includedPathFilterTerms = includedPathFilters.Select(f => f.ToLowerInvariant()).Where(t => !string.IsNullOrEmpty(t)).ToArray();
+            var excludedPathFilterTerms = excludedPathFilters.Select(f => f.ToLowerInvariant()).Where(t => !string.IsNullOrEmpty(t)).ToArray();
 
             return Task.Run(async () =>
             {
@@ -79,9 +77,9 @@ namespace MyToolkit.Build
 
                 try
                 {
-                    var files = GetFiles(path, "*" + extension);
-                    foreach (var file in files.Distinct().Where(s => 
-                        includedPathFilterTerms.All(t => s.ToLowerInvariant().Contains(t)) && 
+                    var files = paths.Select(p => GetFiles(p, "*" + extension)).SelectMany(f => f);
+                    foreach (var file in files.Distinct().Where(s =>
+                        includedPathFilterTerms.All(t => s.ToLowerInvariant().Contains(t)) &&
                         excludedPathFilterTerms.All(t => !s.ToLowerInvariant().Contains(t))))
                     {
                         var ext = System.IO.Path.GetExtension(file);
@@ -118,7 +116,7 @@ namespace MyToolkit.Build
                         throw;
 
                     if (errors != null)
-                        errors[path] = exception;
+                        errors["_"] = exception;
                 }
 
                 return projects;

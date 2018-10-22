@@ -30,7 +30,7 @@ namespace MyToolkit.Build
         private VsSolution(string path, ProjectCollection projectCollection)
             : base(path)
         {
-            _projectCollection = projectCollection; 
+            _projectCollection = projectCollection;
             _name = System.IO.Path.GetFileNameWithoutExtension(path);
             _solution = SolutionFile.Parse(path);
         }
@@ -117,20 +117,20 @@ namespace MyToolkit.Build
         }
 
         /// <summary>Recursively loads all Visual Studio solutions from the given directory.</summary>
-        /// <param name="path">The directory path.</param>
+        /// <param name="paths">The directory paths.</param>
         /// <param name="includedPathFilter">The included path filter.</param>
         /// <param name="excludedPathFilter">The excluded path filter.</param>
         /// <param name="ignoreExceptions">Specifies whether to ignore exceptions (solutions with exceptions are not returned).</param>
         /// <param name="projectCollection">The project collection.</param>
         /// <param name="errors">The loading errors (out param).</param>
         /// <returns>The solutions.</returns>
-        public static Task<List<VsSolution>> LoadAllFromDirectoryAsync(string path, string includedPathFilter, string excludedPathFilter, bool ignoreExceptions, ProjectCollection projectCollection, Dictionary<string, Exception> errors)
+        public static Task<List<VsSolution>> LoadAllFromDirectoryAsync(IEnumerable<string> paths, IEnumerable<string> includedPathFilters, IEnumerable<string> excludedPathFilters, bool ignoreExceptions, ProjectCollection projectCollection, Dictionary<string, Exception> errors)
         {
             return LoadAllFromDirectoryAsync(
-                path.Replace('/', '\\'), 
-                includedPathFilter.Replace('/', '\\'), 
-                excludedPathFilter.Replace('/', '\\'), 
-                ignoreExceptions, 
+                paths.Select(p => p.Replace('/', '\\')),
+                includedPathFilters.Select(f => f.Replace('/', '\\')),
+                excludedPathFilters.Select(f => f.Replace('/', '\\')),
+                ignoreExceptions,
                 projectCollection, ".sln", Load, errors);
         }
     }
