@@ -32,6 +32,8 @@ using ProjectDependencyBrowser.ViewModels;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using ListBox = System.Windows.Controls.ListBox;
 using MessageBox = System.Windows.MessageBox;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace ProjectDependencyBrowser.Views
 {
@@ -87,6 +89,27 @@ namespace ProjectDependencyBrowser.Views
 
             CheckForApplicationUpdate();
             LoadWindowState();
+
+            var view = CollectionViewSource.GetDefaultView(Model.FilteredProjects);
+            ProjectList.ItemsSource = view;
+
+            Model.PropertyChanged += (o, e) =>
+            {
+                if (e.PropertyName == "GroupSolutions")
+                {
+                    view.GroupDescriptions.Clear();
+                    view.SortDescriptions.Clear();
+
+                    if (Model.GroupSolutions)
+                    {
+                        view.GroupDescriptions.Add(new PropertyGroupDescription("SolutionName"));
+                        view.SortDescriptions.Add(new SortDescription("SolutionName", ListSortDirection.Ascending));
+                        view.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                    }
+                }
+            };
+
+            Model.GroupSolutions = true;
         }
 
         /// <summary>Gets the view model. </summary>

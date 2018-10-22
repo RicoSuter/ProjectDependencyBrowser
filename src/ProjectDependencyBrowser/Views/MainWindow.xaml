@@ -33,6 +33,7 @@
 
         <DataTemplate x:Key="ProjectTemplate">
             <StackPanel d:DataContext="{d:DesignInstance Type=build:VsProject}" 
+                        ToolTip="{Binding Path}"
                         Margin="0,4,0,4" Background="Transparent">
                 <StackPanel.ContextMenu>
                     <ContextMenu>
@@ -347,13 +348,15 @@
                             <TextBox Text="{Binding Filter.ProjectPathFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                      Margin="0,0,0,12" AcceptsReturn="False" />
 
-                            <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithoutSolution, Mode=TwoWay}" 
-                                      Content="Only Projects without Solution" Margin="0,0,0,8" />
-                            <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithMultipleSolutions, Mode=TwoWay}" 
-                                      Content="Only Projects with multiple Solutions" Margin="0,0,0,8" />
-                            <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithNuGetPackages, Mode=TwoWay}" 
-                                      Content="Only Projects with any referenced NuGet Packages" Margin="0,0,0,0" />
-                        </StackPanel>
+                        <CheckBox IsChecked="{Binding GroupSolutions, Mode=TwoWay}" 
+                                  Content="Group by Solution" Margin="0,0,0,8" />
+                        <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithoutSolution, Mode=TwoWay}" 
+                                  Content="Only Projects without Solution" Margin="0,0,0,8" />
+                        <CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithMultipleSolutions, Mode=TwoWay}" 
+                                  Content="Only Projects with multiple Solutions" Margin="0,0,0,8" />
+                        <!--<CheckBox IsChecked="{Binding Filter.ShowOnlyProjectsWithNuGetPackages, Mode=TwoWay}" 
+                                  Content="Only Projects with any referenced NuGet Packages" Margin="0,0,0,0" />-->
+                    </StackPanel>
 
                         <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="5" 
                                 Command="{Binding ClearFilterCommand}" Padding="16,8,16,8" Margin="8,0,0,4">
@@ -459,13 +462,41 @@
                          <Run Text="{Binding AllProjects.Count, Mode=OneWay}" />)
                     </TextBlock>
 
-                    <ListBox Grid.Row="1" x:Name="ProjectList" KeyDown="OnKeyDown"
-                             SelectionMode="Single" HorizontalContentAlignment="Stretch"
-                             ItemsSource="{Binding FilteredProjects}" 
-                             SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
-                             ScrollViewer.HorizontalScrollBarVisibility="Auto" 
-                             ItemTemplate="{StaticResource ProjectTemplate}" />
-                </Grid>
+                <ListBox Grid.Row="1" x:Name="ProjectList" KeyDown="OnKeyDown"
+                         SelectionMode="Single" HorizontalContentAlignment="Stretch"
+                         SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                         ItemTemplate="{StaticResource ProjectTemplate}">
+                    <ListBox.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.ContainerStyle>
+                                <Style TargetType="{x:Type GroupItem}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                                <Expander IsExpanded="True">
+                                                    <Expander.Header>
+                                                        <Grid Margin="-24,0,0,0" Background="#BABABA" 
+                                                              HorizontalAlignment="{Binding Path=HorizontalAlignment, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContentPresenter}}, Mode=OneWayToSource}">
+                                                            <StackPanel Orientation="Horizontal" Margin="6,10,0,10" HorizontalAlignment="Stretch">
+                                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                                                                <TextBlock FontWeight="Bold" Margin="4,0,0,0">
+                                                                (<Run Text="{Binding ItemCount, Mode=OneWay}" />)
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Expander.Header>
+                                                    <ItemsPresenter />
+                                                </Expander>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </GroupStyle.ContainerStyle>
+                        </GroupStyle>
+                    </ListBox.GroupStyle>
+                </ListBox>
+            </Grid>
 
                 <GridSplitter Grid.Column="1" Width="8" ResizeBehavior="PreviousAndNext" Background="Transparent" BorderBrush="Transparent" />
 
