@@ -40,7 +40,6 @@ namespace MyToolkit.Build
         {
             Project = projectCollection.LoadProject(filePath);
             Solutions = new ObservableCollection<VsSolution>();
-            LoadNuSpecFile(filePath);
 
             Name = Project.GetPropertyValue("AssemblyName");
             Namespace = Project.GetPropertyValue("RootNamespace");
@@ -49,6 +48,8 @@ namespace MyToolkit.Build
             IsSdkStyleProject = !string.IsNullOrEmpty(Project.Xml.Sdk);
             OutputPath = Project.GetPropertyValue("OutputPath");
             OutputType = Project.GetPropertyValue("OutputType");
+
+            LoadNuSpecFile(filePath);
         }
 
         /// <summary>Loads a project from a given file path, if the project has already been loaded before, the same reference is returned.</summary>
